@@ -1,0 +1,145 @@
+.complaint-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.detail-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.detail-header p {
+  color: #6B7280;
+  margin-top: 6px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 0.9fr;
+  gap: 24px;
+}
+
+.detail-card {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-card.right-panel {
+  min-width: 320px;
+}
+
+.detail-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 16px;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 16px;
+}
+
+.detail-row span {
+  color: #6B7280;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.detail-row strong {
+  color: #111827;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.detail-text {
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+
+select,
+textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  background: #FFFFFF;
+  color: #111827;
+  font-size: 14px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+.primary-button,
+.secondary-button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary-button {
+  background: #6366F1;
+  color: white;
+}
+
+.secondary-button {
+  background: #F3F4F6;
+  color: #111827;
+}
+
+.primary-button:hover {
+  background: #4F46E5;
+}
+
+.secondary-button:hover {
+  background: #E5E7EB;
+}
+
+.success-message {
+  color: #10B981;
+  font-weight: 600;
+}
+
+.priority-note {
+  color: #6B7280;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+@media (max-width: 920px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

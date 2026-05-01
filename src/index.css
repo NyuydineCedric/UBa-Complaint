@@ -1,0 +1,267 @@
+/* ========== LIGHT MODE (default) ========== */
+:root {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+
+  /* Dashboard variables (light) */
+  --bg-primary: #F9FAFB;
+  --bg-card: #FFFFFF;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --border-light: #E5E7EB;
+  --input-bg: #FFFFFF;
+  --toggle-bg: #E5E7EB;
+  --toggle-checked: #6366F1;
+
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+/* ========== DARK MODE - exact colors as requested ========== */
+body.dark-mode {
+  --text: #94A3B8;
+  --text-h: #F8FAFC;
+  --bg: #0F172A;
+  --border: #334155;
+  --code-bg: #1E293B;
+  --accent: #818CF8;
+  --accent-bg: rgba(129, 140, 248, 0.15);
+  --accent-border: rgba(129, 140, 248, 0.5);
+  --social-bg: rgba(30, 41, 59, 0.5);
+  --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+
+  /* Dashboard dark mode variables */
+  --bg-primary: #0F172A;
+  --bg-card: #1E293B;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --border-light: #334155;
+  --input-bg: #0F172A;
+  --toggle-bg: #475569;
+  --toggle-checked: #818CF8;
+}
+
+/* OS preference fallback (only if no class is set and system is dark) */
+@media (prefers-color-scheme: dark) {
+  :root:not(body.dark-mode) {
+    --text: #94A3B8;
+    --text-h: #F8FAFC;
+    --bg: #0F172A;
+    --border: #334155;
+    --code-bg: #1E293B;
+    --accent: #818CF8;
+    --accent-bg: rgba(129, 140, 248, 0.15);
+    --accent-border: rgba(129, 140, 248, 0.5);
+    --social-bg: rgba(30, 41, 59, 0.5);
+    --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+
+    --bg-primary: #0F172A;
+    --bg-card: #1E293B;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --border-light: #334155;
+    --input-bg: #0F172A;
+    --toggle-bg: #475569;
+    --toggle-checked: #818CF8;
+  }
+}
+
+/* ========== GLOBAL STYLES ========== */
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  transition: background 0.3s, color 0.3s;
+}
+
+#root {
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  border-inline: 1px solid var(--border);
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+h1, h2 {
+  font-family: var(--heading);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+h1 { font-size: 56px; letter-spacing: -1.68px; margin: 32px 0; }
+h2 { font-size: 24px; line-height: 118%; letter-spacing: -0.24px; margin: 0 0 8px; }
+p { margin: 0; }
+
+code, .counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+}
+
+/* Force dark mode on all dashboard elements when body has class */
+body.dark-mode .dashboard,
+body.dark-mode .reports-page,
+body.dark-mode .complaints-page,
+body.dark-mode .schools-page,
+body.dark-mode .settings-page,
+body.dark-mode .stat-card,
+body.dark-mode .chart-card,
+body.dark-mode .complaints-overview,
+body.dark-mode .recent-complaints,
+body.dark-mode .recent-activity,
+body.dark-mode .report-card,
+body.dark-mode .chart-container,
+body.dark-mode .report-list-card,
+body.dark-mode .school-card,
+body.dark-mode .school-table-card,
+body.dark-mode .filters-section,
+body.dark-mode .quick-filter-section,
+body.dark-mode .table-container,
+body.dark-mode .stat-box,
+body.dark-mode .settings-card,
+body.dark-mode .summary-card,
+body.dark-mode .status-item,
+body.dark-mode .horizontal-bar-item,
+body.dark-mode .bar-row,
+body.dark-mode .pie-chart-wrapper,
+body.dark-mode .legend-item,
+body.dark-mode .activity-item,
+body.dark-mode .stat-item {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode .stat-value,
+body.dark-mode .card-title,
+body.dark-mode .bar-label,
+body.dark-mode .legend-text,
+body.dark-mode .school-label,
+body.dark-mode .stat-number,
+body.dark-mode .complaint-id,
+body.dark-mode .row-number,
+body.dark-mode .bar-value-top,
+body.dark-mode .card-stats .stat-value,
+body.dark-mode .school-count,
+body.dark-mode .bar-value,
+body.dark-mode .activity-title {
+  color: var(--text-primary) !important;
+}
+
+body.dark-mode p,
+body.dark-mode .stat-label,
+body.dark-mode .card-meta span:first-child,
+body.dark-mode .activity-meta,
+body.dark-mode .progress-bar-label,
+body.dark-mode .legend-caption,
+body.dark-mode .filter-select,
+body.dark-mode .search-input::placeholder {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea,
+body.dark-mode .search-input {
+  background: var(--input-bg) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-mode .btn-view,
+body.dark-mode .icon-button,
+body.dark-mode .pagination-btn {
+  background: var(--input-bg) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-primary) !important;
+}
+
+body.dark-mode .btn-view:hover,
+body.dark-mode .icon-button:hover,
+body.dark-mode .pagination-btn:hover {
+  background: #6366F1 !important;
+  color: white !important;
+}
+
+/* Keep status badges readable in dark mode (original colors) */
+body.dark-mode .status-badge.pending {
+  background: #fef3c7 !important;
+  color: #d97706 !important;
+}
+body.dark-mode .status-badge.inprogress {
+  background: #dbeafe !important;
+  color: #2563eb !important;
+}
+body.dark-mode .status-badge.resolved {
+  background: #d1fae5 !important;
+  color: #059669 !important;
+}
+body.dark-mode .status-badge.rejected {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+/* Bar chart fills remain colored */
+body.dark-mode .bar-fill,
+body.dark-mode .bar-fill-horizontal,
+body.dark-mode .progress-bar-fill {
+  background: #6366F1 !important;
+}
+
+body.dark-mode .bar-wrapper:first-child .bar {
+  background: linear-gradient(180deg, #6366F1, #4F46E5) !important;
+}
+body.dark-mode .bar-wrapper:nth-child(2) .bar {
+  background: linear-gradient(180deg, #3B82F6, #2563EB) !important;
+}
+body.dark-mode .bar-wrapper:last-child .bar {
+  background: linear-gradient(180deg, #F59E0B, #D97706) !important;
+}
+
+/* Social icons dark mode */
+body.dark-mode #social .button-icon {
+  filter: invert(1) brightness(2);
+}
+
+@media (max-width: 1024px) {
+  :root, body.dark-mode {
+    font-size: 16px;
+  }
+  h1 {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+  h2 {
+    font-size: 20px;
+  }
+}
