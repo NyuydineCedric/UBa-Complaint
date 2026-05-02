@@ -9,6 +9,13 @@ import Schools from "./pages/Schools";
 
 import Users from "./pages/Users";
 import Settings from "./pages/Settings";
+
+import StudentLayout from "./pages/Student/Components/StudentLayout";
+import StudentDashboard from "./pages/Student/StudentDashbaord";
+import Complaints from "./pages/Student/Complaint";
+import SubmitComplaint from "./pages/Student/SubmitComplaint";
+import StudentProfile from "./pages/Student/Profile";
+import StudentSettings from "./pages/Student/StudentSetting";
 import "./App.css";
 
 function App() {
@@ -25,6 +32,15 @@ function App() {
 
             <Route path="/users" element={<Users />} />
             <Route path="/settings" element={<Settings />} />
+          </Route>
+
+          {/* STUDENT ROUTES */}
+          <Route path="/Student" element={<StudentLayout />}>
+            <Route index element={<StudentDashboard />} />
+            <Route path="complaints" element={<Complaints />} />
+            <Route path="submit" element={<SubmitComplaint />} />
+            <Route path="profile" element={<StudentProfile />} />
+            <Route path="settings" element={<StudentSettings />} />
           </Route>
         </Routes>
       </Router>

@@ -1,0 +1,44 @@
+/* CARD CONTAINER */
+.student-stat-card {
+  flex: 1;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--student-border-card);
+  color: var(--student-text-main);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: 0.2s ease;
+}
+
+.student-stat-card:hover {
+  transform: translateY(-3px);
+}
+
+.student-stat-info {
+  display: flex;
+  flex-direction: column;
+}
+.student-stat-title {
+  font-size: 14px;
+  color: var(--student-text-secondary);
+  margin-bottom: 5px;
+}
+.student-stat-value {
+  font-size: 24px;
+  font-weight: bold;
+}
+.student-stat-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.student-stat-icon svg {
+  width: 22px;
+  height: 22px;
+  color: white;
+}

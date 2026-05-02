@@ -1,0 +1,82 @@
+/* MAIN DASHBOARD */
+.student-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.student-cards {
+  display: flex;
+  gap: 20px;
+}
+
+.student-dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+.student-card-box {
+  background: var(--student-bg-card);
+  border: 1px solid var(--student-border-card);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  color: var(--student-text-main);
+}
+
+.student-card-box h3 {
+  margin-bottom: 15px;
+}
+.student-complaint {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--student-table-top);
+}
+
+/* STATUS */
+.student-status {
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.student-status.student-pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.student-status.student-resolved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+/* ===== ACTIVITY ===== */
+.student-activity {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--student-table-top);
+}
+
+.student-activity span {
+  font-size: 12px;
+  color: #64748b;
+}
+.student-complaints {
+  border: 1px solid var(--student-border-complaints);
+}
+.student-pending {
+  border: 1px solid var(--student-border-pending);
+}
+.student-progress {
+  border: 1px solid var(--student-border-progress);
+}
+.student-resolved {
+  border: 1px solid var(--student-border-resolved);
+  
+}
+.student-reject {
+border: 1px solid var(--student-border-reject);
+}

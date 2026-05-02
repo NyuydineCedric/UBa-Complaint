@@ -1,0 +1,92 @@
+
+.student-profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* TITLE */
+.student-page-title {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* CARD */
+.student-profile-card {
+  display: flex;
+  gap: 30px;
+  background: var(--student-bg-card);
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid var(--student-border-card);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.student-profile-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.student-avatar {
+  width: 80px;
+  height: 80px;
+  background: #4F46E5;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.student-change-btn {
+  padding: 8px 12px;
+  border: none;
+  background: #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.student-profile-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.student-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+input {
+  padding: 10px;
+  border: 1px solid var(--student-table-top);
+  border-radius: 8px;
+  outline: none;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background: var(--student-bg-card);
+  color: var(--student-text-main);
+}
+label{
+  color: var(--student-text-main);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.student-save-btn {
+  margin-top: 10px;
+  padding: 12px;
+  border: none;
+  background: #4F46E5;
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.student-save-btn:hover {
+  background: #4F46E5;
+}

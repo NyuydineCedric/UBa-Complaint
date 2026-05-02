@@ -1,0 +1,59 @@
+*{
+    margin: 0;
+    border: 0;
+    box-sizing: border-box;
+}
+body{
+   margin: 0;
+   border: 0; 
+}
+#root{
+    margin: 0;
+    border: 0;
+    width: 100%;
+    height: 100%;
+}
+:root{
+    --student-bg-main: #f6f8ff;
+    --student-bg-sidebar:#EEF2FF;
+    --student-text-main:#1A1D23;
+    --student-text-secondary:#64748b;
+    --student-bg-card:#ffffff;
+    --student-sidebar-border-color:#E5E7EB;
+    --student-card-shadow:0 4px 6px -1px rgba(0,0,0,0.1);
+    --student-theme-toggle-bg:#e6eaed;
+    --student-table-top: #eee;
+    --student-border-card: #ffffff;
+    --student-hover-bg-table: #f9fafb;
+    --student-in-progress: blue;
+    --student-bg-nav-link: #dae2ff;
+    --student-bg-nav-link-text: #4f46e5;
+    --student-border-complaints:#ffffff;
+    --student-border-pending:#ffffff;
+    --student-border-progress:#ffffff;
+    --student-border-resolved:#ffffff;
+    --student-border-reject:#ffffff;
+    --student-font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+[data-theme='dark']{
+    --student-bg-main: #02071c;
+    --student-bg-sidebar:#0F172A;
+    --student-text-main:#F8FAFC;
+    --student-text-secondary:#94A3B8;
+    --student-bg-card:#02071c;
+    --student-sidebar-border-color:#0F172A;
+    --student-card-shadow:0 4px 6px -1px rgba(0,0,0,0.1); 
+    --student-theme-toggle-bg:#334155;
+    --student-table-top:#334155;
+    --student-border-card:#334155;
+    --student-hover-bg-table: #334155;
+    --student-in-progress: rgb(169, 169, 255);
+    --student-bg-nav-link: #282839;
+    --student-bg-nav-link-text: #4F46E5;
+    --student-border-complaints:#4F46E5;
+    --student-border-pending:#f59e0b;
+    --student-border-progress:#b2c3faff;
+    --student-border-resolved:#10b981;
+    --student-border-reject:red;
+    --student-font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
