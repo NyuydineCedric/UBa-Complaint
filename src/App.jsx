@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import AllComplaints from "./pages/AllComplaints";
 import Reports from "./pages/Reports";
 import Schools from "./pages/Schools";
+import ComplaintDetail from "./pages/ComplaintDetail";
 
 import Settings from "./pages/Settings";
 
@@ -25,7 +26,7 @@ function AppRoutes() {
         <Route path="complaints" element={<AllComplaints />} />
         <Route path="reports" element={<Reports />} />
         <Route path="schools" element={<Schools />} />
-
+        <Route path="complaints/:id" element={<ComplaintDetail />} />
         <Route path="settings" element={<Settings />} />
       </Route>
     </Routes>
