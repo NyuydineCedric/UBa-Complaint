@@ -4,7 +4,7 @@ import {
   Hourglass,
   RefreshCw,
   CheckCircle,
-  XCircle
+  XCircle,
 } from "lucide-react";
 
 import "./studentdashboard.css";
@@ -13,7 +13,6 @@ import "./StudentStyle.css";
 export default function Dashboard() {
   return (
     <div className="student-dashboard">
-
       {/* ===== TOP CARDS ===== */}
       <div className="student-cards">
         <StatCard
@@ -50,7 +49,7 @@ export default function Dashboard() {
           bgcolor="var(--student-bg-card)"
           className="student-resolved"
         />
-      <StatCard
+        <StatCard
           title="Reject"
           value="7"
           icon={XCircle}
@@ -61,7 +60,6 @@ export default function Dashboard() {
       </div>
 
       <div className="student-dashboard-grid">
-
         {/* RECENT COMPLAINTS */}
         <div className="student-card-box">
           <h3>Recent Complaints</h3>
@@ -101,7 +99,6 @@ export default function Dashboard() {
             <span>2 days ago</span>
           </div>
         </div>
-
       </div>
     </div>
   );

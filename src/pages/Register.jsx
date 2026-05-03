@@ -356,7 +356,7 @@ function RegisterPage() {
         department: newUser.department,
       });
       setRegistrationSuccess(true);
-      setTimeout(() => navigate("/"), 2000);
+      setTimeout(() => navigate("/student"), 2000);
     } catch (err) {
       setErrors({ general: err.message });
       setIsLoading(false);
