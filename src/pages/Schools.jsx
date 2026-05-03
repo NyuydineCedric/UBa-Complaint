@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
+import { School, CheckCircle, Clock, BarChart3 } from "lucide-react";
 import "./Schools.css";
 
 function Schools() {
@@ -63,28 +64,28 @@ function Schools() {
 
       <div className="stats-summary">
         <div className="summary-card">
-          <div className="summary-icon">🏫</div>
+          <School size={28} className="summary-icon" />
           <div className="summary-info">
             <div className="summary-value">{schoolData.length}</div>
             <div className="summary-label">{t("schools")}</div>
           </div>
         </div>
         <div className="summary-card">
-          <div className="summary-icon">📋</div>
+          <BarChart3 size={28} className="summary-icon" />
           <div className="summary-info">
             <div className="summary-value">{totalComp}</div>
             <div className="summary-label">{t("complaints_count")}</div>
           </div>
         </div>
         <div className="summary-card">
-          <div className="summary-icon">✅</div>
+          <CheckCircle size={28} className="summary-icon" />
           <div className="summary-info">
             <div className="summary-value">{totalRes}</div>
             <div className="summary-label">{t("resolved_short")}</div>
           </div>
         </div>
         <div className="summary-card">
-          <div className="summary-icon">⏳</div>
+          <Clock size={28} className="summary-icon" />
           <div className="summary-info">
             <div className="summary-value">{totalPen}</div>
             <div className="summary-label">{t("pending_short")}</div>
@@ -101,7 +102,6 @@ function Schools() {
           >
             <div className="card-header">
               <div>
-                <h3>{s.name}</h3>
                 <span className="school-code">{s.code}</span>
               </div>
               <div
@@ -156,9 +156,6 @@ function Schools() {
               <div>
                 <span>{t("head")}:</span> {s.head}
               </div>
-              <div>
-                <span>{t("avg_response")}:</span> {s.responseTime}
-              </div>
             </div>
           </div>
         ))}
@@ -198,7 +195,7 @@ function Schools() {
                 <th>{t("resolved_short")}</th>
                 <th>{t("pending_short")}</th>
                 <th>{t("resolution_rate")}</th>
-                <th>{t("avg_response")}</th>
+
                 <th>{t("actions")}</th>
               </tr>
             </thead>
@@ -206,8 +203,6 @@ function Schools() {
               {schoolData.map((s) => (
                 <tr key={s.code}>
                   <td>
-                    <strong>{s.name}</strong>
-                    <br />
                     <small>{s.code}</small>
                   </td>
                   <td>{s.head}</td>
@@ -240,7 +235,7 @@ function Schools() {
                       {s.resolutionRate}%
                     </div>
                   </td>
-                  <td>{s.responseTime}</td>
+
                   <td>
                     <button className="icon-button">{t("details")}</button>
                   </td>
@@ -253,4 +248,5 @@ function Schools() {
     </div>
   );
 }
+
 export default Schools;

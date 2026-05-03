@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext";
+import { Save, Moon, Sun, Info, Palette, CheckCircle } from "lucide-react";
 import "./Settings.css";
 
 function Settings() {
@@ -29,9 +30,11 @@ function Settings() {
           <p>{t("settings_subtitle")}</p>
         </div>
         <button className="primary-button" onClick={handleSave}>
+          <Save size={16} style={{ marginRight: "8px" }} />
           {t("save_changes")}
         </button>
       </div>
+
       {message && (
         <div
           className="settings-message"
@@ -42,19 +45,32 @@ function Settings() {
             color: message.includes(t("settings_saved"))
               ? "#166534"
               : "#1E40AF",
-            padding: "12px 16px",
-            borderRadius: "8px",
-            marginBottom: "20px",
-            fontWeight: "600",
           }}
         >
+          {message.includes(t("settings_saved")) ? (
+            <CheckCircle
+              size={16}
+              style={{ marginRight: "8px", verticalAlign: "middle" }}
+            />
+          ) : null}
           {message}
         </div>
       )}
+
       <div className="settings-grid">
         <div className="settings-card">
-          <h2>{t("system_information")}</h2>
-          <label>
+          <h2>
+            <Info
+              size={18}
+              style={{
+                marginRight: "8px",
+                verticalAlign: "middle",
+                textAlign: "center",
+              }}
+            />
+            {t("system_information")}
+          </h2>
+          <label style={{ display: "flex", gap: "80px" }}>
             {t("system_name")}
             <input
               type="text"
@@ -62,11 +78,49 @@ function Settings() {
               readOnly
             />
           </label>
-          <label>
+          <label style={{ display: "flex", gap: "80px" }}>
             {t("admin_email")}
-            <input type="email" value="admin@uba.edu" readOnly />
+            <input type="email" value="admin@uniba.cm" readOnly />
           </label>
-          <label>
+        </div>
+
+        <div className="settings-card">
+          <h2>
+            <Palette
+              size={18}
+              style={{ marginRight: "8px", verticalAlign: "middle" }}
+            />
+            {t("appearance")}
+          </h2>
+          <label style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+            {darkMode ? (
+              <Moon
+                size={14}
+                style={{ marginRight: "6px", verticalAlign: "middle" }}
+              />
+            ) : (
+              <Sun
+                size={14}
+                style={{ marginRight: "6px", verticalAlign: "middle" }}
+              />
+            )}
+            {t("theme")}
+            <select
+              value={darkMode ? "Dark" : "Light"}
+              onChange={handleDarkModeToggle}
+            >
+              <option value="Light">{t("light")}</option>
+              <option value="Dark">{t("dark")}</option>
+            </select>
+          </label>
+          <label
+            style={{
+              display: "flex",
+              gap: "35px",
+              alignItems: "center",
+              textAlign: "center",
+            }}
+          >
             {t("language")}
             <select
               value={localSettings.language}
@@ -77,105 +131,9 @@ function Settings() {
             </select>
           </label>
         </div>
-        <div className="settings-card">
-          <h2>{t("appearance")}</h2>
-          <label>
-            {t("theme")}
-            <select
-              value={darkMode ? "Dark" : "Light"}
-              onChange={handleDarkModeToggle}
-            >
-              <option value="Light">{t("light")}</option>
-              <option value="Dark">{t("dark")}</option>
-            </select>
-          </label>
-          <label className="toggle-row">
-            <span>{t("enable_notifications")}</span>
-            <input
-              type="checkbox"
-              checked={localSettings.notifications}
-              onChange={(e) =>
-                handleSettingChange("notifications", e.target.checked)
-              }
-            />
-          </label>
-          <label className="toggle-row">
-            <span>{t("browser_notifications")}</span>
-            <input
-              type="checkbox"
-              checked={localSettings.browserNotifications}
-              onChange={(e) =>
-                handleSettingChange("browserNotifications", e.target.checked)
-              }
-            />
-          </label>
-        </div>
-      </div>
-      <div className="settings-card full-width">
-        <h2>{t("other_settings")}</h2>
-        <div className="grid-two-columns">
-          <label>
-            {t("items_per_page")}
-            <input
-              type="number"
-              value={localSettings.itemsPerPage}
-              onChange={(e) =>
-                handleSettingChange("itemsPerPage", parseInt(e.target.value))
-              }
-              min="5"
-              max="100"
-            />
-          </label>
-          <label>
-            {t("default_date_range")}
-            <select
-              value={localSettings.defaultDateRange}
-              onChange={(e) =>
-                handleSettingChange("defaultDateRange", e.target.value)
-              }
-            >
-              <option value="Last 30 Days">{t("last_30_days")}</option>
-              <option value="Last 7 Days">{t("last_7_days")}</option>
-              <option value="Last 90 Days">{t("last_90_days")}</option>
-              <option value="This Year">{t("this_year")}</option>
-            </select>
-          </label>
-        </div>
-      </div>
-      <div className="settings-card full-width">
-        <h2>{t("system_status")}</h2>
-        <div className="status-grid">
-          <div className="status-item">
-            <div className="status-indicator online"></div>
-            <div>
-              <strong>{t("database")}</strong>
-              <p>{t("database_status")}</p>
-            </div>
-          </div>
-          <div className="status-item">
-            <div className="status-indicator online"></div>
-            <div>
-              <strong>{t("email_service")}</strong>
-              <p>{t("email_status")}</p>
-            </div>
-          </div>
-          <div className="status-item">
-            <div className="status-indicator online"></div>
-            <div>
-              <strong>{t("file_storage")}</strong>
-              <p>{t("storage_status")}</p>
-            </div>
-          </div>
-          <div className="status-item">
-            <div className="status-indicator maintenance"></div>
-            <div>
-              <strong>{t("backup_system")}</strong>
-              <p>{t("backup_status")}</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
 }
+
 export default Settings;
