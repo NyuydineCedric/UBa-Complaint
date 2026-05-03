@@ -2,22 +2,21 @@ import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import {
-  FaUser,
-  FaEnvelope,
-  FaLock,
-  FaEye,
-  FaEyeSlash,
-  FaPhone,
-  FaIdCard,
-  FaGraduationCap,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaSchool,
-} from "react-icons/fa";
-import uba from "../assets/uba.jpg";
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Phone,
+  IdCard,
+  GraduationCap,
+  School,
+  CheckCircle,
+} from "lucide-react";
 import ubalogo from "../assets/ubalogo.png";
+import "./Register.css";
 
-const RegisterPage = () => {
+function RegisterPage() {
   const navigate = useNavigate();
   const { login } = useContext(AppContext);
   const [showPassword, setShowPassword] = useState(false);
@@ -40,7 +39,7 @@ const RegisterPage = () => {
 
   const [errors, setErrors] = useState({});
 
-  // Schools data (same as original)
+  // Full schools data (as in original TypeScript)
   const schools = [
     {
       name: "College of Technology - COLTECH",
@@ -245,20 +244,8 @@ const RegisterPage = () => {
   ];
 
   const getDepartmentsForSchool = (schoolName) => {
-    const selectedSchool = schools.find((school) => school.name === schoolName);
-    return selectedSchool ? selectedSchool.departments : [];
-  };
-
-  const handleSchoolChange = (e) => {
-    const newSchool = e.target.value;
-    setFormData((prev) => ({
-      ...prev,
-      school: newSchool,
-      department: "",
-    }));
-    if (errors.school) {
-      setErrors((prev) => ({ ...prev, school: undefined }));
-    }
+    const school = schools.find((s) => s.name === schoolName);
+    return school ? school.departments : [];
   };
 
   const levels = [
@@ -274,22 +261,16 @@ const RegisterPage = () => {
   const checkPasswordStrength = (password) => {
     const feedback = [];
     let score = 0;
-
     if (password.length >= 8) score += 1;
     else feedback.push("At least 8 characters");
-
     if (/[A-Z]/.test(password)) score += 1;
     else feedback.push("At least one uppercase letter");
-
     if (/[a-z]/.test(password)) score += 1;
     else feedback.push("At least one lowercase letter");
-
     if (/[0-9]/.test(password)) score += 1;
     else feedback.push("At least one number");
-
     if (/[^A-Za-z0-9]/.test(password)) score += 1;
     else feedback.push("At least one special character");
-
     return { score, feedback };
   };
 
@@ -297,103 +278,60 @@ const RegisterPage = () => {
 
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Full name is required";
-    } else if (formData.name.trim().length < 3) {
-      newErrors.name = "Full name must be at least 3 characters";
-    }
-
-    if (!formData.studentId.trim()) {
-      newErrors.studentId = "Student ID is required";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Invalid email format";
-    } else if (!formData.email.toLowerCase().includes("@gmail.com")) {
-      newErrors.email = "Please use a valid email (e.g john@gmail.com)";
-    }
-
-    if (!formData.phoneNumber.trim()) {
-      newErrors.phoneNumber = "Phone number is required";
-    } else if (!/^(6|2)\d{8}$/.test(formData.phoneNumber.replace(/\s/g, ""))) {
-      newErrors.phoneNumber =
-        "Invalid phone number (e.g., 612345678 or 212345678)";
-    }
-
-    if (!formData.school) {
-      newErrors.school = "Please select your school";
-    }
-
-    if (!formData.department) {
-      newErrors.department = "Please select your department";
-    }
-
-    if (!formData.level) {
-      newErrors.level = "Please select your level";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    } else if (passwordStrength.score < 3) {
-      newErrors.password = "Password is too weak";
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.password !== formData.confirmPassword) {
+    if (!formData.name.trim()) newErrors.name = "Full name required";
+    else if (formData.name.trim().length < 3)
+      newErrors.name = "At least 3 characters";
+    if (!formData.studentId.trim()) newErrors.studentId = "Student ID required";
+    if (!formData.email.trim()) newErrors.email = "Email required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+      newErrors.email = "Invalid email";
+    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = "Phone required";
+    else if (!/^(6|2)\d{8}$/.test(formData.phoneNumber.replace(/\s/g, "")))
+      newErrors.phoneNumber = "Invalid phone (e.g., 612345678)";
+    if (!formData.school) newErrors.school = "Select school";
+    if (!formData.department) newErrors.department = "Select department";
+    if (!formData.level) newErrors.level = "Select level";
+    if (!formData.password) newErrors.password = "Password required";
+    else if (formData.password.length < 8)
+      newErrors.password = "Min 8 characters";
+    else if (passwordStrength.score < 3)
+      newErrors.password = "Password too weak";
+    if (formData.password !== formData.confirmPassword)
       newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = "You must agree to the terms and conditions";
-    }
-
+    if (!formData.agreeToTerms) newErrors.agreeToTerms = "Accept terms";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
-    const checked = e.target.checked;
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: undefined }));
-    }
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }));
+  };
+
+  const handleSchoolChange = (e) => {
+    const newSchool = e.target.value;
+    setFormData((prev) => ({ ...prev, school: newSchool, department: "" }));
+    if (errors.school) setErrors((prev) => ({ ...prev, school: undefined }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
     setIsLoading(true);
     setErrors({});
-
     try {
-      // Simulate network delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      const existingUsers = JSON.parse(
+      await new Promise((r) => setTimeout(r, 1500));
+      const existing = JSON.parse(
         localStorage.getItem("registeredUsers") || "[]",
       );
-      if (existingUsers.some((u) => u.studentId === formData.studentId)) {
-        setErrors({ general: "Student ID already registered" });
-        setIsLoading(false);
-        return;
-      }
-      if (existingUsers.some((u) => u.email === formData.email)) {
-        setErrors({ general: "Email already registered" });
-        setIsLoading(false);
-        return;
-      }
-
+      if (existing.some((u) => u.studentId === formData.studentId))
+        throw new Error("Student ID already registered");
+      if (existing.some((u) => u.email === formData.email))
+        throw new Error("Email already registered");
       const newUser = {
         id: formData.studentId,
         name: formData.name,
@@ -407,684 +345,337 @@ const RegisterPage = () => {
         password: formData.password,
         registeredAt: new Date().toISOString(),
       };
-
-      existingUsers.push(newUser);
-      localStorage.setItem("registeredUsers", JSON.stringify(existingUsers));
-
-      // Prepare user object for login (same as AppContext expects)
-      const userForAuth = {
+      existing.push(newUser);
+      localStorage.setItem("registeredUsers", JSON.stringify(existing));
+      login({
         id: newUser.id,
         name: newUser.name,
         email: newUser.email,
         studentId: newUser.studentId,
-        role: newUser.role,
+        role: "student",
         department: newUser.department,
-      };
-
+      });
       setRegistrationSuccess(true);
-      setTimeout(() => {
-        login(userForAuth);
-        navigate("/student-dashboard");
-      }, 2000);
-    } catch (error) {
-      setErrors({ general: "Registration failed. Please try again." });
-      console.error(error);
-    } finally {
+      setTimeout(() => navigate("/"), 2000);
+    } catch (err) {
+      setErrors({ general: err.message });
       setIsLoading(false);
     }
   };
 
-  // Inline styles (copied from original, no changes)
-  const containerStyle = {
-    minHeight: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "2rem 1rem",
-    backgroundImage: `url(${uba})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    fontFamily:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-  };
-
-  const cardStyle = {
-    maxWidth: "700px",
-    width: "100%",
-    backgroundColor: "white",
-    borderRadius: "0.75rem",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)",
-    overflow: "hidden",
-    padding: "2rem",
-    transition: "all 0.3s ease",
-    marginTop: "55rem",
-  };
-
-  const headerStyle = {
-    textAlign: "center",
-    marginBottom: "2rem",
-  };
-
-  const titleStyle = {
-    fontSize: "1.875rem",
-    fontWeight: "700",
-    color: "#111827",
-    marginBottom: "0.5rem",
-  };
-
-  const subtitleStyle = {
-    fontSize: "0.875rem",
-    color: "#6b7280",
-    marginTop: "0.25rem",
-  };
-
-  const sectionTitleStyle = {
-    color: "#0f3a7d",
-    fontSize: "1rem",
-    fontWeight: "600",
-    marginBottom: "1rem",
-    borderBottom: "2px solid #e5e7eb",
-    paddingBottom: "0.5rem",
-  };
-
-  const formGroupStyle = { marginBottom: "1.25rem" };
-  const labelStyle = {
-    display: "block",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    color: "#374151",
-    marginBottom: "0.5rem",
-  };
-  const inputWrapperStyle = {
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-  };
-  const iconStyle = {
-    position: "absolute",
-    left: "0.75rem",
-    color: "#9ca3af",
-    fontSize: "1rem",
-    pointerEvents: "none",
-  };
-  const inputStyle = {
-    width: "100%",
-    padding: "0.625rem 0.75rem 0.625rem 2.25rem",
-    fontSize: "0.875rem",
-    border: "1px solid #d1d5db",
-    borderRadius: "0.5rem",
-    outline: "none",
-    transition: "all 0.2s",
-    backgroundColor: "#fff",
-    color: "#111827",
-  };
-  const selectStyle = {
-    ...inputStyle,
-    paddingLeft: "2.25rem",
-    cursor: "pointer",
-  };
-  const toggleButtonStyle = {
-    position: "absolute",
-    right: "0.75rem",
-    background: "none",
-    border: "none",
-    color: "#9ca3af",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    padding: 0,
-    fontSize: "1rem",
-  };
-  const errorMessageStyle = {
-    fontSize: "0.75rem",
-    color: "#ef4444",
-    marginTop: "0.375rem",
-    display: "flex",
-    alignItems: "center",
-    gap: "0.25rem",
-  };
-  const passwordStrengthContainerStyle = { marginTop: "0.5rem" };
-  const strengthBarsContainerStyle = {
-    display: "flex",
-    gap: "0.25rem",
-    marginBottom: "0.5rem",
-  };
-  const strengthBarStyle = (color) => ({
-    height: "4px",
-    flex: 1,
-    borderRadius: "2px",
-    backgroundColor: color,
-  });
-  const feedbackListStyle = {
-    marginTop: "0.25rem",
-    listStyle: "none",
-    padding: 0,
-    margin: 0,
-  };
-  const feedbackItemStyle = {
-    color: "#ef4444",
-    marginBottom: "0.125rem",
-    fontSize: "0.75rem",
-    display: "flex",
-    alignItems: "center",
-    gap: "0.25rem",
-  };
-  const checkboxLabelStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-    fontSize: "0.875rem",
-    cursor: "pointer",
-  };
-  const checkboxStyle = { width: "1rem", height: "1rem", cursor: "pointer" };
-  const linkStyle = {
-    color: "#0f3a7d",
-    textDecoration: "underline",
-    fontWeight: 500,
-  };
-  const submitButtonStyle = {
-    width: "100%",
-    padding: "0.75rem",
-    fontSize: "1rem",
-    fontWeight: "600",
-    color: "white",
-    backgroundColor: "#0f3a7d",
-    border: "none",
-    borderRadius: "0.5rem",
-    cursor: "pointer",
-    transition: "all 0.2s",
-    marginTop: "1.5rem",
-  };
-  const infoBoxStyle = {
-    backgroundColor: "#eff6ff",
-    borderRadius: "0.5rem",
-    padding: "1rem",
-    marginTop: "1.5rem",
-    border: "1px solid #dbeafe",
-    marginLeft: "100px",
-  };
-  const infoTitleStyle = {
-    fontWeight: 600,
-    marginBottom: "0.5rem",
-    color: "#0f3a7d",
-  };
-  const infoTextStyle = {
-    fontSize: "0.875rem",
-    marginBottom: "0.25rem",
-    color: "#374151",
-  };
-
-  const successContainerStyle = { ...containerStyle };
-  const successCardStyle = {
-    maxWidth: "500px",
-    width: "100%",
-    backgroundColor: "white",
-    borderRadius: "0.75rem",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    overflow: "hidden",
-    padding: "2rem",
-    textAlign: "center",
-  };
-
   if (registrationSuccess) {
     return (
-      <div style={successContainerStyle}>
-        <div style={successCardStyle}>
-          <div style={headerStyle}>
-            <h1 style={titleStyle}>Registration Successful!</h1>
-            <p
-              style={{
-                color: "#10b981",
-                fontSize: "1rem",
-                marginTop: "1rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.5rem",
-              }}
-            >
-              <FaCheckCircle />
-              Your account has been created successfully
-            </p>
-            <p style={{ color: "#6b7280", marginTop: "1rem" }}>
-              Redirecting to your dashboard in 2 seconds...
-            </p>
-          </div>
+      <div className="register-container">
+        <div className="register-card success-card">
+          <CheckCircle
+            size={48}
+            style={{ color: "#10b981", marginBottom: "1rem" }}
+          />
+          <h1>Registration Successful!</h1>
+          <p>Your account has been created successfully</p>
+          <p>Redirecting to dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        <div style={headerStyle}>
-          <img src={ubalogo} alt="UBa Logo" style={{ width: "200px" }} />
-          <h1 style={titleStyle}>Create Student Account</h1>
-          <p style={subtitleStyle}>University of Bamenda</p>
-          <p
-            style={{
-              fontSize: "0.875rem",
-              marginTop: "0.25rem",
-              color: "#6b7280",
-            }}
-          >
-            Register to access the complaint management system
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          {/* Personal Information */}
-          <div style={{ marginBottom: "1.5rem" }}>
-            <h3 style={sectionTitleStyle}>Personal Information</h3>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Full Name</label>
-              <div style={inputWrapperStyle}>
-                <FaUser style={iconStyle} />
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Enter your full name"
-                  disabled={isLoading}
-                  style={{
-                    ...inputStyle,
-                    backgroundColor: isLoading ? "#f9fafb" : "#fff",
-                    cursor: isLoading ? "not-allowed" : "text",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#0f3a7d")}
-                  onBlur={(e) => (e.target.style.borderColor = "#d1d5db")}
-                />
-              </div>
-              {errors.name && (
-                <div style={errorMessageStyle}>
-                  <FaTimesCircle style={{ fontSize: "0.625rem" }} />{" "}
-                  {errors.name}
-                </div>
-              )}
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Matricule</label>
-              <div style={inputWrapperStyle}>
-                <FaIdCard style={iconStyle} />
-                <input
-                  type="text"
-                  name="studentId"
-                  value={formData.studentId}
-                  onChange={handleChange}
-                  placeholder="e.g., UBa..."
-                  disabled={isLoading}
-                  style={{
-                    ...inputStyle,
-                    backgroundColor: isLoading ? "#f9fafb" : "#fff",
-                    cursor: isLoading ? "not-allowed" : "text",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#0f3a7d")}
-                  onBlur={(e) => (e.target.style.borderColor = "#d1d5db")}
-                />
-              </div>
-              {errors.studentId && (
-                <div style={errorMessageStyle}>
-                  <FaTimesCircle style={{ fontSize: "0.625rem" }} />{" "}
-                  {errors.studentId}
-                </div>
-              )}
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Email</label>
-              <div style={inputWrapperStyle}>
-                <FaEnvelope style={iconStyle} />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="john@gmail.com"
-                  disabled={isLoading}
-                  style={{
-                    ...inputStyle,
-                    backgroundColor: isLoading ? "#f9fafb" : "#fff",
-                    cursor: isLoading ? "not-allowed" : "text",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#0f3a7d")}
-                  onBlur={(e) => (e.target.style.borderColor = "#d1d5db")}
-                />
-              </div>
-              {errors.email && (
-                <div style={errorMessageStyle}>
-                  <FaTimesCircle style={{ fontSize: "0.625rem" }} />{" "}
-                  {errors.email}
-                </div>
-              )}
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Phone Number</label>
-              <div style={inputWrapperStyle}>
-                <FaPhone style={iconStyle} />
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  placeholder="e.g., 612345678"
-                  disabled={isLoading}
-                  style={{
-                    ...inputStyle,
-                    backgroundColor: isLoading ? "#f9fafb" : "#fff",
-                    cursor: isLoading ? "not-allowed" : "text",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#0f3a7d")}
-                  onBlur={(e) => (e.target.style.borderColor = "#d1d5db")}
-                />
-              </div>
-              {errors.phoneNumber && (
-                <div style={errorMessageStyle}>
-                  <FaTimesCircle style={{ fontSize: "0.625rem" }} />{" "}
-                  {errors.phoneNumber}
-                </div>
-              )}
-            </div>
+    <div className="register-container">
+      <div className="register-wrapper">
+        <div className="register-card">
+          <div className="register-header">
+            <img src={ubalogo} alt="UBa Logo" className="register-logo" />
+            <h1>Create Student Account</h1>
+            <p>University of Bamenda</p>
+            <p className="register-subtitle">
+              Register to access the complaint management system
+            </p>
           </div>
 
-          {/* Academic Information */}
-          <div style={{ marginBottom: "1.5rem" }}>
-            <h3 style={sectionTitleStyle}>Academic Information</h3>
+          <form onSubmit={handleSubmit}>
+            {/* Personal Information */}
+            <div>
+              <h3 className="section-title">Personal Information</h3>
+              <div className="form-group">
+                <label>Full Name</label>
+                <div className="input-wrapper">
+                  <User size={18} className="input-icon" />
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    placeholder="Enter your full name"
+                    className="input-field"
+                    disabled={isLoading}
+                  />
+                </div>
+                {errors.name && <p className="error-text">{errors.name}</p>}
+              </div>
 
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>School</label>
-              <div style={inputWrapperStyle}>
-                <FaSchool style={iconStyle} />
+              <div className="form-group">
+                <label>Matricule</label>
+                <div className="input-wrapper">
+                  <IdCard size={18} className="input-icon" />
+                  <input
+                    type="text"
+                    name="studentId"
+                    value={formData.studentId}
+                    onChange={handleChange}
+                    placeholder="e.g., UBa..."
+                    className="input-field"
+                    disabled={isLoading}
+                  />
+                </div>
+                {errors.studentId && (
+                  <p className="error-text">{errors.studentId}</p>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label>Email</label>
+                <div className="input-wrapper">
+                  <Mail size={18} className="input-icon" />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="john@example.com"
+                    className="input-field"
+                    disabled={isLoading}
+                  />
+                </div>
+                {errors.email && <p className="error-text">{errors.email}</p>}
+              </div>
+
+              <div className="form-group">
+                <label>Phone Number</label>
+                <div className="input-wrapper">
+                  <Phone size={18} className="input-icon" />
+                  <input
+                    type="tel"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={handleChange}
+                    placeholder="612345678"
+                    className="input-field"
+                    disabled={isLoading}
+                  />
+                </div>
+                {errors.phoneNumber && (
+                  <p className="error-text">{errors.phoneNumber}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Academic Information */}
+            <div>
+              <h3 className="section-title">Academic Information</h3>
+              <div className="form-group">
+                <label>School</label>
+                <div className="input-wrapper">
+                  <School size={18} className="input-icon" />
+                  <select
+                    name="school"
+                    value={formData.school}
+                    onChange={handleSchoolChange}
+                    className="input-field"
+                    disabled={isLoading}
+                  >
+                    <option value="">Select your school</option>
+                    {schools.map((s) => (
+                      <option key={s.name} value={s.name}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {errors.school && <p className="error-text">{errors.school}</p>}
+              </div>
+
+              <div className="form-group">
+                <label>Department</label>
+                <div className="input-wrapper">
+                  <GraduationCap size={18} className="input-icon" />
+                  <select
+                    name="department"
+                    value={formData.department}
+                    onChange={handleChange}
+                    className="input-field"
+                    disabled={isLoading || !formData.school}
+                  >
+                    <option value="">
+                      {formData.school
+                        ? "Select your department"
+                        : "First select a school"}
+                    </option>
+                    {formData.school &&
+                      getDepartmentsForSchool(formData.school).map((d) => (
+                        <option key={d.code} value={`${d.code} - ${d.name}`}>
+                          {d.code} - {d.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                {errors.department && (
+                  <p className="error-text">{errors.department}</p>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label>Level</label>
                 <select
-                  name="school"
-                  value={formData.school}
-                  onChange={handleSchoolChange}
+                  name="level"
+                  value={formData.level}
+                  onChange={handleChange}
+                  className="input-field"
                   disabled={isLoading}
-                  style={{
-                    ...selectStyle,
-                    backgroundColor: isLoading ? "#f9fafb" : "#fff",
-                    cursor: isLoading ? "not-allowed" : "pointer",
-                  }}
                 >
-                  <option value="">Select your school</option>
-                  {schools.map((school) => (
-                    <option key={school.name} value={school.name}>
-                      {school.name}
+                  <option value="">Select your level</option>
+                  {levels.map((l) => (
+                    <option key={l} value={l}>
+                      {l}
                     </option>
                   ))}
                 </select>
+                {errors.level && <p className="error-text">{errors.level}</p>}
               </div>
-              {errors.school && (
-                <div style={errorMessageStyle}>
-                  <FaTimesCircle style={{ fontSize: "0.625rem" }} />{" "}
-                  {errors.school}
-                </div>
-              )}
             </div>
 
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Department</label>
-              <div style={inputWrapperStyle}>
-                <FaGraduationCap style={iconStyle} />
-                <select
-                  name="department"
-                  value={formData.department}
-                  onChange={handleChange}
-                  disabled={isLoading || !formData.school}
-                  style={{
-                    ...selectStyle,
-                    backgroundColor:
-                      isLoading || !formData.school ? "#f9fafb" : "#fff",
-                    cursor:
-                      isLoading || !formData.school ? "not-allowed" : "pointer",
-                  }}
-                >
-                  <option value="">
-                    {formData.school
-                      ? "Select your department"
-                      : "First select a school"}
-                  </option>
-                  {formData.school &&
-                    getDepartmentsForSchool(formData.school).map((dept) => (
-                      <option
-                        key={dept.code}
-                        value={`${dept.code} - ${dept.name}`}
-                      >
-                        {dept.code} - {dept.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-              {errors.department && (
-                <div style={errorMessageStyle}>
-                  <FaTimesCircle style={{ fontSize: "0.625rem" }} />{" "}
-                  {errors.department}
+            {/* Security */}
+            <div>
+              <h3 className="section-title">Security</h3>
+              <div className="form-group">
+                <label>Password</label>
+                <div className="input-wrapper">
+                  <Lock size={18} className="input-icon" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Create a strong password"
+                    className="input-field"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
-              )}
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Level</label>
-              <select
-                name="level"
-                value={formData.level}
-                onChange={handleChange}
-                disabled={isLoading}
-                style={{
-                  ...inputStyle,
-                  paddingLeft: "0.75rem",
-                  backgroundColor: isLoading ? "#f9fafb" : "#fff",
-                  cursor: isLoading ? "not-allowed" : "pointer",
-                }}
-              >
-                <option value="">Select your level</option>
-                {levels.map((level) => (
-                  <option key={level} value={level}>
-                    {level}
-                  </option>
-                ))}
-              </select>
-              {errors.level && (
-                <div style={errorMessageStyle}>
-                  <FaTimesCircle style={{ fontSize: "0.625rem" }} />{" "}
-                  {errors.level}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Security */}
-          <div style={{ marginBottom: "1.5rem" }}>
-            <h3 style={sectionTitleStyle}>Security</h3>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Password</label>
-              <div style={inputWrapperStyle}>
-                <FaLock style={iconStyle} />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Create a strong password"
-                  disabled={isLoading}
-                  style={{
-                    ...inputStyle,
-                    paddingRight: "2.5rem",
-                    backgroundColor: isLoading ? "#f9fafb" : "#fff",
-                    cursor: isLoading ? "not-allowed" : "text",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#0f3a7d")}
-                  onBlur={(e) => (e.target.style.borderColor = "#d1d5db")}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={toggleButtonStyle}
-                  disabled={isLoading}
-                >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-
-              {formData.password && (
-                <div style={passwordStrengthContainerStyle}>
-                  <div style={strengthBarsContainerStyle}>
-                    {[1, 2, 3, 4, 5].map((level) => (
-                      <div
-                        key={level}
-                        style={strengthBarStyle(
-                          level <= passwordStrength.score
-                            ? level <= 2
-                              ? "#ef4444"
-                              : level <= 3
-                                ? "#f59e0b"
-                                : "#10b981"
-                            : "#e5e7eb",
-                        )}
-                      />
-                    ))}
-                  </div>
-                  {passwordStrength.feedback.length > 0 && (
-                    <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
-                      Password requirements:
-                      <ul style={feedbackListStyle}>
-                        {passwordStrength.feedback.map((req, idx) => (
-                          <li key={idx} style={feedbackItemStyle}>
-                            <FaTimesCircle style={{ fontSize: "0.625rem" }} />{" "}
-                            {req}
-                          </li>
-                        ))}
-                      </ul>
+                {formData.password && (
+                  <div className="password-strength">
+                    <div className="strength-bars">
+                      {[1, 2, 3, 4, 5].map((level) => (
+                        <div
+                          key={level}
+                          className="strength-bar"
+                          style={{
+                            backgroundColor:
+                              level <= passwordStrength.score
+                                ? level <= 2
+                                  ? "#ef4444"
+                                  : level <= 3
+                                    ? "#f59e0b"
+                                    : "#10b981"
+                                : "#e5e7eb",
+                          }}
+                        ></div>
+                      ))}
                     </div>
-                  )}
+                    {passwordStrength.feedback.length > 0 && (
+                      <div className="strength-feedback">
+                        Password requirements:
+                        <ul>
+                          {passwordStrength.feedback.map((req, idx) => (
+                            <li key={idx}>{req}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {errors.password && (
+                  <p className="error-text">{errors.password}</p>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label>Confirm Password</label>
+                <div className="input-wrapper">
+                  <Lock size={18} className="input-icon" />
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="Confirm your password"
+                    className="input-field"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
                 </div>
-              )}
-              {errors.password && (
-                <div style={errorMessageStyle}>
-                  <FaTimesCircle style={{ fontSize: "0.625rem" }} />{" "}
-                  {errors.password}
-                </div>
-              )}
+                {errors.confirmPassword && (
+                  <p className="error-text">{errors.confirmPassword}</p>
+                )}
+              </div>
             </div>
 
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Confirm Password</label>
-              <div style={inputWrapperStyle}>
-                <FaLock style={iconStyle} />
+            <div className="form-group">
+              <label className="checkbox-label">
                 <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
+                  type="checkbox"
+                  name="agreeToTerms"
+                  checked={formData.agreeToTerms}
                   onChange={handleChange}
-                  placeholder="Confirm your password"
                   disabled={isLoading}
-                  style={{
-                    ...inputStyle,
-                    paddingRight: "2.5rem",
-                    backgroundColor: isLoading ? "#f9fafb" : "#fff",
-                    cursor: isLoading ? "not-allowed" : "text",
-                  }}
-                  onFocus={(e) => (e.target.style.borderColor = "#0f3a7d")}
-                  onBlur={(e) => (e.target.style.borderColor = "#d1d5db")}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  style={toggleButtonStyle}
-                  disabled={isLoading}
-                >
-                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-              </div>
-              {errors.confirmPassword && (
-                <div style={errorMessageStyle}>
-                  <FaTimesCircle style={{ fontSize: "0.625rem" }} />{" "}
-                  {errors.confirmPassword}
-                </div>
+                <span>
+                  I agree to the <Link to="/terms">Terms and Conditions</Link>
+                </span>
+              </label>
+              {errors.agreeToTerms && (
+                <p className="error-text">{errors.agreeToTerms}</p>
               )}
             </div>
-          </div>
 
-          {/* Terms and Conditions */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={checkboxLabelStyle}>
-              <input
-                type="checkbox"
-                name="agreeToTerms"
-                checked={formData.agreeToTerms}
-                onChange={handleChange}
-                disabled={isLoading}
-                style={checkboxStyle}
-              />
-              <span>
-                I agree to the{" "}
-                <Link to="/terms" style={linkStyle}>
-                  Terms and Conditions
-                </Link>{" "}
-                and{" "}
-                <Link to="/privacy" style={linkStyle}>
-                  Privacy Policy
-                </Link>
-              </span>
-            </label>
-            {errors.agreeToTerms && (
-              <div style={errorMessageStyle}>
-                <FaTimesCircle style={{ fontSize: "0.625rem" }} />{" "}
-                {errors.agreeToTerms}
-              </div>
-            )}
-          </div>
+            {errors.general && <p className="error-text">{errors.general}</p>}
 
-          {errors.general && (
-            <div style={{ ...errorMessageStyle, marginTop: "1rem" }}>
-              <FaTimesCircle style={{ fontSize: "0.625rem" }} />{" "}
-              {errors.general}
+            <button type="submit" disabled={isLoading} className="register-btn">
+              {isLoading ? "Creating Account..." : "Register"}
+            </button>
+
+            <div className="login-link">
+              Already have an account? <Link to="/login">Login here</Link>
             </div>
-          )}
+          </form>
+        </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            style={{
-              ...submitButtonStyle,
-              opacity: isLoading ? 0.7 : 1,
-              cursor: isLoading ? "not-allowed" : "pointer",
-            }}
-            onMouseEnter={(e) =>
-              !isLoading && (e.currentTarget.style.backgroundColor = "#1e4a8a")
-            }
-            onMouseLeave={(e) =>
-              !isLoading && (e.currentTarget.style.backgroundColor = "#0f3a7d")
-            }
-          >
-            {isLoading ? "Creating Account..." : "Register"}
-          </button>
-
-          <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
-            <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
-              Already have an account?{" "}
-              <Link to="/login" style={linkStyle}>
-                Login here
-              </Link>
-            </p>
-          </div>
-        </form>
-      </div>
-      <div style={infoBoxStyle}>
-        <p style={infoTitleStyle}>Why Register?</p>
-        <p style={infoTextStyle}>✓ Submit and track complaints online</p>
-        <p style={infoTextStyle}>✓ Get real-time updates on your complaints</p>
-        <p style={infoTextStyle}>✓ Communicate directly with administrators</p>
-        <p style={infoTextStyle}>✓ Access your complaint history anytime</p>
+        {/* Info box */}
+        <div className="register-info-box">
+          <h3>Why Register?</h3>
+          <p>✓ Submit and track complaints online</p>
+          <p>✓ Get real-time updates on your complaints</p>
+          <p>✓ Communicate directly with administrators</p>
+          <p>✓ Access your complaint history anytime</p>
+        </div>
       </div>
     </div>
   );
-};
+}
 
 export default RegisterPage;

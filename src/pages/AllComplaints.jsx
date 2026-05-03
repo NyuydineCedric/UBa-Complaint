@@ -2,6 +2,7 @@ import "./AllComplaints.css";
 import { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
+import { Eye, ChevronLeft, ChevronRight } from "lucide-react";
 
 function AllComplaints() {
   const { complaints, searchQuery, setSearchQuery, t } = useContext(AppContext);
@@ -24,7 +25,7 @@ function AllComplaints() {
 
   useEffect(() => {
     let f = [...complaints];
-    if (searchQuery)
+    if (searchQuery) {
       f = f.filter(
         (c) =>
           c.student.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -32,6 +33,7 @@ function AllComplaints() {
           c.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
           c.school.toLowerCase().includes(searchQuery.toLowerCase()),
       );
+    }
     if (filters.status) f = f.filter((c) => c.status === filters.status);
     if (filters.school) f = f.filter((c) => c.school === filters.school);
     if (filters.type)
@@ -51,6 +53,7 @@ function AllComplaints() {
     resolved: filtered.filter((c) => c.status === "resolved").length,
     rejected: filtered.filter((c) => c.status === "rejected").length,
   };
+
   const schools = ["FED", "FHS", "HTTC", "FGA"];
   const schoolStats = schools.map((s) => ({
     label: s,
@@ -99,14 +102,17 @@ function AllComplaints() {
           <p>{t("manage_complaints")}</p>
         </div>
       </div>
+
       <div className="filters-section">
-        <input
-          type="text"
-          placeholder={t("search_by")}
-          className="search-input"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+        <div className="search-input-wrapper">
+          <input
+            type="text"
+            placeholder={t("search_by")}
+            className="search-input"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
         <div className="filter-controls">
           <select
             className="filter-select"
@@ -177,27 +183,22 @@ function AllComplaints() {
 
       <div className="complaints-stats">
         <div className="stat-box">
-          <div className="stat-icon">📊</div>
           <div className="stat-number">{stats.total}</div>
           <div className="stat-label">{t("total")}</div>
         </div>
         <div className="stat-box pending-box">
-          <div className="stat-icon">⏳</div>
           <div className="stat-number">{stats.pending}</div>
           <div className="stat-label">{t("pending_cap")}</div>
         </div>
         <div className="stat-box progress-box">
-          <div className="stat-icon">⚙️</div>
           <div className="stat-number">{stats.inProgress}</div>
           <div className="stat-label">{t("in_progress_cap")}</div>
         </div>
         <div className="stat-box resolved-box">
-          <div className="stat-icon">✅</div>
           <div className="stat-number">{stats.resolved}</div>
           <div className="stat-label">{t("resolved_cap")}</div>
         </div>
         <div className="stat-box rejected-box">
-          <div className="stat-icon">❌</div>
           <div className="stat-number">{stats.rejected}</div>
           <div className="stat-label">{t("rejected_cap")}</div>
         </div>
@@ -325,6 +326,7 @@ function AllComplaints() {
                 <td>{c.submitted}</td>
                 <td>
                   <button className="btn-view" onClick={() => handleView(c.id)}>
+                    <Eye size={14} style={{ marginRight: "4px" }} />
                     {t("view")}
                   </button>
                 </td>
@@ -335,13 +337,18 @@ function AllComplaints() {
       </div>
 
       <div className="pagination">
-        <button className="pagination-btn">← {t("previous")}</button>
+        <button className="pagination-btn">
+          <ChevronLeft size={14} /> {t("previous")}
+        </button>
         <span className="pagination-info">
           Page 1 / {Math.ceil(filtered.length / 10) || 1}
         </span>
-        <button className="pagination-btn">{t("next")} →</button>
+        <button className="pagination-btn">
+          {t("next")} <ChevronRight size={14} />
+        </button>
       </div>
     </div>
   );
 }
+
 export default AllComplaints;

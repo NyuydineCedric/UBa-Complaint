@@ -1,33 +1,43 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AppProvider } from "./context/AppContext";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useContext } from "react";
+import { AppContext, AppProvider } from "./context/AppContext";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import AllComplaints from "./pages/AllComplaints";
-
 import Reports from "./pages/Reports";
 import Schools from "./pages/Schools";
 
-import Users from "./pages/Users";
 import Settings from "./pages/Settings";
-import "./App.css";
+
+function AppRoutes() {
+  const { currentUser } = useContext(AppContext);
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route
+        path="/"
+        element={currentUser ? <Layout /> : <Navigate to="/login" />}
+      >
+        <Route index element={<Dashboard />} />
+        <Route path="complaints" element={<AllComplaints />} />
+        <Route path="reports" element={<Reports />} />
+        <Route path="schools" element={<Schools />} />
+
+        <Route path="settings" element={<Settings />} />
+      </Route>
+    </Routes>
+  );
+}
 
 function App() {
   return (
     <AppProvider>
-      <Router>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/complaints" element={<AllComplaints />} />
-
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/schools" element={<Schools />} />
-
-            <Route path="/users" element={<Users />} />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
-        </Routes>
-      </Router>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
     </AppProvider>
   );
 }
