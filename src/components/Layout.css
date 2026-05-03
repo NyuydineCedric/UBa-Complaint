@@ -64,18 +64,10 @@ body.dark-mode {
   justify-content: center;
   padding: 24px 0;
 }
-.logo-circle {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #6366F1, #4F46E5);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: white;
-  flex-shrink: 0;
+.logo-img {
+  width: 100px;
+  height: 100px;
+  
 }
 .sidebar-header h2 {
   font-size: 1.3rem;
@@ -279,4 +271,34 @@ body.dark-mode .theme-toggle-header {
 }
 body.dark-mode .theme-toggle-header:hover {
   background: var(--sidebar-hover, #334155);
+}
+
+.logout-btn-header {
+  background: none;
+  border: 1px solid #e2e8f0;
+  padding: 6px 14px;
+  border-radius: 40px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.logout-btn-header:hover {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+
+/* Dark mode version */
+body.dark-mode .logout-btn-header {
+  border-color: #475569;
+  color: #cbd5e1;
+}
+body.dark-mode .logout-btn-header:hover {
+  background: #ef4444;
+  color: white;
 }

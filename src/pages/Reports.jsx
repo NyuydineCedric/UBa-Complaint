@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext";
+import { Download } from "lucide-react";
 import "./Reports.css";
 
 function Reports() {
@@ -38,11 +39,14 @@ function Reports() {
           <h1>{t("reports_title")}</h1>
           <p>{t("reports_subtitle")}</p>
         </div>
-        <button className="primary-button">📊 {t("export_report")}</button>
+        <button className="primary-button">
+          <Download size={16} style={{ marginRight: "8px" }} />
+          {t("export_report")}
+        </button>
       </div>
 
       <div className="reports-grid">
-        <div className="report-card summary-card">
+        <div className="report-card">
           <h2>{t("complaints_trend")}</h2>
           <div className="period-selector">
             <button
@@ -64,7 +68,7 @@ function Reports() {
               : t("last_10_years")}
           </div>
         </div>
-        <div className="report-card stats-card">
+        <div className=" stats-card">
           <div className="stat-item">
             <span>{t("total")}</span>
             <strong>{total}</strong>
@@ -88,10 +92,18 @@ function Reports() {
               {(() => {
                 let cum = 0;
                 const segs = [
-                  { value: resolved, color: "#10B981" },
-                  { value: inProgress, color: "#3B82F6" },
-                  { value: pending, color: "#F59E0B" },
-                  { value: rejected, color: "#EF4444" },
+                  {
+                    value: resolved,
+                    color: "#10B981",
+                    label: t("resolved_short"),
+                  },
+                  {
+                    value: inProgress,
+                    color: "#3B82F6",
+                    label: t("in_progress"),
+                  },
+                  { value: pending, color: "#F59E0B", label: t("pending") },
+                  { value: rejected, color: "#EF4444", label: t("rejected") },
                 ].filter((s) => s.value > 0);
                 return segs.map((seg, idx) => {
                   const start = (cum / total) * 360;
@@ -218,32 +230,8 @@ function Reports() {
           </div>
         </div>
       </div>
-
-      <div className="report-list-card">
-        <h2>{t("available_reports")}</h2>
-        <div className="report-row">
-          <div>
-            <h3>📋 {t("monthly_overview")}</h3>
-            <p>{t("monthly_desc")}</p>
-          </div>
-          <button className="icon-button">{t("download_pdf")}</button>
-        </div>
-        <div className="report-row">
-          <div>
-            <h3>🏫 {t("school_performance")}</h3>
-            <p>{t("school_performance_desc")}</p>
-          </div>
-          <button className="icon-button">{t("download_pdf")}</button>
-        </div>
-        <div className="report-row">
-          <div>
-            <h3>⭐ {t("feedback_impact")}</h3>
-            <p>{t("feedback_impact_desc")}</p>
-          </div>
-          <button className="icon-button">{t("download_pdf")}</button>
-        </div>
-      </div>
     </div>
   );
 }
+
 export default Reports;

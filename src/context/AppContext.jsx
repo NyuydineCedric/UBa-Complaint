@@ -177,6 +177,22 @@ const initialMessages = [
 
 // ========== PROVIDER ==========
 export function AppProvider({ children }) {
+  // ========== AUTHENTICATION ==========
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem("currentUser");
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const login = (user) => {
+    setCurrentUser(user);
+    localStorage.setItem("currentUser", JSON.stringify(user));
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem("currentUser");
+  };
+
   // Dark mode
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("darkMode");
@@ -296,6 +312,11 @@ export function AppProvider({ children }) {
   return (
     <AppContext.Provider
       value={{
+        // AUTH
+        currentUser,
+        login,
+        logout,
+        // EXISTING
         complaints,
         addComplaint,
         updateComplaint,

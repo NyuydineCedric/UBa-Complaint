@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
+import { FileText } from "lucide-react";
 import "./Dashboard.css";
 
 function Dashboard() {
@@ -208,87 +209,63 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="recent-section">
-        <div className="recent-complaints">
-          <div className="section-header">
-            <h2>{t("recent_complaints")}</h2>
-            <a href="/complaints" className="view-all">
-              {t("view_all")} →
-            </a>
-          </div>
-          <div className="complaints-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>{t("complaint_id")}</th>
-                  <th>{t("student_name")}</th>
-                  <th>{t("course_code")}</th>
-                  <th>{t("complaint_type")}</th>
-                  <th>{t("status")}</th>
-                  <th>{t("priority")}</th>
-                  <th>{t("submitted")}</th>
-                  <th>{t("actions")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {complaints.slice(0, 3).map((c) => (
-                  <tr key={c.id}>
-                    <td>{c.id}</td>
-                    <td>{c.student}</td>
-                    <td>{c.course}</td>
-                    <td>{c.type}</td>
-                    <td>
-                      <span
-                        className={`status-badge ${c.status.replace("-", "")}`}
-                      >
-                        {c.status === "pending"
-                          ? t("pending_status")
-                          : c.status === "in-progress"
-                            ? t("in_progress_status")
-                            : c.status === "resolved"
-                              ? t("resolved_status")
-                              : t("rejected_status")}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`priority-${c.priority.toLowerCase()}`}>
-                        {c.priority}
-                      </span>
-                    </td>
-                    <td>{c.submitted}</td>
-                    <td>
-                      <button
-                        className="view-btn"
-                        onClick={() =>
-                          (window.location.href = `/complaints/${c.id}`)
-                        }
-                      >
-                        {t("view")}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      <div className="recent-complaints">
+        <div className="section-header">
+          <h2>{t("recent_complaints")}</h2>
+          <a href="/complaints" className="view-all">
+            {t("view_all")} →
+          </a>
         </div>
-        <div className="recent-activity">
-          <h2>{t("recent_activity")}</h2>
-          <div className="activity-list">
-            {complaints.slice(0, 5).map((c) => (
-              <div key={c.id} className="activity-item">
-                <div className="activity-icon">📋</div>
-                <div className="activity-content">
-                  <div className="activity-title">
-                    {t("new_complaint_from")} {c.student}
-                  </div>
-                  <div className="activity-meta">
-                    {c.submitted} • {c.course}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="complaints-table">
+          <table>
+            <thead>
+              <tr>
+                <th>{t("complaint_id")}</th>
+                <th>{t("student_name")}</th>
+                <th>{t("course_code")}</th>
+                <th>{t("complaint_type")}</th>
+                <th>{t("status")}</th>
+
+                <th>{t("submitted")}</th>
+                <th>{t("actions")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {complaints.slice(0, 3).map((c) => (
+                <tr key={c.id}>
+                  <td>{c.id}</td>
+                  <td>{c.student}</td>
+                  <td>{c.course}</td>
+                  <td>{c.type}</td>
+                  <td>
+                    <span
+                      className={`status-badge ${c.status.replace("-", "")}`}
+                    >
+                      {c.status === "pending"
+                        ? t("pending_status")
+                        : c.status === "in-progress"
+                          ? t("in_progress_status")
+                          : c.status === "resolved"
+                            ? t("resolved_status")
+                            : t("rejected_status")}
+                    </span>
+                  </td>
+
+                  <td>{c.submitted}</td>
+                  <td>
+                    <button
+                      className="view-btn"
+                      onClick={() =>
+                        (window.location.href = `/complaints/${c.id}`)
+                      }
+                    >
+                      {t("view")}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
