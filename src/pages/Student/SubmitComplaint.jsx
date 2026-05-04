@@ -31,7 +31,6 @@ export default function Submit() {
       <h2 className="student-page-title">Submit Complaint</h2>
 
       <form className="student-form" onSubmit={handleSubmit}>
-
         <div className="student-form-group">
           <label>Course</label>
           <input
@@ -99,7 +98,6 @@ export default function Submit() {
         <button type="submit" className="student-submit-btn">
           Submit Complaint
         </button>
-
       </form>
     </div>
   );

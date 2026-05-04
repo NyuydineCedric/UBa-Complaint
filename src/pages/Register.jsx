@@ -354,6 +354,7 @@ function RegisterPage() {
         studentId: newUser.studentId,
         role: "student",
         department: newUser.department,
+        school: newUser.school, // ← ADDED: now school is stored in currentUser
       });
       setRegistrationSuccess(true);
       setTimeout(() => navigate("/student"), 2000);

@@ -18,6 +18,7 @@ import Complaints from "./pages/Student/Complaint";
 import SubmitComplaint from "./pages/Student/SubmitComplaint";
 import StudentProfile from "./pages/Student/Profile";
 import StudentSettings from "./pages/Student/StudentSetting";
+import StudentComplaintDetail from "./pages/Student/StudentComplaintDetail";
 
 import "./App.css";
 
@@ -50,6 +51,7 @@ function AppRoutes() {
         <Route path="submit" element={<SubmitComplaint />} />
         <Route path="profile" element={<StudentProfile />} />
         <Route path="settings" element={<StudentSettings />} />
+        <Route path="complaints/:id" element={<StudentComplaintDetail />} />
       </Route>
     </Routes>
   );

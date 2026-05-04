@@ -7,7 +7,7 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
-import Logo from "../../../assets/logo.jpg"
+import Logo from "../../../assets/logo.jpg";
 import "./studentsidebar.css";
 import "../StudentStyle.css";
 
@@ -22,15 +22,14 @@ const navItems = [
 export default function Sidebar() {
   return (
     <div className="student-sidebar">
-
       <div className="student-logo">
         <img src={Logo} alt="school-logo" className="student-logo-image" />
         <div className="student-logo-text">
-           <p className="student-logo-header">Student Portal</p>
-           <p className="student-logo-paragraph">Complaint System</p>
+          <p className="student-logo-header">Student Portal</p>
+          <p className="student-logo-paragraph">Complaint System</p>
         </div>
-        </div>
-      
+      </div>
+
       <nav className="student-nav">
         {navItems.map((item, index) => {
           const Icon = item.icon;
@@ -53,9 +52,9 @@ export default function Sidebar() {
       {/* FOOTER */}
       <div className="student-sidebar-footer">
         <div className="student-sidebar-logout-btn">
-            <LogOut className="student-logout-icon" />
-            <p>Logout</p>
-          </div>
+          <LogOut className="student-logout-icon" />
+          <p>Logout</p>
+        </div>
         © 2026 Student System
       </div>
     </div>

@@ -10,7 +10,7 @@ function Layout() {
       <div className="student-layout-right">
         <Topbar />
         <div className="student-layout-content">
-          <Outlet/>
+          <Outlet />
         </div>
       </div>
     </div>

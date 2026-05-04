@@ -39,10 +39,18 @@ export default function Complaints() {
 
       <div className="student-filter-bar">
         <button className="student-filter active">All</button>
-        <button className="student-filter student-filter-pending">Pending</button>
-        <button className="student-filter student-filter-progress">In Progress</button>
-        <button className="student-filter student-filter-resolved">Resolved</button>
-        <button className="student-filter student-filter-reject">Rejected</button>
+        <button className="student-filter student-filter-pending">
+          Pending
+        </button>
+        <button className="student-filter student-filter-progress">
+          In Progress
+        </button>
+        <button className="student-filter student-filter-resolved">
+          Resolved
+        </button>
+        <button className="student-filter student-filter-reject">
+          Rejected
+        </button>
       </div>
 
       <div className="student-table-container">
@@ -63,7 +71,9 @@ export default function Complaints() {
                 <td>{c.course}</td>
 
                 <td>
-                  <span className={`student-status ${c.status.toLowerCase().replace(" ", "-")}`}>
+                  <span
+                    className={`student-status ${c.status.toLowerCase().replace(" ", "-")}`}
+                  >
                     {c.status}
                   </span>
                 </td>
