@@ -1,6 +1,8 @@
+// App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useContext } from "react";
-import { AppContext, AppProvider } from "./context/AppContext";
+import { AppContext } from "./context/AppContext";
+import AppProvider from "./context/AppContext"; // ✅ Import default
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Layout from "./components/Layout";
@@ -22,7 +24,7 @@ import StudentSettings from "./pages/Student/StudentSetting";
 import "./App.css";
 
 function AppRoutes() {
-  const { currentUser } = useContext(AppContext);
+  const { user } = useContext(AppContext);
 
   return (
     <Routes>
@@ -33,7 +35,7 @@ function AppRoutes() {
       {/* ADMIN ROUTES */}
       <Route
         path="/"
-        element={currentUser ? <Layout /> : <Navigate to="/login" />}
+        element={user ? <Layout /> : <Navigate to="/login" />}
       >
         <Route index element={<Dashboard />} />
         <Route path="complaints" element={<AllComplaints />} />
@@ -43,8 +45,11 @@ function AppRoutes() {
         <Route path="settings" element={<Settings />} />
       </Route>
 
-      {/* ✅ STUDENT ROUTES (your addition) */}
-      <Route path="/student" element={<StudentLayout />}>
+      {/* STUDENT ROUTES */}
+      <Route
+        path="/student"
+        element={user ? <StudentLayout /> : <Navigate to="/login" />}
+      >
         <Route index element={<StudentDashboard />} />
         <Route path="complaints" element={<Complaints />} />
         <Route path="submit" element={<SubmitComplaint />} />

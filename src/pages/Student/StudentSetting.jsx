@@ -1,33 +1,42 @@
-import { useState, useEffect } from "react";
-import { LogOut } from "lucide-react";
+// pages/Student/StudentSetting.jsx
+import { useState, useContext } from "react";
+import { LogOut, Moon, Sun } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+import { AppContext } from "../../context/AppContext";
 import "./studentsetting.css";
 import "./StudentStyle.css";
 
 export default function Settings() {
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, toggleTheme, logout } = useContext(AppContext);
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState(true);
 
-  useEffect(() => {
-    const theme = darkMode ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [darkMode]);
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div className="student-settings-page">
       <h2 className="student-page-title">Settings</h2>
 
       <div className="student-settings-card">
-        {/* THEME */}
+        {/* THEME TOGGLE */}
         <div className="student-setting-item">
           <div>
-            <h4>Dark Mode</h4>
+            <h4>
+              {theme === "dark" ? <Moon size={16} /> : <Sun size={16} />} 
+              {theme === "dark" ? " Dark Mode" : " Light Mode"}
+            </h4>
             <p>Switch between light and dark theme</p>
           </div>
 
           <label className="student-switch">
             <input
               type="checkbox"
-              checked={darkMode}
-              onChange={() => setDarkMode(!darkMode)}
+              checked={theme === "dark"}
+              onChange={toggleTheme}
             />
             <span className="student-slider"></span>
           </label>
@@ -57,7 +66,9 @@ export default function Settings() {
             <p>Manage your account settings</p>
           </div>
 
-          <button className="student-action-btn">Update Info</button>
+          <button className="student-action-btn" onClick={() => navigate("/student/profile")}>
+            Update Info
+          </button>
         </div>
 
         {/* LOGOUT */}
@@ -67,7 +78,7 @@ export default function Settings() {
             <p>Sign out of your account</p>
           </div>
 
-          <div className="student-logout-btn">
+          <div className="student-logout-btn" onClick={handleLogout}>
             <LogOut className="student-logout-icon" />
             <p>Logout</p>
           </div>

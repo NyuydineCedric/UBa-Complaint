@@ -111,3 +111,41 @@
   border: 1px solid rgb(253, 142, 142);
   color: red;
 }
+.complaint-card {
+  padding: 15px;
+  background: white;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.complaint-card:hover {
+  background: #f9fafb;
+}
+.status {
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+/* COLORS */
+.status.pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.status.in-progress {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status.resolved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
