@@ -1,107 +1,183 @@
+// pages/Student/StudentDashbaord.jsx
 import StatCard from "./Components/StatCard";
 import {
   FileArchive,
   Hourglass,
   RefreshCw,
   CheckCircle,
-  XCircle
+  XCircle,
+  Plus,
+  AlertCircle,
 } from "lucide-react";
 
 import "./studentdashboard.css";
 import "./StudentStyle.css";
 
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AppContext } from "../../context/AppContext";
+
 export default function Dashboard() {
+  const { user, complaints } = useContext(AppContext);
+  const navigate = useNavigate();
+
+  // Filter user complaints
+  const myComplaints = complaints.filter((c) => c.userId === user?.matricule);
+
+  // Counts - ALL STATUSES INCLUDED
+  const counts = {
+    total: myComplaints.length,
+    pending: myComplaints.filter((c) => c.status === "pending").length,
+    inProgress: myComplaints.filter((c) => c.status === "in-progress").length,
+    resolved: myComplaints.filter((c) => c.status === "resolved").length,
+    rejected: myComplaints.filter((c) => c.status === "rejected").length,
+  };
+
+  // Recent complaints (last 5)
+  const recent = myComplaints.slice(0, 5);
+
   return (
     <div className="student-dashboard">
+      {/* HEADER */}
+      <div>
+        <h2 className="student-page-title">
+          Welcome back, {user?.name || "User"}! 👋
+        </h2>
+        <p style={{ color: 'var(--student-text-secondary)', fontSize: '14px' }}>
+          Here's what's happening with your complaints.
+        </p>
+      </div>
 
-      {/* ===== TOP CARDS ===== */}
+      {/* STATS CARDS - ALL 5 STATUSES */}
       <div className="student-cards">
         <StatCard
           title="Total Complaints"
-          value="12"
+          value={counts.total}
           icon={FileArchive}
           color="#4F46E5"
-          bgcolor="var(--student-bg-card)"
-          className="student-complaints"
+          variant="total"
         />
-
         <StatCard
           title="Pending"
-          value="5"
+          value={counts.pending}
           icon={Hourglass}
           color="#f59e0b"
-          bgcolor="var(--student-bg-card)"
-          className="student-pending"
+          variant="pending"
         />
         <StatCard
-          title="In-Progress"
-          value="12"
+          title="In Progress"
+          value={counts.inProgress}
           icon={RefreshCw}
-          color="#b2c3faff"
-          bgcolor="var(--student-bg-card)"
-          className="student-progress"
+          color="#3b82f6"
+          variant="progress"
         />
-
         <StatCard
           title="Resolved"
-          value="7"
+          value={counts.resolved}
           icon={CheckCircle}
           color="#10b981"
-          bgcolor="var(--student-bg-card)"
-          className="student-resolved"
+          variant="resolved"
         />
-      <StatCard
-          title="Reject"
-          value="7"
+        <StatCard
+          title="Rejected"
+          value={counts.rejected}
           icon={XCircle}
-          color="red"
-          bgcolor="var(--student-bg-card)"
-          className="student-reject"
+          color="#ef4444"
+          variant="rejected"
         />
       </div>
 
+      {/* MAIN GRID */}
       <div className="student-dashboard-grid">
-
         {/* RECENT COMPLAINTS */}
         <div className="student-card-box">
-          <h3>Recent Complaints</h3>
-
-          <div className="student-complaint">
-            <p>Late grade submission</p>
-            <span className="student-status pending">Pending</span>
+          <div className="card-header-flex">
+            <h3>My Recent Complaints</h3>
+            <span
+              onClick={() => navigate("/student/complaints")}
+              className="view-all-link"
+            >
+              View All
+            </span>
           </div>
 
-          <div className="student-complaint">
-            <p>Course registration issue</p>
-            <span className="student-status resolved">Resolved</span>
-          </div>
-
-          <div className="student-complaint">
-            <p>Network problem in lab</p>
-            <span className="student-status pending">Pending</span>
-          </div>
+          {recent.length === 0 ? (
+            <div className="no-data">
+              <AlertCircle size={24} style={{ margin: '0 auto 10px', opacity: 0.5 }} />
+              <p>No complaints yet</p>
+            </div>
+          ) : (
+            <div className="complaint-list">
+              {recent.map((c) => (
+                <div
+                  key={c.id}
+                  className="student-complaint"
+                  onClick={() => navigate("/student/complaints")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="complaint-info">
+                    <p className="complaint-course">{c.course}</p>
+                    <p className="complaint-type">{c.type}</p>
+                  </div>
+                  <span className={`student-status student-${c.status}`}>
+                    {c.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* ACTIVITY PANEL */}
+        {/* QUICK ACTIONS */}
         <div className="student-card-box">
-          <h3>Recent Activity</h3>
-
-          <div className="student-activity">
-            <p>Your complaint was received</p>
-            <span>2 hours ago</span>
-          </div>
-
-          <div className="student-activity">
-            <p>Admin responded to your complaint</p>
-            <span>Yesterday</span>
-          </div>
-
-          <div className="student-activity">
-            <p>Complaint resolved</p>
-            <span>2 days ago</span>
+          <h3>Quick Actions</h3>
+          <div className="quick-actions">
+            <div 
+              className="quick-action-item"
+              onClick={() => navigate("/student/submit")}
+              style={{ cursor: 'pointer' }}
+            >
+              <Plus size={18} style={{ color: 'var(--student-primary)' }} />
+              <span>Submit New Complaint</span>
+            </div>
+            <div 
+              className="quick-action-item"
+              onClick={() => navigate("/student/complaints")}
+              style={{ cursor: 'pointer' }}
+            >
+              <FileArchive size={18} style={{ color: 'var(--student-primary)' }} />
+              <span>View My Complaints</span>
+            </div>
+            <div 
+              className="quick-action-item"
+              onClick={() => navigate("/student/profile")}
+              style={{ cursor: 'pointer' }}
+            >
+              <CheckCircle size={18} style={{ color: 'var(--student-primary)' }} />
+              <span>Update Profile</span>
+            </div>
           </div>
         </div>
+      </div>
 
+      {/* COMPLAINT BANNER */}
+      <div className="complaint-banner">
+        <div className="complaint-banner-content">
+          <div className="complaint-banner-icon">
+            <FileArchive size={24} />
+          </div>
+          <div className="complaint-banner-text">
+            <h4>Have a new issue to report?</h4>
+            <p>Submit a complaint and we'll get back to you as soon as possible.</p>
+          </div>
+        </div>
+        <button 
+          className="complaint-banner-btn"
+          onClick={() => navigate("/student/submit")}
+        >
+          <Plus size={18} />
+          Submit Complaint
+        </button>
       </div>
     </div>
   );

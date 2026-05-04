@@ -1,98 +1,133 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./profile.css";
 import "./StudentStyle.css";
 
 export default function Profile() {
-  const [user, setUser] = useState({
-    name: "John Doe",
-    matricule: "COL12345",
-    email: "john@example.com",
-    department: "Computer Engineering",
-  });
+  const [user, setUser] = useState(() =>
+    JSON.parse(localStorage.getItem("currentUser")) || {}
+  );
 
+  useEffect(() => {
+    localStorage.setItem("currentUser", JSON.stringify(user));
+  }, [user]);
+
+  const [preview, setPreview] = useState(user.avatar || null);
+
+  // ===== HANDLE TEXT INPUTS =====
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUser({ ...user, [name]: value });
+    setUser({ ...user, [e.target.name]: e.target.value });
   };
 
+  // ===== HANDLE IMAGE UPLOAD =====
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const imageData = reader.result;
+
+      setPreview(imageData);
+      setUser((prev) => ({
+        ...prev,
+        avatar: imageData,
+      }));
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  // ===== SAVE PROFILE =====
   const handleSave = (e) => {
     e.preventDefault();
-    console.log(user); // later connect to backend
+
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+
+    const updatedUsers = users.map((u) =>
+      u.matricule === user.matricule ? user : u
+    );
+
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
+    localStorage.setItem("currentUser", JSON.stringify(user));
+
+    alert("Profile updated successfully!");
   };
 
   return (
     <div className="student-profile-page">
+
       <h2 className="student-page-title">My Profile</h2>
 
       <div className="student-profile-card">
 
-        {/* LEFT SIDE (AVATAR) */}
+        {/* LEFT SIDE */}
         <div className="student-profile-left">
-          <div className="student-avatar">JD</div>
-          <button className="student-change-btn">Change Photo</button>
+
+          <div className="student-avatar-wrapper">
+
+            <img
+              src={
+                preview ||
+                user.avatar ||
+                "https://via.placeholder.com/120"
+              }
+              alt="profile"
+              className="student-avatar-img"
+            />
+
+          </div>
+
+          <label className="student-upload-btn">
+            Change Photo
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              hidden
+            />
+          </label>
+
         </div>
 
-        {/* RIGHT SIDE (FORM) */}
+        {/* RIGHT SIDE FORM */}
         <form className="student-profile-form" onSubmit={handleSave}>
 
-          <div className="student-form-group">
-            <label>Full Name</label>
-            <input
-              type="text"
-              name="name"
-              value={user.name}
-              onChange={handleChange}
-              placeholder="Your Name"
-            />
-          </div>
+          <input
+            name="name"
+            value={user.name || ""}
+            onChange={handleChange}
+            placeholder="Full Name"
+          />
 
-          <div className="student-form-group">
-            <label>Matricule</label>
-            <input
-              type="text"
-              name="matricule"
-              value={user.matricule}
-              onChange={handleChange}
-              placeholder="Your Matricule"
-            />
-          </div>
+          <input
+            name="matricule"
+            value={user.matricule || ""}
+            onChange={handleChange}
+            placeholder="Matricule"
+          />
 
-          <div className="student-form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={user.email}
-              onChange={handleChange}
-              placeholder="Your Email"
-            />
-          </div>
+          <input
+            name="email"
+            value={user.email || ""}
+            onChange={handleChange}
+            placeholder="Email"
+          />
 
-          <div className="student-form-group">
-            <label>School</label>
-            <input
-              type="text"
-              name="department"
-              value={user.school}
-              onChange={handleChange}
-              placeholder="Your School"
-            />
-          </div>
+          <input
+            name="department"
+            value={user.department || ""}
+            onChange={handleChange}
+            placeholder="Department"
+          />
 
-          <div className="student-form-group">
-            <label>Department</label>
-            <input
-              type="text"
-              name="department"
-              value={user.department}
-              onChange={handleChange}
-              placeholder="Your Department"
-            />
-          </div>
-
-          <button className="student-save-btn">Save Changes</button>
+          <button type="submit" className="student-save-btn">
+            Save Changes
+          </button>
 
         </form>
+
       </div>
     </div>
   );

@@ -1,25 +1,30 @@
-/* TOPBAR */
+/* studenttopbar.css */
 .student-topbar {
   height: 70px;
-  background-color: var(--student-bg-main);
+  background-color: var(--student-bg-card);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
+  border-bottom: 1px solid var(--student-table-top);
+  transition: all 0.3s ease;
 }
+
 .student-topbar-right {
   display: flex;
   align-items: center;
   gap: 20px;
 }
-.student-theme-toggle-container{
+
+.student-theme-toggle-container {
   display: flex;
   background-color: var(--student-theme-toggle-bg);
   padding: 4px;
   border-radius: 50px;
-  gap:4px;
+  gap: 4px;
 }
-.student-toggle-btn{
+
+.student-toggle-btn {
   border: none;
   background: transparent;
   cursor: pointer;
@@ -28,16 +33,18 @@
   display: flex;
   align-items: center;
   color: #64748B;
-  transition: all 1.0s ease;
+  transition: all 0.3s ease;
 }
-.student-toggle-btn.active{
+
+.student-toggle-btn.active {
   background-color: #ffffff;
   color: #6366f1;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-[data-theme='dark'].student-toggle-btn.active{
+
+[data-theme='dark'] .student-toggle-btn.active {
   background-color: #1e293b;
-  color: #F8FAFC;
+  color: #818CF8;
 }
 
 .student-icon {
@@ -56,7 +63,7 @@
   position: absolute;
   top: -5px;
   right: -5px;
-  background-color: red;
+  background-color: #ef4444;
   color: white;
   font-size: 10px;
   padding: 2px 5px;
@@ -73,26 +80,31 @@
 .student-profile-icon {
   width: 30px;
   height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .student-name {
   font-size: 14px;
   font-weight: 600;
+  color: var(--student-text-main);
 }
 
 .student-role {
   font-size: 12px;
   color: var(--student-text-secondary);
 }
-.student-title-one{
+
+.student-title-one {
   font-size: 20px;
   font-weight: 600;
   color: var(--student-text-main);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: var(--student-font-family);
 }
-.student-title-paragraph{
+
+.student-title-paragraph {
   font-size: 14px;
   font-weight: 400;
-  color:var(--student-text-secondary);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: var(--student-text-secondary);
+  font-family: var(--student-font-family);
 }

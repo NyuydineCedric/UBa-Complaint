@@ -1,335 +1,274 @@
+// context/AppContext.jsx
 import { createContext, useState, useEffect } from "react";
-import { getTranslation } from "../translations";
 
+// Export the context separately
 export const AppContext = createContext(null);
 
-// ========== INITIAL DATA ==========
-const initialComplaints = [
-  {
-    id: "COMP-2026-006",
-    student: "Amina Tchamba",
-    studentId: "UBA2012345",
-    department: "Department of Mathematics",
-    program: "BSc Mathematics",
-    course: "MTH151",
-    courseTitle: "Calculus I",
-    school: "FHS",
-    type: "Missing Exam Marks",
-    status: "pending",
-    priority: "High",
-    submittedDate: "2026-05-01T09:20:00.000Z",
-    submitted: "May 1, 2026",
-    lastUpdate: "May 1, 2026",
-    semester: "First",
-    year: 2026,
-    details:
-      "I have not received my final exam mark for Calculus I. The portal shows zero even though I sat the exam.",
-  },
-  {
-    id: "COMP-2026-005",
-    student: "Kofi Mensah",
-    studentId: "UBA1945678",
-    department: "Department of Physics",
-    program: "BSc Physics",
-    course: "PHY151",
-    courseTitle: "Physics I",
-    school: "FHS",
-    type: "Incorrect CA Marks",
-    status: "rejected",
-    priority: "Medium",
-    submittedDate: "2026-04-25T13:40:00.000Z",
-    submitted: "Apr 25, 2026",
-    lastUpdate: "Apr 28, 2026",
-    semester: "First",
-    year: 2026,
-    details:
-      "My CA marks appear lower than the score I received in class tests.",
-  },
-  {
-    id: "COMP-2026-004",
-    student: "Amara Dushime",
-    studentId: "UBA1932100",
-    department: "Department of Biology",
-    program: "BSc Biology",
-    course: "BIO202",
-    courseTitle: "Organic Biology",
-    school: "FED",
-    type: "Missing CA Marks",
-    status: "pending",
-    priority: "Medium",
-    submittedDate: "2026-04-29T10:30:00.000Z",
-    submitted: "Apr 29, 2026",
-    lastUpdate: "Apr 29, 2026",
-    semester: "First",
-    year: 2026,
-    details:
-      "Continuous assessment marks for Organic Biology are not reflected on my transcript.",
-  },
-  {
-    id: "COMP-2026-003",
-    student: "Sarah Nkasa",
-    studentId: "UBA1956234",
-    department: "Department of Chemistry",
-    program: "BSc Chemistry",
-    course: "CHM101",
-    courseTitle: "General Chemistry",
-    school: "HTTC",
-    type: "Missing Exam Marks",
-    status: "resolved",
-    priority: "Low",
-    submittedDate: "2026-04-26T11:55:00.000Z",
-    submitted: "Apr 26, 2026",
-    lastUpdate: "Apr 29, 2026",
-    semester: "First",
-    year: 2026,
-    details:
-      "Final exam mark is missing from the portal even though I have the exam slip.",
-  },
-  {
-    id: "COMP-2026-002",
-    student: "James Okonkwo",
-    studentId: "UBA1987654",
-    department: "Department of Economics",
-    program: "BSc Economics",
-    course: "MTH151",
-    courseTitle: "Calculus I",
-    school: "FHS",
-    type: "Incorrect Exam Marks",
-    status: "in-progress",
-    priority: "High",
-    submittedDate: "2026-04-27T11:10:00.000Z",
-    submitted: "Apr 27, 2026",
-    lastUpdate: "Apr 29, 2026",
-    semester: "First",
-    year: 2026,
-    details:
-      "My exam score has been entered incorrectly and does not match the official grade sheet.",
-  },
-  {
-    id: "COMP-2026-001",
-    student: "Nyuydine Cedric",
-    studentId: "UBA2481980",
-    department: "Department of Education",
-    program: "BA Education",
-    course: "EDU201",
-    courseTitle: "Educational Psychology",
-    school: "FED",
-    type: "Missing CA Marks",
-    status: "pending",
-    priority: "High",
-    submittedDate: "2026-04-28T15:00:00.000Z",
-    submitted: "Apr 28, 2026",
-    lastUpdate: "Apr 29, 2026",
-    semester: "First",
-    year: 2026,
-    details:
-      "The CA mark for Educational Psychology is not recorded in the system.",
-  },
-];
-
-const initialNotifications = [
-  {
-    id: "n-001",
-    title: "New complaint submitted",
-    description: "A student has submitted a new marks complaint.",
-    time: "2m ago",
-    unread: true,
-  },
-  {
-    id: "n-002",
-    title: "Monthly summary ready",
-    description: "Your weekly complaint performance report is ready.",
-    time: "1h ago",
-    unread: false,
-  },
-];
-
-const initialMessages = [
-  {
-    id: "m-001",
-    studentName: "Nyuydine Cedric",
-    studentId: "UBA2481980",
-    lastMessage: "Need an update on my complaint...",
-    time: "2m ago",
-    conversation: [
-      {
-        sender: "student",
-        text: "Need an update on my complaint for Continuous Assessment grade.",
-        time: "2m ago",
-      },
-    ],
-  },
-  {
-    id: "m-002",
-    studentName: "Dr. John Doe",
-    studentId: "STAFF001",
-    lastMessage: "Please confirm the attached report.",
-    time: "1h ago",
-    conversation: [
-      {
-        sender: "staff",
-        text: "Please confirm the attached report.",
-        time: "1h ago",
-      },
-    ],
-  },
-];
-
-// ========== PROVIDER ==========
-export function AppProvider({ children }) {
-  // ========== AUTHENTICATION ==========
-  const [currentUser, setCurrentUser] = useState(() => {
+// Export the provider as default
+export default function AppProvider({ children }) {
+  // ========== USER ==========
+  const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("currentUser");
     return saved ? JSON.parse(saved) : null;
   });
 
-  const login = (user) => {
-    setCurrentUser(user);
-    localStorage.setItem("currentUser", JSON.stringify(user));
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("theme") || "light";
+  });
+
+  // ========== COMPLAINTS ==========
+  const [complaints, setComplaints] = useState(() => {
+    const saved = localStorage.getItem("complaints");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // ========== TOASTS ==========
+  const [toasts, setToasts] = useState([]);
+  
+  // ========== SEARCH QUERY ==========
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Sync theme with DOM
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+    if (theme === "dark") {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  }, [theme]);
+
+  // Sync complaints with localStorage
+  useEffect(() => {
+    localStorage.setItem("complaints", JSON.stringify(complaints));
+  }, [complaints]);
+
+  // ========== AUTH FUNCTIONS ==========
+  const register = (data) => {
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const newUser = {
+      ...data,
+      id: Date.now(),
+      role: data.role || "student",
+      avatar: data.avatar || null,
+      createdAt: new Date().toISOString(),
+    };
+    users.push(newUser);
+    localStorage.setItem("users", JSON.stringify(users));
+    return newUser;
+  };
+
+  const login = (email, password, matricule) => {
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const found = users.find(
+      (u) => 
+        u.email === email && 
+        u.password === password && 
+        u.matricule === matricule
+    );
+    if (found) {
+      setUser(found);
+      localStorage.setItem("currentUser", JSON.stringify(found));
+      return true;
+    }
+    return false;
   };
 
   const logout = () => {
-    setCurrentUser(null);
+    setUser(null);
     localStorage.removeItem("currentUser");
+    setToasts([]);
   };
 
-  // Dark mode
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem("darkMode");
-    return saved === "true";
-  });
+  // ========== COMPLAINT FUNCTIONS ==========
+  const getComplaints = () => complaints;
 
-  useEffect(() => {
-    if (darkMode) document.body.classList.add("dark-mode");
-    else document.body.classList.remove("dark-mode");
-    localStorage.setItem("darkMode", darkMode);
-  }, [darkMode]);
-
-  const toggleDarkMode = () => setDarkMode((prev) => !prev);
-
-  // Settings
-  const [settings, setSettings] = useState(() => {
-    const saved = localStorage.getItem("settings");
-    return saved
-      ? JSON.parse(saved)
-      : {
-          language: "English",
-          notifications: true,
-          browserNotifications: true,
-          itemsPerPage: 10,
-          defaultDateRange: "Last 30 Days",
-        };
-  });
-
-  useEffect(() => {
-    localStorage.setItem("settings", JSON.stringify(settings));
-  }, [settings]);
-
-  // Translation function
-  const t = (key) => getTranslation(settings.language, key);
-
-  // State
-  const [complaints, setComplaints] = useState(initialComplaints);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [notifications, setNotifications] = useState(initialNotifications);
-  const [messages, setMessages] = useState(initialMessages);
-
-  const unreadCount = notifications.filter((n) => n.unread).length;
-
-  // Complaint functions
   const addComplaint = (payload) => {
-    const nextIndex = complaints.length + 1;
-    const id = `COMP-${new Date().getFullYear()}-${String(nextIndex).padStart(3, "0")}`;
-    const submittedDate = new Date().toISOString();
+    const currentUser = JSON.parse(localStorage.getItem("currentUser")) || {};
     const newComplaint = {
-      id,
-      status: "pending",
-      priority: "High",
-      lastUpdate: new Date().toISOString(),
-      submittedDate,
-      submitted: new Date(submittedDate).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-      semester: payload.semester,
-      year: payload.year,
-      details: payload.details,
+      id: Date.now().toString(),
       ...payload,
+      userId: currentUser.matricule || payload.userId,
+      name: currentUser.name || payload.name || "Unknown",
+      email: currentUser.email || payload.email || "N/A",
+      department: currentUser.department || payload.department || "N/A",
+      school: currentUser.school || payload.school || "N/A",
+      level: currentUser.level || payload.level || "N/A",
+      phoneNumber: currentUser.phoneNumber || payload.phoneNumber || "N/A",
+      status: "pending",
+      date: new Date().toISOString().split("T")[0],
+      submittedDate: new Date().toISOString(),
+      lastUpdate: new Date().toISOString(),
     };
     setComplaints((prev) => [newComplaint, ...prev]);
-    setNotifications((prev) => [
-      {
-        id: `n-${Date.now()}`,
-        title: "New complaint submitted",
-        description: `${payload.student} submitted a new complaint.`,
-        time: "Just now",
-        unread: true,
-      },
-      ...prev,
-    ]);
+    showToast("Complaint submitted successfully!", "success");
+    return newComplaint;
   };
 
   const updateComplaint = (id, updates) => {
     setComplaints((prev) =>
       prev.map((c) =>
-        c.id === id
-          ? { ...c, ...updates, lastUpdate: new Date().toISOString() }
-          : c,
-      ),
+        c.id === id 
+          ? { ...c, ...updates, lastUpdate: new Date().toISOString() } 
+          : c
+      )
     );
+    showToast("Complaint updated successfully!", "success");
   };
 
-  // Notification functions
-  const markNotificationRead = (id) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, unread: false } : n)),
-    );
-  };
-  const markAllNotificationsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+  const updateComplaintStatus = (id, status) => {
+    updateComplaint(id, { status });
   };
 
-  // Message function
-  const sendMessage = (conversationId, reply) => {
-    setMessages((prev) =>
-      prev.map((msg) =>
-        msg.id === conversationId
-          ? {
-              ...msg,
-              lastMessage: reply,
-              time: "Just now",
-              conversation: [
-                ...msg.conversation,
-                { sender: "admin", text: reply, time: "Just now" },
-              ],
-            }
-          : msg,
-      ),
-    );
+  const deleteComplaint = (id) => {
+    setComplaints((prev) => prev.filter((c) => c.id !== id));
+    showToast("Complaint deleted successfully!", "success");
+  };
+
+  // ========== TOAST FUNCTIONS ==========
+  const showToast = (message, type = "success") => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000);
+  };
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // ========== THEME FUNCTIONS ==========
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
+
+  // ========== SETTINGS ==========
+  const [settings, setSettings] = useState({
+    language: "English",
+    notifications: true,
+  });
+
+  // ========== TRANSLATION FUNCTION ==========
+  const t = (key) => {
+    const translations = {
+      // Dashboard
+      "dashboard": "Dashboard",
+      "welcome_back": "Welcome back, Administrator",
+      "total_complaints": "Total Complaints",
+      "this_week": "this week",
+      "pending": "Pending",
+      "in_progress": "In Progress",
+      "resolved": "Resolved",
+      "rejected": "Rejected",
+      "complaints_by_school": "Complaints by School",
+      "complaints_overview": "Complaints Overview",
+      "recent_complaints": "Recent Complaints",
+      "view_all": "View All",
+      "complaint_id": "ID",
+      "student_name": "Student",
+      "course_code": "Course",
+      "complaint_type": "Type",
+      "status": "Status",
+      "submitted": "Submitted",
+      "actions": "Actions",
+      "view": "View",
+      
+      // All Complaints
+      "complaints": "Complaints",
+      "manage_complaints": "Manage all complaints",
+      "search_by": "Search by student, ID, course...",
+      "all_status": "All Status",
+      "pending_cap": "Pending",
+      "in_progress_cap": "In Progress",
+      "resolved_cap": "Resolved",
+      "rejected_cap": "Rejected",
+      "all_schools": "All Schools",
+      "all_types": "All Types",
+      "quick_filter": "Quick Filter",
+      "all": "All",
+      "school_label": "School",
+      "type_label": "Type",
+      "submitted_label": "Submitted",
+      
+      // Reports
+      "reports_title": "Reports",
+      "reports_subtitle": "Complaints analytics and reports",
+      "export_report": "Export Report",
+      "complaints_trend": "Complaints Trend",
+      "by_semester": "By Semester",
+      "by_year": "By Year",
+      "total_complaints_short": "Total",
+      "current_academic_year": "Current Academic Year",
+      "last_10_years": "Last 10 Years",
+      "resolved_short": "Resolved",
+      "pending_short": "Pending",
+      "complaints_by_status": "Complaints by Status",
+      "complaints_by_semester": "Complaints by Semester",
+      "complaints_by_year": "Complaints by Year",
+      
+      // Schools
+      "schools_title": "Schools",
+      "schools_subtitle": "Manage schools and departments",
+      "add_school": "Add School",
+      "schools": "Schools",
+      "complaints_count": "Complaints",
+      "students_count": "Students",
+      "resolution_progress": "Resolution Progress",
+      "head": "Head",
+      "school_performance_details": "School Performance Details",
+      "resolution_rate": "Resolution Rate",
+      "details": "Details",
+      
+      // Settings
+      "settings_title": "Settings",
+      "settings_subtitle": "Manage your system settings",
+      "save_changes": "Save Changes",
+      "system_information": "System Information",
+      "system_name": "System Name",
+      "admin_email": "Admin Email",
+      "appearance": "Appearance",
+      "theme": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "language": "Language",
+      "english": "English",
+      "french": "French",
+      "settings_saved": "Settings saved successfully!",
+      "switched_to_light": "Switched to Light mode",
+      "switched_to_dark": "Switched to Dark mode",
+      
+      // Layout
+      "app_name": "UBa Complaint System",
+      "search_placeholder": "Search...",
+    };
+    
+    return translations[key] || key;
   };
 
   return (
     <AppContext.Provider
       value={{
-        // AUTH
-        currentUser,
+        user,
+        setUser,
+        register,
         login,
         logout,
-        // EXISTING
+        theme,
+        setTheme,
+        toggleTheme,
         complaints,
+        getComplaints,
         addComplaint,
         updateComplaint,
+        updateComplaintStatus,
+        deleteComplaint,
+        toasts,
+        showToast,
+        removeToast,
         searchQuery,
         setSearchQuery,
-        darkMode,
-        toggleDarkMode,
-        notifications,
-        markNotificationRead,
-        markAllNotificationsRead,
-        unreadCount,
-        messages,
-        sendMessage,
         settings,
         setSettings,
         t,
@@ -339,5 +278,3 @@ export function AppProvider({ children }) {
     </AppContext.Provider>
   );
 }
-
-export default AppProvider;
