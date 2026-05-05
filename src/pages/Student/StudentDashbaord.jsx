@@ -7,6 +7,7 @@ import {
   CheckCircle,
   XCircle,
   Plus,
+  ArrowRight,
   AlertCircle,
 } from "lucide-react";
 
@@ -41,7 +42,7 @@ export default function Dashboard() {
       {/* HEADER */}
       <div>
         <h2 className="student-page-title">
-          Welcome back, {user?.name || "User"}! 👋
+          My Dashboard
         </h2>
         <p style={{ color: 'var(--student-text-secondary)', fontSize: '14px' }}>
           Here's what's happening with your complaints.
@@ -97,7 +98,7 @@ export default function Dashboard() {
               onClick={() => navigate("/student/complaints")}
               className="view-all-link"
             >
-              View All
+              View All<ArrowRight size={14} style={{ marginLeft: '4px' }} />
             </span>
           </div>
 
