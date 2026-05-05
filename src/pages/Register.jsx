@@ -78,21 +78,10 @@ function RegisterPage() {
       return false;
     }
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    if (users.some((u) => u.matricule === formData.matricule)) {
-      setError("This matricule is already registered");
-      return false;
-    }
-
-    if (users.some((u) => u.email === formData.email)) {
-      setError("This email is already registered");
-      return false;
-    }
-
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
@@ -117,8 +106,16 @@ function RegisterPage() {
         createdAt: new Date().toISOString(),
       };
 
-      register(newUser);
-      login(formData.email, formData.password, formData.matricule);
+      await register(newUser);
+      const success = await login(
+        formData.email,
+        formData.password,
+        formData.matricule,
+      );
+
+      if (!success) {
+        throw new Error("Registration succeeded but login failed.");
+      }
 
       setRegistrationSuccess(true);
       showToast("Account created successfully! Redirecting...", "success");
@@ -128,7 +125,7 @@ function RegisterPage() {
       }, 2000);
     } catch (err) {
       console.error(err);
-      setError("Something went wrong. Please try again.");
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }

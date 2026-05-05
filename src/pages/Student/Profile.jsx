@@ -1,21 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { AppContext } from "../../context/AppContext";
 import "./profile.css";
 import "./StudentStyle.css";
 
 export default function Profile() {
-  const [user, setUser] = useState(() =>
-    JSON.parse(localStorage.getItem("currentUser")) || {}
-  );
+  const { user, updateProfile, showToast } = useContext(AppContext);
+  const [profile, setProfile] = useState(user || {});
+  const [preview, setPreview] = useState(user?.avatar || null);
 
   useEffect(() => {
-    localStorage.setItem("currentUser", JSON.stringify(user));
+    setProfile(user || {});
+    setPreview(user?.avatar || null);
   }, [user]);
-
-  const [preview, setPreview] = useState(user.avatar || null);
 
   // ===== HANDLE TEXT INPUTS =====
   const handleChange = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+    setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
   // ===== HANDLE IMAGE UPLOAD =====
@@ -30,7 +30,7 @@ export default function Profile() {
       const imageData = reader.result;
 
       setPreview(imageData);
-      setUser((prev) => ({
+      setProfile((prev) => ({
         ...prev,
         avatar: imageData,
       }));
@@ -40,43 +40,34 @@ export default function Profile() {
   };
 
   // ===== SAVE PROFILE =====
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-
-    const updatedUsers = users.map((u) =>
-      u.matricule === user.matricule ? user : u
-    );
-
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
-    localStorage.setItem("currentUser", JSON.stringify(user));
-
-    alert("Profile updated successfully!");
+    try {
+      const updated = await updateProfile(profile.matricule, profile);
+      setProfile(updated);
+      setPreview(updated.avatar || preview);
+      showToast("Profile updated successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      alert(`Profile update failed: ${err.message}`);
+    }
   };
 
   return (
     <div className="student-profile-page">
-
       <h2 className="student-page-title">My Profile</h2>
 
       <div className="student-profile-card">
-
         {/* LEFT SIDE */}
         <div className="student-profile-left">
-
           <div className="student-avatar-wrapper">
-
             <img
               src={
-                preview ||
-                user.avatar ||
-                "https://via.placeholder.com/120"
+                preview || profile.avatar || "https://via.placeholder.com/120"
               }
               alt="profile"
               className="student-avatar-img"
             />
-
           </div>
 
           <label className="student-upload-btn">
@@ -88,36 +79,34 @@ export default function Profile() {
               hidden
             />
           </label>
-
         </div>
 
         {/* RIGHT SIDE FORM */}
         <form className="student-profile-form" onSubmit={handleSave}>
-
           <input
             name="name"
-            value={user.name || ""}
+            value={profile.name || ""}
             onChange={handleChange}
             placeholder="Full Name"
           />
 
           <input
             name="matricule"
-            value={user.matricule || ""}
+            value={profile.matricule || ""}
             onChange={handleChange}
             placeholder="Matricule"
           />
 
           <input
             name="email"
-            value={user.email || ""}
+            value={profile.email || ""}
             onChange={handleChange}
             placeholder="Email"
           />
 
           <input
             name="department"
-            value={user.department || ""}
+            value={profile.department || ""}
             onChange={handleChange}
             placeholder="Department"
           />
@@ -125,9 +114,7 @@ export default function Profile() {
           <button type="submit" className="student-save-btn">
             Save Changes
           </button>
-
         </form>
-
       </div>
     </div>
   );

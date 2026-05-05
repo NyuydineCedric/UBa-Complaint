@@ -6,7 +6,7 @@ import { AppContext } from "../../context/AppContext";
 import { Upload, X, Paperclip } from "lucide-react";
 
 export default function Submit() {
-  const { user, addComplaint, showToast } = useContext(AppContext);
+  const { user, addComplaint, showToast, complaints } = useContext(AppContext);
 
   const initialForm = {
     course: "",
@@ -79,7 +79,6 @@ export default function Submit() {
 
   // Duplicate check
   const isDuplicate = () => {
-    const complaints = JSON.parse(localStorage.getItem("complaints")) || [];
     return complaints.some(
       (c) =>
         c.course === form.course &&
@@ -89,7 +88,7 @@ export default function Submit() {
   };
 
   // Submit - CLEAN VERSION
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.course || !form.type || !form.description) {
@@ -102,27 +101,22 @@ export default function Submit() {
       return;
     }
 
-    // Get current user data fresh from localStorage
-    const currentUser = JSON.parse(localStorage.getItem("currentUser")) || {};
+    const currentUser = user || {};
 
-    // Create complaint with ALL user data
     const newComplaint = {
       userId: currentUser.matricule || user?.matricule,
-      name: currentUser.name || user?.name || "Unknown",
-      email: currentUser.email || user?.email || "N/A",
-      department: currentUser.department || user?.department || "N/A",
-      school: currentUser.school || user?.school || "N/A",
-      level: currentUser.level || user?.level || "N/A",
-      phoneNumber: currentUser.phoneNumber || user?.phoneNumber || "N/A",
+      name: currentUser.name || "Unknown",
+      email: currentUser.email || "N/A",
+      department: currentUser.department || "N/A",
+      school: currentUser.school || "N/A",
+      level: currentUser.level || "N/A",
+      phoneNumber: currentUser.phoneNumber || "N/A",
       title: `${form.type} - ${form.course}`,
       ...form,
       files,
     };
 
-    addComplaint(newComplaint);
-    showToast("Complaint submitted successfully!", "success");
-
-    // Reset
+    await addComplaint(newComplaint);
     setForm(initialForm);
     setFiles([]);
     localStorage.removeItem("complaint_draft");

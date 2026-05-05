@@ -1,0 +1,54 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Administrator",
+      "email": "admin@unibamenda.cm",
+      "password": "admin123",
+      "matricule": "ADM001",
+      "phoneNumber": "",
+      "school": "University of Bamenda",
+      "level": "",
+      "department": "Administration",
+      "role": "admin",
+      "avatar": null,
+      "createdAt": "2026-05-04T00:00:00.000Z"
+    },
+    {
+      "name": "Cedric",
+      "email": "cedriccc@gmail.com",
+      "password": "Cedric123@",
+      "matricule": "UBa23PB145",
+      "phoneNumber": "678754356",
+      "school": "FED",
+      "level": "Level 2",
+      "department": "Electrical Engineering",
+      "role": "student",
+      "avatar": null,
+      "createdAt": "2026-05-05T07:14:25.337Z",
+      "id": "1777965265337"
+    }
+  ],
+  "complaints": [
+    {
+      "id": "1777965677296",
+      "userId": "UBa23PB145",
+      "name": "Cedric",
+      "email": "cedriccc@gmail.com",
+      "department": "Electrical Engineering",
+      "school": "FED",
+      "level": "Level 2",
+      "phoneNumber": "678754356",
+      "title": "Exam Mark - CEDP123 COMPUTER",
+      "course": "CEDP123 COMPUTER",
+      "type": "Exam Mark",
+      "priority": "Medium",
+      "description": "JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ",
+      "files": [],
+      "status": "pending",
+      "date": "2026-05-05",
+      "submittedDate": "2026-05-05T07:21:17.274Z",
+      "lastUpdate": "2026-05-05T07:21:17.274Z"
+    }
+  ]
+}
