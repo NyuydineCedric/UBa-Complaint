@@ -10,6 +10,10 @@
   min-height: 100vh;
 }
 
+body.dark-mode .reports-page {
+  background: #111827;
+}
+
 .page-heading {
   display: flex;
   justify-content: space-between;
@@ -40,6 +44,10 @@
   color: #475569;
   margin-top: 6px;
   font-size: 0.9rem;
+}
+
+body.dark-mode .page-heading p {
+  color: #9CA3AF;
 }
 
 .primary-button {
@@ -79,9 +87,19 @@
   flex-direction: column;
 }
 
+body.dark-mode .report-card {
+  background: #1F2937;
+  border-color: #374151;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
 .report-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 20px -12px rgba(0,0,0,0.1);
+}
+
+body.dark-mode .report-card:hover {
+  box-shadow: 0 12px 20px -12px rgba(0,0,0,0.3);
 }
 
 .summary-card h2 {
@@ -89,6 +107,10 @@
   font-weight: 700;
   margin-bottom: 16px;
   color: #0f172a;
+}
+
+body.dark-mode .summary-card h2 {
+  color: #F9FAFB;
 }
 
 .period-selector {
@@ -106,6 +128,11 @@
   cursor: pointer;
   transition: all 0.2s;
   color: #475569;
+}
+
+body.dark-mode .period-selector button {
+  background: #374151;
+  color: #D1D5DB;
 }
 
 .period-selector button.active {
@@ -140,9 +167,17 @@
   transition: all 0.2s;
 }
 
+body.dark-mode .stat-item {
+  background: #374151;
+}
+
 .stat-item:hover {
   background: #f1f5f9;
   transform: scale(1.02);
+}
+
+body.dark-mode .stat-item:hover {
+  background: #4B5563;
 }
 
 .stat-item span {
@@ -154,10 +189,18 @@
   margin-bottom: 8px;
 }
 
+body.dark-mode .stat-item span {
+  color: #9CA3AF;
+}
+
 .stat-item strong {
   font-size: 2rem;
   font-weight: 800;
   color: #0f172a;
+}
+
+body.dark-mode .stat-item strong {
+  color: #F9FAFB;
 }
 
 /* Charts section */
@@ -176,11 +219,21 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
 
+body.dark-mode .chart-container {
+  background: #1F2937;
+  border-color: #374151;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
 .chart-container h2 {
   font-size: 1.2rem;
   font-weight: 700;
   margin-bottom: 20px;
   color: #0f172a;
+}
+
+body.dark-mode .chart-container h2 {
+  color: #F9FAFB;
 }
 
 /* Pie chart */
@@ -237,6 +290,10 @@
   color: #334155;
 }
 
+body.dark-mode .legend-text {
+  color: #D1D5DB;
+}
+
 /* Bar Chart Layout */
 .bar-chart-wrapper {
   display: flex;
@@ -262,6 +319,10 @@
   flex-shrink: 0;
 }
 
+body.dark-mode .bar-label {
+  color: #F9FAFB;
+}
+
 .bar-container {
   flex: 1;
   background: #f1f5f9;
@@ -269,6 +330,10 @@
   height: 32px;
   overflow: hidden;
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+}
+
+body.dark-mode .bar-container {
+  background: #374151;
 }
 
 .bar-fill {
@@ -288,6 +353,11 @@
   padding: 4px 12px;
   border-radius: 30px;
   flex-shrink: 0;
+}
+
+body.dark-mode .bar-value {
+  color: #F9FAFB;
+  background: #4B5563;
 }
 
 

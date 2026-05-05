@@ -51,8 +51,13 @@ function RegisterPage() {
   };
 
   const validateForm = () => {
-    if (!formData.name || !formData.matricule || !formData.email || 
-        !formData.password || !formData.confirmPassword) {
+    if (
+      !formData.name ||
+      !formData.matricule ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
       setError("Please fill in all required fields");
       return false;
     }
@@ -73,21 +78,10 @@ function RegisterPage() {
       return false;
     }
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    if (users.some((u) => u.matricule === formData.matricule)) {
-      setError("This matricule is already registered");
-      return false;
-    }
-
-    if (users.some((u) => u.email === formData.email)) {
-      setError("This email is already registered");
-      return false;
-    }
-
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
@@ -112,8 +106,16 @@ function RegisterPage() {
         createdAt: new Date().toISOString(),
       };
 
-      register(newUser);
-      login(formData.email, formData.password, formData.matricule);
+      await register(newUser);
+      const success = await login(
+        formData.email,
+        formData.password,
+        formData.matricule,
+      );
+
+      if (!success) {
+        throw new Error("Registration succeeded but login failed.");
+      }
 
       setRegistrationSuccess(true);
       showToast("Account created successfully! Redirecting...", "success");
@@ -121,10 +123,9 @@ function RegisterPage() {
       setTimeout(() => {
         navigate("/student");
       }, 2000);
-
     } catch (err) {
       console.error(err);
-      setError("Something went wrong. Please try again.");
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -152,13 +153,18 @@ function RegisterPage() {
             <img src={ubalogo} alt="UBa Logo" className="register-logo" />
             <h1>Create Account</h1>
             <p>Join the UBa Complaint System</p>
-            <p className="register-subtitle">Fill in your details to get started</p>
+            <p className="register-subtitle">
+              Fill in your details to get started
+            </p>
           </div>
 
           {/* ERROR MESSAGE */}
           {error && (
-            <div className="error-message" style={{ marginBottom: '20px' }}>
-              <AlertCircle size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            <div className="error-message" style={{ marginBottom: "20px" }}>
+              <AlertCircle
+                size={16}
+                style={{ marginRight: "8px", verticalAlign: "middle" }}
+              />
               {error}
             </div>
           )}
@@ -247,8 +253,12 @@ function RegisterPage() {
                   <option value="">Select School</option>
                   <option value="FED">Faculty of Education (FED)</option>
                   <option value="FHS">Faculty of Health Sciences (FHS)</option>
-                  <option value="HTTC">Higher Technical Training College (HTTC)</option>
-                  <option value="FGA">Faculty of General Agriculture (FGA)</option>
+                  <option value="HTTC">
+                    Higher Technical Training College (HTTC)
+                  </option>
+                  <option value="FGA">
+                    Faculty of General Agriculture (FGA)
+                  </option>
                 </select>
               </div>
             </div>
@@ -284,11 +294,19 @@ function RegisterPage() {
                   onChange={handleChange}
                 >
                   <option value="">Select Department</option>
-                  <option value="Computer Engineering">Computer Engineering</option>
-                  <option value="Electrical Engineering">Electrical Engineering</option>
-                  <option value="Mechanical Engineering">Mechanical Engineering</option>
+                  <option value="Computer Engineering">
+                    Computer Engineering
+                  </option>
+                  <option value="Electrical Engineering">
+                    Electrical Engineering
+                  </option>
+                  <option value="Mechanical Engineering">
+                    Mechanical Engineering
+                  </option>
                   <option value="Civil Engineering">Civil Engineering</option>
-                  <option value="Business Administration">Business Administration</option>
+                  <option value="Business Administration">
+                    Business Administration
+                  </option>
                   <option value="Economics">Economics</option>
                   <option value="Law">Law</option>
                   <option value="Medicine">Medicine</option>
@@ -341,7 +359,11 @@ function RegisterPage() {
                   className="password-toggle"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
                 </button>
               </div>
             </div>
@@ -355,16 +377,13 @@ function RegisterPage() {
                   checked={formData.agreeToTerms}
                   onChange={handleChange}
                 />
-                I agree to the <Link to="/terms">Terms of Service</Link> and <Link to="/privacy">Privacy Policy</Link>
+                I agree to the <Link to="/terms">Terms of Service</Link> and{" "}
+                <Link to="/privacy">Privacy Policy</Link>
               </label>
             </div>
 
             {/* SUBMIT */}
-            <button
-              type="submit"
-              className="register-btn"
-              disabled={isLoading}
-            >
+            <button type="submit" className="register-btn" disabled={isLoading}>
               {isLoading ? "Creating Account..." : "Create Account"}
             </button>
           </form>
@@ -378,15 +397,31 @@ function RegisterPage() {
         {/* INFO BOX */}
         <div className="register-info-box">
           <h2>📋 Registration Guide</h2>
-          <div style={{ marginTop: '10px' }}>
-            <p><strong>Step 1:</strong> Fill in your personal details</p>
-            <p><strong>Step 2:</strong> Provide your academic information</p>
-            <p><strong>Step 3:</strong> Create a secure password</p>
-            <p><strong>Step 4:</strong> Accept the terms and submit</p>
+          <div style={{ marginTop: "10px" }}>
+            <p>
+              <strong>Step 1:</strong> Fill in your personal details
+            </p>
+            <p>
+              <strong>Step 2:</strong> Provide your academic information
+            </p>
+            <p>
+              <strong>Step 3:</strong> Create a secure password
+            </p>
+            <p>
+              <strong>Step 4:</strong> Accept the terms and submit
+            </p>
           </div>
-          <div style={{ marginTop: '15px', padding: '10px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '8px' }}>
-            <p style={{ fontSize: '13px', color: '#4F46E5' }}>
-              <strong>Note:</strong> Use your university email and valid matricule for registration.
+          <div
+            style={{
+              marginTop: "15px",
+              padding: "10px",
+              background: "rgba(99, 102, 241, 0.1)",
+              borderRadius: "8px",
+            }}
+          >
+            <p style={{ fontSize: "13px", color: "#4F46E5" }}>
+              <strong>Note:</strong> Use your university email and valid
+              matricule for registration.
             </p>
           </div>
         </div>

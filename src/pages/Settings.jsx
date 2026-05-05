@@ -13,6 +13,7 @@ function Settings() {
     setLocalSettings((prev) => ({ ...prev, [key]: value }));
   const handleSave = () => {
     setSettings(localSettings);
+    localStorage.setItem("language", localSettings.language);
     setMessage(t("settings_saved"));
     setTimeout(() => setMessage(""), 3000);
   };
@@ -124,10 +125,13 @@ function Settings() {
             {t("language")}
             <select
               value={localSettings.language}
-              onChange={(e) => handleSettingChange("language", e.target.value)}
+              onChange={(e) => {
+                handleSettingChange("language", e.target.value);
+                localStorage.setItem("language", e.target.value);
+              }}
             >
-              <option value="English">{t("english")}</option>
-              <option value="French">{t("french")}</option>
+              <option value="en">{t("english")}</option>
+              <option value="fr">{t("french")}</option>
             </select>
           </label>
         </div>

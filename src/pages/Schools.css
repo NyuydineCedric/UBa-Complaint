@@ -259,6 +259,49 @@ tr:hover { background: #F9FAFB; }
   .schools-page { padding: 20px; }
   .stats-summary { grid-template-columns: repeat(2, 1fr); }
 }
+
+body.dark-mode .schools-page {
+  background: #111827;
+}
+
+body.dark-mode .page-header p,
+body.dark-mode .summary-info .summary-label,
+body.dark-mode .school-code,
+body.dark-mode .progress-bar-label,
+body.dark-mode .card-footer,
+body.dark-mode .bar-label,
+body.dark-mode .bar-value,
+body.dark-mode th,
+body.dark-mode td {
+  color: #D1D5DB;
+}
+
+body.dark-mode .summary-card,
+body.dark-mode .school-card,
+body.dark-mode .comparison-chart,
+body.dark-mode .school-table-card,
+body.dark-mode .bar-bg,
+body.dark-mode .progress-bar-bg {
+  background: #1F2937;
+  border-color: #374151;
+}
+
+body.dark-mode .school-card:hover {
+  box-shadow: 0 20px 25px -12px rgba(255,255,255,0.08);
+}
+
+body.dark-mode .icon-button,
+body.dark-mode .primary-button {
+  background: #374151;
+  color: #F9FAFB;
+  border-color: #4B5563;
+}
+
+body.dark-mode .icon-button:hover,
+body.dark-mode .primary-button:hover {
+  background: #6366F1;
+}
+
 @media (max-width: 640px) {
   .stats-summary { grid-template-columns: 1fr; }
   .schools-grid { grid-template-columns: 1fr; }

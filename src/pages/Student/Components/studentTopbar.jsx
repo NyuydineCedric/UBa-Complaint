@@ -1,40 +1,42 @@
 // pages/Student/Components/studentTopbar.jsx
 import { Bell, Sun, Moon } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useContext, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 
 import { AppContext } from "../../../context/AppContext";
 import "./studenttopbar.css";
 import "../StudentStyle.css";
 
 export default function Topbar() {
-  const { user, theme, setTheme, complaints, logout } = useContext(AppContext);
+  const {
+    user,
+    theme,
+    setTheme,
+    studentResolvedNotifications,
+    markStudentNotificationsRead,
+  } = useContext(AppContext);
   const location = useLocation();
-  const navigate = useNavigate();
-  const [title, setTitle] = useState("Dashboard");
 
-  // ===== TITLE HANDLER =====
-  useEffect(() => {
+  const title = useMemo(() => {
     const path = location.pathname.toLowerCase();
 
     if (path === "/student" || path === "/student/") {
-      setTitle(`Welcome back, ${user?.name || "User"}`);
-    } else if (path.includes("complaints") && !path.includes("submit")) {
-      setTitle("My Complaints");
-    } else if (path.includes("submit")) {
-      setTitle("Submit Complaint");
-    } else if (path.includes("profile")) {
-      setTitle("My Profile");
-    } else if (path.includes("settings")) {
-      setTitle("Settings");
-    } else {
-      setTitle("Dashboard");
+      return `Welcome back, ${user?.name || "User"}`;
     }
-  }, [location, user]);
-
-  // ===== NOTIFICATIONS (only count in-progress for notifications) =====
-  const myComplaints = complaints?.filter((c) => c.userId === user?.matricule) || [];
-  const notificationCount = myComplaints.filter((c) => c.status === "in-progress").length || 0;
+    if (path.includes("complaints") && !path.includes("submit")) {
+      return "My Complaints";
+    }
+    if (path.includes("submit")) {
+      return "Submit Complaint";
+    }
+    if (path.includes("profile")) {
+      return "My Profile";
+    }
+    if (path.includes("settings")) {
+      return "Settings";
+    }
+    return "Dashboard";
+  }, [location.pathname, user]);
 
   return (
     <div className="student-topbar">
@@ -67,10 +69,20 @@ export default function Topbar() {
         </div>
 
         {/* NOTIFICATIONS */}
-        <div className="student-notification">
+        <div
+          className="student-notification"
+          onClick={markStudentNotificationsRead}
+          title={
+            studentResolvedNotifications > 0
+              ? "Click to clear solved complaint notifications"
+              : "No new notifications"
+          }
+        >
           <Bell className="student-icon" />
-          {notificationCount > 0 && (
-            <span className="student-badge">{notificationCount}</span>
+          {studentResolvedNotifications > 0 && (
+            <span className="student-badge">
+              {studentResolvedNotifications}
+            </span>
           )}
         </div>
       </div>

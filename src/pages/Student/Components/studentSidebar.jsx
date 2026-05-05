@@ -48,8 +48,10 @@ export default function Sidebar() {
       <nav className="student-nav">
         {navItems.map((item, index) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.path || 
-                          (item.path !== "/student" && location.pathname.startsWith(item.path));
+          const isActive =
+            location.pathname === item.path ||
+            (item.path !== "/student" &&
+              location.pathname.startsWith(item.path));
 
           return (
             <NavLink
@@ -75,7 +77,7 @@ export default function Sidebar() {
           <LogOut className="student-logout-icon" />
           <p>Logout</p>
         </div>
-        <p style={{ fontSize: '11px', color: 'var(--student-text-secondary)' }}>
+        <p style={{ fontSize: "11px", color: "var(--student-text-secondary)" }}>
           © 2026 Student System
         </p>
       </div>

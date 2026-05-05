@@ -9,7 +9,7 @@ import "./Login.css";
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { login, showToast } = useContext(AppContext);
+  const { login, register, showToast } = useContext(AppContext);
 
   const [role, setRole] = useState("student");
   const [studentId, setStudentId] = useState("");
@@ -42,36 +42,13 @@ function LoginPage() {
 
       // ADMIN LOGIN
       if (role === "admin") {
-        // Check for admin in users array
-        const users = JSON.parse(localStorage.getItem("users")) || [];
-        const adminUser = users.find(
-          (u) =>
-            u.role === "admin" &&
-            u.matricule === studentId &&
-            u.email === email &&
-            u.password === password
-        );
-
-        if (adminUser) {
-          // Login using the context login function
-          const success = login(email, password, studentId);
-          if (success) {
-            showToast("Welcome back, Admin!", "success");
-            navigate("/");
-            return;
-          }
-        }
-
-        // Check for demo admin
         if (
           studentId === "ADM001" &&
           email === "admin@unibamenda.cm" &&
           password === "admin123"
         ) {
-          // Check if admin exists in users
-          const adminExists = users.some((u) => u.matricule === "ADM001");
-          if (!adminExists) {
-            const adminUser = {
+          try {
+            await register({
               matricule: "ADM001",
               email: "admin@unibamenda.cm",
               password: "admin123",
@@ -80,20 +57,19 @@ function LoginPage() {
               department: "Administration",
               school: "University of Bamenda",
               createdAt: new Date().toISOString(),
-            };
-            users.push(adminUser);
-            localStorage.setItem("users", JSON.stringify(users));
+            });
+          } catch (err) {
+            // Admin may already exist, that's okay.
           }
-          
-          // Login using the context login function
-          const success = login(email, password, studentId);
+
+          const success = await login(email, password, studentId);
           if (success) {
             showToast("Welcome back, Admin!", "success");
             navigate("/");
             return;
           }
         }
-        
+
         setError("Invalid admin credentials");
         setIsLoading(false);
         return;
@@ -102,7 +78,7 @@ function LoginPage() {
       // STUDENT LOGIN
       if (role === "student") {
         // Login using the context login function
-        const success = login(email, password, studentId);
+        const success = await login(email, password, studentId);
         if (success) {
           showToast("Welcome back, Student!", "success");
           navigate("/student");
@@ -158,7 +134,9 @@ function LoginPage() {
               <User className="input-icon" size={18} />
               <input
                 type="text"
-                placeholder={role === "student" ? "Enter your matricule" : "Enter admin ID"}
+                placeholder={
+                  role === "student" ? "Enter your matricule" : "Enter admin ID"
+                }
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
                 required

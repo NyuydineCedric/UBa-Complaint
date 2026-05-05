@@ -21,7 +21,8 @@ export default function Complaints() {
   const counts = {
     all: myComplaints.length,
     pending: myComplaints.filter((c) => c.status === "pending").length,
-    "in-progress": myComplaints.filter((c) => c.status === "in-progress").length,
+    "in-progress": myComplaints.filter((c) => c.status === "in-progress")
+      .length,
     resolved: myComplaints.filter((c) => c.status === "resolved").length,
     rejected: myComplaints.filter((c) => c.status === "rejected").length,
   };
@@ -83,28 +84,35 @@ export default function Complaints() {
       </div>
 
       {/* SEARCH BAR */}
-      <div className="student-search-bar" style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '10px', 
-        background: 'var(--student-bg-card)',
-        border: '1px solid var(--student-border-card)',
-        borderRadius: '8px',
-        padding: '8px 12px'
-      }}>
-        <Search size={18} className="search-icon" style={{ color: 'var(--student-text-secondary)' }} />
+      <div
+        className="student-search-bar"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          background: "var(--student-bg-card)",
+          border: "1px solid var(--student-border-card)",
+          borderRadius: "8px",
+          padding: "8px 12px",
+        }}
+      >
+        <Search
+          size={18}
+          className="search-icon"
+          style={{ color: "var(--student-text-secondary)" }}
+        />
         <input
           type="text"
           placeholder="Search complaints..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
-            border: 'none',
-            background: 'transparent',
-            outline: 'none',
-            width: '100%',
-            color: 'var(--student-text-main)',
-            fontSize: '14px'
+            border: "none",
+            background: "transparent",
+            outline: "none",
+            width: "100%",
+            color: "var(--student-text-main)",
+            fontSize: "14px",
           }}
         />
       </div>
@@ -112,11 +120,14 @@ export default function Complaints() {
       {/* TABLE */}
       <div className="student-table-container">
         {filtered.length === 0 ? (
-          <div className="no-complaints" style={{ 
-            textAlign: 'center', 
-            padding: '40px 20px',
-            color: 'var(--student-text-secondary)'
-          }}>
+          <div
+            className="no-complaints"
+            style={{
+              textAlign: "center",
+              padding: "40px 20px",
+              color: "var(--student-text-secondary)",
+            }}
+          >
             <p>No complaints found</p>
           </div>
         ) : (
@@ -136,7 +147,7 @@ export default function Complaints() {
                   key={c.id}
                   onClick={() => setSelected(c)}
                   className="clickable-row"
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: "pointer" }}
                 >
                   <td>{index + 1}</td>
                   <td>{c.title || c.type}</td>

@@ -44,7 +44,7 @@ export default function Dashboard() {
         <h2 className="student-page-title">
           My Dashboard
         </h2>
-        <p style={{ color: 'var(--student-text-secondary)', fontSize: '14px' }}>
+        <p style={{ color: "var(--student-text-secondary)", fontSize: "14px" }}>
           Here's what's happening with your complaints.
         </p>
       </div>
@@ -104,7 +104,10 @@ export default function Dashboard() {
 
           {recent.length === 0 ? (
             <div className="no-data">
-              <AlertCircle size={24} style={{ margin: '0 auto 10px', opacity: 0.5 }} />
+              <AlertCircle
+                size={24}
+                style={{ margin: "0 auto 10px", opacity: 0.5 }}
+              />
               <p>No complaints yet</p>
             </div>
           ) : (
@@ -133,28 +136,34 @@ export default function Dashboard() {
         <div className="student-card-box">
           <h3>Quick Actions</h3>
           <div className="quick-actions">
-            <div 
+            <div
               className="quick-action-item"
               onClick={() => navigate("/student/submit")}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
             >
-              <Plus size={18} style={{ color: 'var(--student-primary)' }} />
+              <Plus size={18} style={{ color: "var(--student-primary)" }} />
               <span>Submit New Complaint</span>
             </div>
-            <div 
+            <div
               className="quick-action-item"
               onClick={() => navigate("/student/complaints")}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
             >
-              <FileArchive size={18} style={{ color: 'var(--student-primary)' }} />
+              <FileArchive
+                size={18}
+                style={{ color: "var(--student-primary)" }}
+              />
               <span>View My Complaints</span>
             </div>
-            <div 
+            <div
               className="quick-action-item"
               onClick={() => navigate("/student/profile")}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
             >
-              <CheckCircle size={18} style={{ color: 'var(--student-primary)' }} />
+              <CheckCircle
+                size={18}
+                style={{ color: "var(--student-primary)" }}
+              />
               <span>Update Profile</span>
             </div>
           </div>
@@ -169,10 +178,12 @@ export default function Dashboard() {
           </div>
           <div className="complaint-banner-text">
             <h4>Have a new issue to report?</h4>
-            <p>Submit a complaint and we'll get back to you as soon as possible.</p>
+            <p>
+              Submit a complaint and we'll get back to you as soon as possible.
+            </p>
           </div>
         </div>
-        <button 
+        <button
           className="complaint-banner-btn"
           onClick={() => navigate("/student/submit")}
         >

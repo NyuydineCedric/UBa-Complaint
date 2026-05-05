@@ -33,10 +33,7 @@ function AppRoutes() {
       <Route path="/register" element={<Register />} />
 
       {/* ADMIN ROUTES */}
-      <Route
-        path="/"
-        element={user ? <Layout /> : <Navigate to="/login" />}
-      >
+      <Route path="/" element={user ? <Layout /> : <Navigate to="/login" />}>
         <Route index element={<Dashboard />} />
         <Route path="complaints" element={<AllComplaints />} />
         <Route path="reports" element={<Reports />} />

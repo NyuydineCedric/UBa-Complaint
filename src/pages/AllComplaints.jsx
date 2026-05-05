@@ -28,10 +28,12 @@ function AllComplaints() {
     if (searchQuery) {
       f = f.filter(
         (c) =>
-          c.student.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.studentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.school.toLowerCase().includes(searchQuery.toLowerCase()),
+          c.student?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.studentId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.userId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.course?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.courseTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.school?.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
     if (filters.status) f = f.filter((c) => c.status === filters.status);
@@ -311,9 +313,9 @@ function AllComplaints() {
                 <td>
                   <span className="complaint-id">{c.id}</span>
                 </td>
-                <td>{c.student}</td>
-                <td>{c.studentId}</td>
-                <td>{c.course}</td>
+                <td>{c.student || c.name}</td>
+                <td>{c.studentId || c.userId || c.name}</td>
+                <td>{c.courseTitle || c.course}</td>
                 <td>
                   <span className="type-badge">{simplifyType(c.type)}</span>
                 </td>

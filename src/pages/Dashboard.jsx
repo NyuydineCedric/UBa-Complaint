@@ -1,6 +1,5 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
-import { FileText } from "lucide-react";
 import "./Dashboard.css";
 
 function Dashboard() {
@@ -40,21 +39,12 @@ function Dashboard() {
     semesterCounts.Resit,
     1,
   );
-  const [barHeights, setBarHeights] = useState({
-    First: 0,
-    Second: 0,
-    Resit: 0,
-  });
 
-  useEffect(() => {
-    setTimeout(() => {
-      setBarHeights({
-        First: (semesterCounts.First / maxCount) * 100,
-        Second: (semesterCounts.Second / maxCount) * 100,
-        Resit: (semesterCounts.Resit / maxCount) * 100,
-      });
-    }, 100);
-  }, [semesterCounts, maxCount]);
+  const barHeights = {
+    First: (semesterCounts.First / maxCount) * 100,
+    Second: (semesterCounts.Second / maxCount) * 100,
+    Resit: (semesterCounts.Resit / maxCount) * 100,
+  };
 
   const formatPercent = (val) =>
     stats.total ? Math.round((val / stats.total) * 100) : 0;
@@ -234,8 +224,8 @@ function Dashboard() {
               {complaints.slice(0, 3).map((c) => (
                 <tr key={c.id}>
                   <td>{c.id}</td>
-                  <td>{c.student}</td>
-                  <td>{c.course}</td>
+                  <td>{c.student || c.name}</td>
+                  <td>{c.courseTitle || c.course}</td>
                   <td>{c.type}</td>
                   <td>
                     <span

@@ -5,12 +5,18 @@ import "../StudentStyle.css";
 function StatCard({ title, value, icon: Icon, color, variant }) {
   const getCardClass = () => {
     switch (variant) {
-      case 'total': return 'stat-card-total';
-      case 'pending': return 'stat-card-pending';
-      case 'progress': return 'stat-card-progress';
-      case 'resolved': return 'stat-card-resolved';
-      case 'rejected': return 'stat-card-rejected';
-      default: return '';
+      case "total":
+        return "stat-card-total";
+      case "pending":
+        return "stat-card-pending";
+      case "progress":
+        return "stat-card-progress";
+      case "resolved":
+        return "stat-card-resolved";
+      case "rejected":
+        return "stat-card-rejected";
+      default:
+        return "";
     }
   };
 
