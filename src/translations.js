@@ -274,6 +274,6 @@ export const getTranslation = (lang, key) => {
       new_complaint_submitted: "Nouvelle réclamation soumise",
     },
   };
-  const langCode = lang === "French" ? "fr" : "en";
+  const langCode = lang === "fr" || lang === "French" ? "fr" : "en";
   return t[langCode][key] || t.en[key] || key;
 };

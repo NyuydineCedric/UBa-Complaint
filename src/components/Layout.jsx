@@ -18,9 +18,18 @@ import {
 import "./Layout.css";
 
 function Layout() {
-  const { darkMode, toggleDarkMode, t, currentUser, logout } =
-    useContext(AppContext);
+  const {
+    darkMode,
+    toggleDarkMode,
+    t,
+    currentUser,
+    logout,
+    unreadNotifications,
+    setUnreadNotifications,
+    complaints,
+  } = useContext(AppContext);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
   const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
 
@@ -28,6 +37,21 @@ function Layout() {
     logout();
     navigate("/login");
   };
+
+  const handleNotificationClick = () => {
+    setUnreadNotifications(0);
+    setShowNotifications(!showNotifications);
+  };
+
+  const handleViewComplaint = (id) => {
+    setShowNotifications(false);
+    navigate(`/complaints/${id}`);
+  };
+
+  // Get recent complaints for notifications
+  const recentComplaints = complaints
+    .sort((a, b) => new Date(b.submittedDate) - new Date(a.submittedDate))
+    .slice(0, 5);
 
   return (
     <div className={`layout ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
@@ -86,9 +110,61 @@ function Layout() {
             </div>
           </div>
           <div className="header-right">
-            <button className="notification-btn">
-              <Bell size={20} />
-            </button>
+            <div className="notification-container">
+              <button
+                className="notification-btn"
+                onClick={handleNotificationClick}
+              >
+                <Bell size={20} />
+                {unreadNotifications > 0 && (
+                  <span className="notification-badge">
+                    {unreadNotifications}
+                  </span>
+                )}
+              </button>
+              {showNotifications && (
+                <div className="notification-dropdown">
+                  <div className="notification-header">
+                    <h4>Recent Complaints</h4>
+                  </div>
+                  <div className="notification-list">
+                    {recentComplaints.length === 0 ? (
+                      <div className="notification-item empty">
+                        No recent complaints
+                      </div>
+                    ) : (
+                      recentComplaints.map((complaint) => (
+                        <div
+                          key={complaint.id}
+                          className="notification-item"
+                          onClick={() => handleViewComplaint(complaint.id)}
+                        >
+                          <div className="notification-content">
+                            <div className="notification-student">
+                              <strong>{complaint.name}</strong>
+                              <span className="notification-matricule">
+                                {complaint.matricule}
+                              </span>
+                            </div>
+                            <div className="notification-school">
+                              {complaint.school}
+                            </div>
+                            <div className="notification-course">
+                              {complaint.course} - {complaint.type}
+                            </div>
+                          </div>
+                          <div className="notification-time">
+                            {new Date(
+                              complaint.submittedDate,
+                            ).toLocaleDateString()}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             <button className="theme-toggle-header" onClick={toggleDarkMode}>
               {darkMode ? <Sun size={16} /> : <Moon size={16} />}
               <span style={{ marginLeft: "8px" }}>

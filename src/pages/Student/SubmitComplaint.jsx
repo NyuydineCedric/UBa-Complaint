@@ -1,15 +1,17 @@
 // pages/Student/SubmitComplaint.jsx
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useMemo } from "react";
 import "./submitcomplaint.css";
 import "./StudentStyle.css";
 import { AppContext } from "../../context/AppContext";
-import { Upload, X, Paperclip } from "lucide-react";
+import { X, Paperclip } from "lucide-react";
+import { getCoursesForDepartment } from "../../utils/courses";
 
 export default function Submit() {
   const { user, addComplaint, showToast, complaints } = useContext(AppContext);
 
   const initialForm = {
-    course: "",
+    courseCode: "",
+    courseTitle: "",
     type: "",
     priority: "Medium",
     description: "",
@@ -18,16 +20,28 @@ export default function Submit() {
   const [form, setForm] = useState(initialForm);
   const [files, setFiles] = useState([]);
   const [dragActive, setDragActive] = useState(false);
+  const availableCourses = useMemo(() => {
+    const departmentKey =
+      user?.department || user?.program || user?.school || "";
+    return getCoursesForDepartment(departmentKey);
+  }, [user?.department, user?.program, user?.school]);
 
   // Load draft
   useEffect(() => {
     const draft = localStorage.getItem("complaint_draft");
     if (draft) {
       const parsed = JSON.parse(draft);
-      setForm(parsed.form || initialForm);
+      const storedForm = parsed.form || initialForm;
+      const [courseCode, courseTitle] = (storedForm.course || "").split(" - ");
+      setForm({
+        ...initialForm,
+        ...storedForm,
+        courseCode: storedForm.courseCode || courseCode || "",
+        courseTitle: storedForm.courseTitle || courseTitle || "",
+      });
       setFiles(parsed.files || []);
     }
-  }, []);
+  }, []); // initialForm is constant, no need to include
 
   // Auto save draft
   useEffect(() => {
@@ -35,7 +49,16 @@ export default function Submit() {
   }, [form, files]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === "course") {
+      setForm({
+        ...form,
+        courseCode: value,
+        courseTitle: value,
+      });
+      return;
+    }
+    setForm({ ...form, [name]: value });
   };
 
   // File conversion
@@ -81,7 +104,7 @@ export default function Submit() {
   const isDuplicate = () => {
     return complaints.some(
       (c) =>
-        c.course === form.course &&
+        c.course === form.courseCode &&
         c.type === form.type &&
         c.userId === user?.matricule,
     );
@@ -91,8 +114,24 @@ export default function Submit() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.course || !form.type || !form.description) {
+    if (
+      !form.courseCode ||
+      !form.courseTitle ||
+      !form.type ||
+      !form.description
+    ) {
       showToast("Please fill all fields", "error");
+      return;
+    }
+
+    // Check if file is required for CA Mark
+    if (form.type === "CA Mark" && files.length === 0) {
+      showToast("Please attach proof for CA Mark complaints", "error");
+      return;
+    }
+
+    if (form.description.length < 10) {
+      showToast("Description must be at least 10 characters long", "error");
       return;
     }
 
@@ -105,14 +144,21 @@ export default function Submit() {
 
     const newComplaint = {
       userId: currentUser.matricule || user?.matricule,
+      student: currentUser.name || "Unknown",
+      studentId: currentUser.matricule || "N/A",
       name: currentUser.name || "Unknown",
       email: currentUser.email || "N/A",
       department: currentUser.department || "N/A",
       school: currentUser.school || "N/A",
       level: currentUser.level || "N/A",
       phoneNumber: currentUser.phoneNumber || "N/A",
-      title: `${form.type} - ${form.course}`,
-      ...form,
+      program: currentUser.program || currentUser.department || "N/A",
+      title: `${form.type} - ${form.courseCode}`,
+      course: form.courseCode,
+      courseTitle: form.courseTitle,
+      type: form.type,
+      priority: form.priority,
+      description: form.description,
       files,
     };
 
@@ -130,14 +176,26 @@ export default function Submit() {
         {/* COURSE */}
         <div className="student-form-group">
           <label>Course</label>
-          <input
+          <select
             name="course"
-            value={form.course}
+            value={
+              form.courseCode ? `${form.courseCode}|${form.courseTitle}` : ""
+            }
             onChange={handleChange}
-            placeholder="Enter course name/code"
             className="student-input"
             required
-          />
+          >
+            <option value="">
+              {availableCourses.length > 0
+                ? "Select a course"
+                : "No courses available for your department"}
+            </option>
+            {availableCourses.map((course, index) => (
+              <option key={index} value={course}>
+                {course}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* TYPE */}
@@ -189,25 +247,27 @@ export default function Submit() {
           />
         </div>
 
-        {/* FILE UPLOAD */}
-        <div className="student-form-group">
-          <label>Attachments (Optional)</label>
-          <div
-            className={`upload-box ${dragActive ? "active" : ""}`}
-            onDragOver={handleDrag}
-            onDragLeave={() => setDragActive(false)}
-            onDrop={handleDrop}
-          >
-            <Paperclip size={24} />
-            <p>Drag & drop files here or click to upload</p>
-            <input
-              type="file"
-              multiple
-              onChange={handleFile}
-              accept="image/*,.pdf,.doc,.docx"
-            />
+        {/* FILE UPLOAD - Only for CA Mark */}
+        {form.type === "CA Mark" && (
+          <div className="student-form-group">
+            <label>Attachments (Required for CA Mark)</label>
+            <div
+              className={`upload-box ${dragActive ? "active" : ""}`}
+              onDragOver={handleDrag}
+              onDragLeave={() => setDragActive(false)}
+              onDrop={handleDrop}
+            >
+              <Paperclip size={24} />
+              <p>Drag & drop files here or click to upload</p>
+              <input
+                type="file"
+                multiple
+                onChange={handleFile}
+                accept="image/*,.pdf,.doc,.docx"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* FILE PREVIEW */}
         {files.length > 0 && (

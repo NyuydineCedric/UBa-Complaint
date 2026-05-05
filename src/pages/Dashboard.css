@@ -456,3 +456,120 @@ body {
     flex-direction: column;
   }
 }
+
+/* Dark Mode */
+body.dark-mode {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+body.dark-mode .dashboard-header h1 {
+  background: linear-gradient(135deg, #f1f5f9, #818cf8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+body.dark-mode .dashboard-header p {
+  color: #cbd5e1;
+}
+
+body.dark-mode .date-range {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .stat-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark-mode .stat-label {
+  color: #94a3b8;
+}
+
+body.dark-mode .stat-badge-new {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+body.dark-mode .chart-card,
+body.dark-mode .complaints-overview,
+body.dark-mode .recent-complaints {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark-mode .chart-card h2,
+body.dark-mode .complaints-overview h2,
+body.dark-mode .section-header h2 {
+  color: #f1f5f9;
+}
+
+body.dark-mode .bar-value-top {
+  color: #f1f5f9;
+  background: #0f172a;
+}
+
+body.dark-mode .bars-container {
+  border-color: #334155;
+  background: repeating-linear-gradient(
+    to top,
+    #0f172a 0px,
+    #0f172a 1px,
+    transparent 1px,
+    transparent calc(25% - 1px)
+  );
+}
+
+body.dark-mode .x-label {
+  color: #cbd5e1;
+}
+
+body.dark-mode .pie-value {
+  color: #f1f5f9;
+}
+
+body.dark-mode .pie-label {
+  color: #94a3b8;
+}
+
+body.dark-mode .legend-info {
+  color: #e2e8f0;
+}
+
+body.dark-mode .legend-count {
+  color: #93c5fd;
+}
+
+body.dark-mode .complaints-table th {
+  background: #0f172a;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+body.dark-mode .complaints-table td {
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .view-all {
+  color: #60a5fa;
+}
+
+body.dark-mode .view-all:hover {
+  color: #93c5fd;
+}
+
+body.dark-mode .view-btn {
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+body.dark-mode .view-btn:hover {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}

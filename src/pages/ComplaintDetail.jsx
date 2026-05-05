@@ -16,6 +16,7 @@ import {
   Tag,
   MessageSquare,
   Image,
+  Paperclip,
 } from "lucide-react";
 import "./ComplaintDetail.css";
 
@@ -125,11 +126,13 @@ function ComplaintDetail() {
             </h3>
             <div className="info-row">
               <span className="info-label">Student Name:</span>
-              <span>{complaint.student}</span>
+              <span>{complaint.student || complaint.name}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Student ID:</span>
-              <span>{complaint.studentId}</span>
+              <span>
+                {complaint.studentId || complaint.userId || complaint.name}
+              </span>
             </div>
             <div className="info-row">
               <span className="info-label">Department:</span>
@@ -271,6 +274,44 @@ function ComplaintDetail() {
                 className="attachment-img"
               />
               <p>{complaint.attachmentName || "Screenshot"}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Images from files array */}
+        {complaint.files && complaint.files.length > 0 && (
+          <div className="detail-section full-width">
+            <h3>
+              <Image size={18} /> Attached Files ({complaint.files.length})
+            </h3>
+            <div className="files-gallery">
+              {complaint.files.map((file, idx) => (
+                <div key={idx} className="file-card">
+                  {file.type.startsWith("image/") ? (
+                    <>
+                      <img
+                        src={file.data}
+                        alt={file.name}
+                        className="file-preview-img"
+                      />
+                      <p className="file-name">{file.name}</p>
+                      <span className="file-size">
+                        {(file.size / 1024).toFixed(2)} KB
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="file-icon-placeholder">
+                        <Paperclip size={32} />
+                      </div>
+                      <p className="file-name">{file.name}</p>
+                      <span className="file-size">
+                        {(file.size / 1024).toFixed(2)} KB
+                      </span>
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}

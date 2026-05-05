@@ -1,5 +1,6 @@
 // context/AppContext.jsx
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useRef, useCallback } from "react";
+import { getTranslation } from "../translations";
 
 export const AppContext = createContext(null);
 
@@ -34,11 +35,27 @@ export default function AppProvider({ children }) {
     return localStorage.getItem("theme") || "light";
   });
 
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
   // ========== COMPLAINTS ==========
   const [complaints, setComplaints] = useState([]);
+  const [lastComplaintCount, setLastComplaintCount] = useState(0);
+  const [studentResolvedNotifications, setStudentResolvedNotifications] =
+    useState(0);
+
+  const resolvedBaselineRef = useRef(null);
+  const previousResolvedCountRef = useRef(null);
 
   // ========== TOASTS ==========
   const [toasts, setToasts] = useState([]);
+
+  const showToast = useCallback((message, type = "success") => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000);
+  }, []);
 
   // ========== SEARCH QUERY ==========
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,12 +65,28 @@ export default function AppProvider({ children }) {
       try {
         const data = await apiRequest("/complaints");
         setComplaints(data);
+        setLastComplaintCount(data.length);
       } catch (error) {
         console.warn("Could not load complaints from backend:", error.message);
       }
     };
 
     loadComplaints();
+
+    // Poll for new complaints every 3 seconds
+    const pollInterval = setInterval(async () => {
+      try {
+        const data = await apiRequest("/complaints");
+        if (data.length > lastComplaintCount) {
+          setUnreadNotifications(data.length - lastComplaintCount);
+        }
+        setComplaints(data);
+      } catch (error) {
+        console.warn("Polling error:", error.message);
+      }
+    }, 3000);
+
+    return () => clearInterval(pollInterval);
   }, []);
 
   useEffect(() => {
@@ -71,8 +104,47 @@ export default function AppProvider({ children }) {
       localStorage.setItem("currentUser", JSON.stringify(user));
     } else {
       localStorage.removeItem("currentUser");
+      resolvedBaselineRef.current = null;
+      previousResolvedCountRef.current = null;
+      setStudentResolvedNotifications(0);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const resolvedCount = complaints.filter(
+      (c) => c.userId === user?.matricule && c.status === "resolved",
+    ).length;
+
+    if (resolvedBaselineRef.current === null) {
+      resolvedBaselineRef.current = resolvedCount;
+      setStudentResolvedNotifications(0);
+    } else if (resolvedCount > resolvedBaselineRef.current) {
+      setStudentResolvedNotifications(
+        resolvedCount - resolvedBaselineRef.current,
+      );
+    }
+
+    if (previousResolvedCountRef.current === null) {
+      previousResolvedCountRef.current = resolvedCount;
+    } else if (resolvedCount > previousResolvedCountRef.current) {
+      showToast(
+        `A complaint has been resolved. Check your complaints list.`,
+        "success",
+      );
+      previousResolvedCountRef.current = resolvedCount;
+    }
+  }, [complaints, user, showToast]);
+
+  const markStudentNotificationsRead = () => {
+    if (!user) return;
+    const currentResolvedCount = complaints.filter(
+      (c) => c.userId === user?.matricule && c.status === "resolved",
+    ).length;
+    resolvedBaselineRef.current = currentResolvedCount;
+    setStudentResolvedNotifications(0);
+  };
 
   const register = async (data) => {
     const newUser = {
@@ -113,10 +185,23 @@ export default function AppProvider({ children }) {
     const complaint = {
       id: Date.now().toString(),
       ...payload,
-      userId: currentUser.matricule || payload.userId,
-      name: currentUser.name || payload.name || "Unknown",
+      userId:
+        currentUser.matricule || payload.studentId || payload.userId || "N/A",
+      student: currentUser.name || payload.student || payload.name || "Unknown",
+      name: currentUser.name || payload.name || payload.student || "Unknown",
+      studentId:
+        currentUser.matricule || payload.studentId || payload.userId || "N/A",
       email: currentUser.email || payload.email || "N/A",
-      department: currentUser.department || payload.department || "N/A",
+      department:
+        currentUser.department ||
+        payload.department ||
+        payload.program ||
+        "N/A",
+      program:
+        currentUser.program ||
+        payload.program ||
+        currentUser.department ||
+        "N/A",
       school: currentUser.school || payload.school || "N/A",
       level: currentUser.level || payload.level || "N/A",
       phoneNumber: currentUser.phoneNumber || payload.phoneNumber || "N/A",
@@ -174,14 +259,6 @@ export default function AppProvider({ children }) {
     return updated;
   };
 
-  const showToast = (message, type = "success") => {
-    const id = Date.now() + Math.random();
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 3000);
-  };
-
   const removeToast = (id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
@@ -191,106 +268,28 @@ export default function AppProvider({ children }) {
   };
 
   const [settings, setSettings] = useState({
-    language: "English",
+    language: localStorage.getItem("language") || "en",
     notifications: true,
   });
 
   const t = (key) => {
-    const translations = {
-      dashboard: "Dashboard",
-      welcome_back: "Welcome back, Administrator",
-      total_complaints: "Total Complaints",
-      this_week: "this week",
-      pending: "Pending",
-      in_progress: "In Progress",
-      resolved: "Resolved",
-      rejected: "Rejected",
-      complaints_by_school: "Complaints by School",
-      complaints_overview: "Complaints Overview",
-      recent_complaints: "Recent Complaints",
-      view_all: "View All",
-      complaint_id: "ID",
-      student_name: "Student",
-      course_code: "Course",
-      complaint_type: "Type",
-      status: "Status",
-      submitted: "Submitted",
-      actions: "Actions",
-      view: "View",
-      complaints: "Complaints",
-      manage_complaints: "Manage all complaints",
-      search_by: "Search by student, ID, course...",
-      all_status: "All Status",
-      pending_cap: "Pending",
-      in_progress_cap: "In Progress",
-      resolved_cap: "Resolved",
-      rejected_cap: "Rejected",
-      all_schools: "All Schools",
-      all_types: "All Types",
-      quick_filter: "Quick Filter",
-      all: "All",
-      school_label: "School",
-      type_label: "Type",
-      submitted_label: "Submitted",
-      reports_title: "Reports",
-      reports_subtitle: "Complaints analytics and reports",
-      export_report: "Export Report",
-      complaints_trend: "Complaints Trend",
-      by_semester: "By Semester",
-      by_year: "By Year",
-      total_complaints_short: "Total",
-      current_academic_year: "Current Academic Year",
-      last_10_years: "Last 10 Years",
-      resolved_short: "Resolved",
-      pending_short: "Pending",
-      complaints_by_status: "Complaints by Status",
-      complaints_by_semester: "Complaints by Semester",
-      complaints_by_year: "Complaints by Year",
-      schools_title: "Schools",
-      schools_subtitle: "Manage schools and departments",
-      add_school: "Add School",
-      schools: "Schools",
-      complaints_count: "Complaints",
-      students_count: "Students",
-      resolution_progress: "Resolution Progress",
-      head: "Head",
-      school_performance_details: "School Performance Details",
-      resolution_rate: "Resolution Rate",
-      details: "Details",
-      settings_title: "Settings",
-      settings_subtitle: "Manage your system settings",
-      save_changes: "Save Changes",
-      system_information: "System Information",
-      system_name: "System Name",
-      admin_email: "Admin Email",
-      appearance: "Appearance",
-      theme: "Theme",
-      light: "Light",
-      dark: "Dark",
-      language: "Language",
-      english: "English",
-      french: "French",
-      settings_saved: "Settings saved successfully!",
-      switched_to_light: "Switched to Light mode",
-      switched_to_dark: "Switched to Dark mode",
-      app_name: "UBa Complaint System",
-      search_placeholder: "Search...",
-    };
-
-    return translations[key] || key;
+    return getTranslation(settings.language, key);
   };
 
   return (
     <AppContext.Provider
       value={{
         user,
+        currentUser: user,
         setUser,
         register,
         login,
         logout,
         theme,
+        darkMode: theme === "dark",
         setTheme,
         toggleTheme,
+        toggleDarkMode: toggleTheme,
         complaints,
         getComplaints,
         addComplaint,
@@ -306,6 +305,10 @@ export default function AppProvider({ children }) {
         settings,
         setSettings,
         t,
+        unreadNotifications,
+        setUnreadNotifications,
+        studentResolvedNotifications,
+        markStudentNotificationsRead,
       }}
     >
       {children}
