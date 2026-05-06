@@ -1,0 +1,151 @@
+
+/* PAGE */
+.student-complaints-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.student-page-title {
+  font-size: 22px;
+  font-weight: 600;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.student-filter-bar {
+  display: flex;
+  gap: 10px;
+}
+.student-filter {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: #e5e7eb;
+  cursor: pointer;
+}
+
+.student-filter.student-active {
+  background-color: var(--student-primary);
+  color: var(--student-bg-nav-link-text);
+}
+
+/* TABLE */
+.student-table-container {
+  background: var(--student-bg-card);
+  border: 1px solid var(--student-border-card);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.student-table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.student-table-container th {
+  text-align: left;
+  font-size: 15px;
+  color: var(--text-main);
+  font-family: var(--student-font-family);
+  padding-bottom: 10px;
+}
+
+
+.student-table-container td {
+  padding: 12px 5px;
+  border-bottom: 1px solid var(--student-table-top);
+  color: var(--student-text-main);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+}
+
+.student-table-container tr:hover {
+  background-color: var(--student-hover-bg-table);
+}
+
+.student-status {
+  padding: 5px 20px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.student-status.student-pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.student-status.student-in-progress {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.student-status.student-resolved {
+  background: #d1fae5;
+  color: #065f46;
+}
+.student-status.student-rejected {
+  background:  rgb(249, 220, 220);
+  color: red;
+}
+.student-Filter-pending {
+    background: transparent;
+  border: 1px solid rgb(250, 206, 110);
+  color: rgb(255, 174, 0);
+}
+
+.student-Filter-progress {
+    background: transparent;
+  border: 1px solid rgb(169, 169, 255);
+  color: var(--in-progress);
+}
+
+.student-Filter-resolved {
+    background: transparent;
+  border: 1px solid rgb(117, 251, 117);
+  color: green;
+}
+.student-Filter-reject {
+  background: transparent;
+  border: 1px solid rgb(253, 142, 142);
+  color: red;
+}
+.complaint-card {
+  padding: 15px;
+  background: white;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.complaint-card:hover {
+  background: #f9fafb;
+}
+.status {
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+/* COLORS */
+.status.pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.status.in-progress {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status.resolved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}

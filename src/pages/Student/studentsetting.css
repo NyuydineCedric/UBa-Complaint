@@ -1,0 +1,109 @@
+
+/* PAGE */
+.student-settings-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.student-page-title {
+  font-size: 22px;
+  font-weight: 600;
+}
+.student-settings-card {
+  background: var(--student-bg-card);
+  border: 1px solid var(--student-border-card);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: var(--student-card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.student-setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.student-setting-item h4 {
+  margin-bottom: 5px;
+  color: var(--student-text-main);
+}
+
+.student-setting-item p {
+  font-size: 13px;
+  color: var(--student-text-secondary);
+}
+
+.student-switch {
+  position: relative;
+  width: 40px;
+  height: 20px;
+}
+
+.student-switch input {
+  display: none;
+}
+
+.student-slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: var(--student-table-top);
+  border-radius: 20px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: 0.3s;
+}
+
+.student-slider::before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 2px;
+  top: 2px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+input:checked + .student-slider {
+  background-color: #4F46E5;
+}
+
+input:checked + .student-slider::before {
+  transform: translateX(20px);
+}
+
+.student-action-btn {
+  padding: 10px 10px;
+  background: #dae2ff;
+  border: 1px solid rgb(169, 169, 255);
+  color: #4F46E5;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--student-font-family);
+}
+
+.student-logout-btn {
+  display: flex;
+  gap: 4px;
+  padding: 10px 10px;
+  background: #dae2ff;
+  border: 1px solid rgb(169, 169, 255);
+  color: #4F46E5;
+  border-radius: 8px;
+  cursor: pointer;
+  align-items: center;
+}
+
+.student-logout-btn p {
+  color: #4F46E5;
+  font-family: var(--student-font-family);
+}
+.student-logout-icon {
+  width: 15px;
+  height: 15px;
+}

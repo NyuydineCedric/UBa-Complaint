@@ -1,0 +1,41 @@
+/* studentlayout.css */
+.student-layout {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  background-color: var(--student-bg-main);
+  overflow: hidden;
+}
+
+.student-layout-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.student-layout-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: var(--student-bg-main);
+  transition: background-color 0.3s ease;
+}
+
+/* Scrollbar styling */
+.student-layout-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.student-layout-content::-webkit-scrollbar-track {
+  background: var(--student-bg-main);
+}
+
+.student-layout-content::-webkit-scrollbar-thumb {
+  background: var(--student-primary);
+  border-radius: 10px;
+}
+
+.student-layout-content::-webkit-scrollbar-thumb:hover {
+  background: var(--student-primary-hover);
+}

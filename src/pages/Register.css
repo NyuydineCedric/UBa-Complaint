@@ -1,4 +1,4 @@
-/* Register.css – with info box and standard colors */
+/* Register.css */
 .register-container {
   min-height: 100vh;
   display: flex;
@@ -22,35 +22,19 @@
 }
 
 .register-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 28px;
-  padding: 2rem;
+  padding: 2.5rem;
   width: 100%;
   max-width: 550px;
   box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.15);
   flex: 1;
+  backdrop-filter: blur(10px);
 }
 
-.register-info-box {
-    background-color: #eff6ff;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    margin-top: 1.5rem;
-    border: 1px solid #dbeafe;
-    margin-left: 100px;
-  }
-
-  .register-info-box h2 {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #0f3a7d;
-  }
-
-  .register-info-box p {
-    font-size: 0.875rem;
-    margin-bottom: 0.25rem;
-    color: #374151;
-  };
+[data-theme='dark'] .register-card {
+  background: rgba(30, 41, 59, 0.95);
+}
 
 .register-header {
   text-align: center;
@@ -58,15 +42,21 @@
 }
 
 .register-logo {
-  width: 200px;
-  margin: 0 auto 15px;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 10px;
+  object-fit: contain;
 }
 
 .register-header h1 {
-  font-size: 1.875rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: #111827;
-  margin: 0.5rem 0 20px;
+  margin: 0.5rem 0 5px;
+}
+
+[data-theme='dark'] .register-header h1 {
+  color: #F8FAFC;
 }
 
 .register-header p {
@@ -74,18 +64,28 @@
   margin: 0.25rem 0;
 }
 
+[data-theme='dark'] .register-header p {
+  color: #94A3B8;
+}
+
 .register-subtitle {
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  margin-top: 5px;
+  color: #6b7280;
 }
 
 .section-title {
   font-size: 1rem;
   font-weight: 600;
   color: #6366f1;
-  margin: 1rem 0 0.75rem;
+  margin: 1.5rem 0 0.75rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid #e5e7eb;
+}
+
+[data-theme='dark'] .section-title {
+  color: #818CF8;
+  border-bottom-color: #334155;
 }
 
 .form-group {
@@ -99,6 +99,10 @@
   font-weight: 600;
   color: #374151;
   margin-bottom: 0.5rem;
+}
+
+[data-theme='dark'] .form-group label {
+  color: #F8FAFC;
 }
 
 .input-wrapper {
@@ -118,12 +122,18 @@
   width: 100%;
   padding: 0.75rem 0.75rem 0.75rem 2.5rem;
   border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  border-radius: 12px;
   font-size: 1rem;
   transition: all 0.2s;
   box-sizing: border-box;
   background: white;
   color: #111827;
+}
+
+[data-theme='dark'] .input-field {
+  background: #0F172A;
+  border-color: #334155;
+  color: #F8FAFC;
 }
 
 .input-field:focus {
@@ -132,17 +142,66 @@
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
+[data-theme='dark'] .input-field:focus {
+  border-color: #818CF8;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
+}
+
 .input-field:disabled {
   background: #f9fafb;
   cursor: not-allowed;
 }
 
-select.input-field {
-  cursor: pointer;
+[data-theme='dark'] .input-field:disabled {
+  background: #1E293B;
 }
 
-select.input-field:disabled {
-  cursor: not-allowed;
+/* SELECT STYLING - FIXED */
+select.input-field {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+[data-theme='dark'] select.input-field {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+}
+
+/* SELECT OPTIONS STYLING */
+select.input-field option {
+  background: white;
+  color: #111827;
+  padding: 8px;
+}
+
+[data-theme='dark'] select.input-field option {
+  background: #1E293B;
+  color: #F8FAFC;
+}
+
+select.input-field option:hover {
+  background: #6366f1;
+  color: white;
+}
+
+[data-theme='dark'] select.input-field option:hover {
+  background: #818CF8;
+  color: white;
+}
+
+/* For Firefox */
+select.input-field:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 #000;
+}
+
+[data-theme='dark'] select.input-field:-moz-focusring {
+  text-shadow: 0 0 0 #F8FAFC;
 }
 
 .password-toggle {
@@ -159,31 +218,8 @@ select.input-field:disabled {
   align-items: center;
 }
 
-.password-strength {
-  margin-top: 0.5rem;
-}
-
-.strength-bars {
-  display: flex;
-  gap: 0.25rem;
-  margin-bottom: 0.5rem;
-}
-
-.strength-bar {
-  height: 4px;
-  flex: 1;
-  border-radius: 2px;
-  transition: background 0.2s;
-}
-
-.strength-feedback {
-  font-size: 0.7rem;
+.password-toggle:hover {
   color: #6b7280;
-}
-
-.strength-feedback ul {
-  margin: 0.25rem 0 0;
-  padding-left: 1.25rem;
 }
 
 .checkbox-label {
@@ -195,6 +231,10 @@ select.input-field:disabled {
   color: #374151;
 }
 
+[data-theme='dark'] .checkbox-label {
+  color: #F8FAFC;
+}
+
 .checkbox-label a {
   color: #6366f1;
   text-decoration: none;
@@ -204,19 +244,36 @@ select.input-field:disabled {
   text-decoration: underline;
 }
 
-.error-text {
+[data-theme='dark'] .checkbox-label a {
+  color: #818CF8;
+}
+
+.error-message {
+  background: #fee2e2;
   color: #dc2626;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+[data-theme='dark'] .error-message {
+  background: #1E293B;
+  color: #F87171;
+  border: 1px solid #ef4444;
 }
 
 .register-btn {
   width: 100%;
   padding: 0.75rem;
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  background: #6366f1;
   color: white;
   border: none;
-  border-radius: 40px;
+  border-radius: 12px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -225,6 +282,7 @@ select.input-field:disabled {
 }
 
 .register-btn:hover {
+  background: #4f46e5;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
@@ -242,6 +300,10 @@ select.input-field:disabled {
   color: #6b7280;
 }
 
+[data-theme='dark'] .login-link {
+  color: #94A3B8;
+}
+
 .login-link a {
   color: #6366f1;
   font-weight: 600;
@@ -252,18 +314,67 @@ select.input-field:disabled {
   text-decoration: underline;
 }
 
+[data-theme='dark'] .login-link a {
+  color: #818CF8;
+}
+
+.register-info-box {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 28px;
+  padding: 2rem;
+  max-width: 450px;
+  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme='dark'] .register-info-box {
+  background: rgba(30, 41, 59, 0.95);
+}
+
+.register-info-box h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+[data-theme='dark'] .register-info-box h2 {
+  color: #F8FAFC;
+}
+
+.register-info-box p {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+[data-theme='dark'] .register-info-box p {
+  color: #94A3B8;
+}
+
 .success-card {
   text-align: center;
+  padding: 3rem;
 }
 
 .success-card h1 {
   font-size: 1.8rem;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
+  color: #111827;
+}
+
+[data-theme='dark'] .success-card h1 {
+  color: #F8FAFC;
 }
 
 .success-card p {
   color: #6b7280;
   margin-bottom: 0.5rem;
+}
+
+[data-theme='dark'] .success-card p {
+  color: #94A3B8;
 }
 
 /* Responsive */
@@ -272,8 +383,10 @@ select.input-field:disabled {
     flex-direction: column;
     align-items: center;
   }
+  
   .register-info-box {
     max-width: 550px;
+    width: 100%;
   }
 }
 
@@ -281,13 +394,67 @@ select.input-field:disabled {
   .register-card {
     padding: 1.5rem;
   }
+  
   .register-logo {
-    width: 150px;
+    width: 60px;
+    height: 60px;
   }
+  
   .register-header h1 {
     font-size: 1.5rem;
   }
+  
   .register-info-box {
     padding: 1.5rem;
+  }
+  
+  .register-info-box h2 {
+    font-size: 1.1rem;
+  }
+}
+
+/* Additional Styles */
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.input-field::placeholder {
+  color: #9ca3af;
+}
+
+[data-theme='dark'] .input-field::placeholder {
+  color: #64748b;
+}
+
+/* Scrollbar for register card */
+.register-card::-webkit-scrollbar {
+  width: 4px;
+}
+
+.register-card::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.register-card::-webkit-scrollbar-thumb {
+  background: #6366f1;
+  border-radius: 4px;
+}
+
+[data-theme='dark'] .register-card::-webkit-scrollbar-thumb {
+  background: #818CF8;
+}
+
+.success-card {
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

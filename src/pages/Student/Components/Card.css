@@ -1,0 +1,112 @@
+/* Card.css */
+.student-stat-card {
+  background: var(--student-bg-card);
+  border: 1px solid var(--student-border-card);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.student-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.student-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.student-stat-icon svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.student-stat-info {
+  flex: 1;
+}
+
+.student-stat-title {
+  font-size: 14px;
+  color: var(--student-text-secondary);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.student-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--student-text-main);
+}
+
+/* Card variants */
+.stat-card-total .student-stat-icon {
+  background: #4F46E5;
+}
+
+.stat-card-total {
+  border-left: 4px solid #4F46E5;
+}
+
+.stat-card-pending .student-stat-icon {
+  background: #f59e0b;
+}
+
+.stat-card-pending {
+  border-left: 4px solid #f59e0b;
+}
+
+.stat-card-progress .student-stat-icon {
+  background: #3b82f6;
+}
+
+.stat-card-progress {
+  border-left: 4px solid #3b82f6;
+}
+
+.stat-card-resolved .student-stat-icon {
+  background: #10b981;
+}
+
+.stat-card-resolved {
+  border-left: 4px solid #10b981;
+}
+
+.stat-card-rejected .student-stat-icon {
+  background: #ef4444;
+}
+
+.stat-card-rejected {
+  border-left: 4px solid #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .student-stat-card {
+    padding: 16px;
+  }
+  
+  .student-stat-value {
+    font-size: 24px;
+  }
+  
+  .student-stat-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .student-stat-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+}

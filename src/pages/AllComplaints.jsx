@@ -10,15 +10,22 @@ function AllComplaints() {
   const [filtered, setFiltered] = useState([]);
   const [filters, setFilters] = useState({ status: "", school: "", type: "" });
   const [quickFilter, setQuickFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const simplifyType = (type) => {
     if (!type) return "CA Mark";
     return type.toLowerCase().includes("ca") ? "CA Mark" : "Exam Mark";
   };
 
+  // Get unique schools from complaints data
+  const availableSchools = [
+    ...new Set(complaints.map((c) => c.school).filter(Boolean)),
+  ].sort();
+
   useEffect(() => {
     const sorted = [...complaints].sort(
-      (a, b) => new Date(a.submittedDate) - new Date(b.submittedDate),
+      (a, b) => new Date(b.submittedDate) - new Date(a.submittedDate),
     );
     setFiltered(sorted);
   }, [complaints]);
@@ -28,10 +35,12 @@ function AllComplaints() {
     if (searchQuery) {
       f = f.filter(
         (c) =>
-          c.student.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.studentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.school.toLowerCase().includes(searchQuery.toLowerCase()),
+          c.student?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.studentId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.userId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.course?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.courseTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.school?.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
     if (filters.status) f = f.filter((c) => c.status === filters.status);
@@ -42,7 +51,7 @@ function AllComplaints() {
       f = f.filter(
         (c) => c.status === quickFilter.toLowerCase().replace(" ", "-"),
       );
-    f.sort((a, b) => new Date(a.submittedDate) - new Date(b.submittedDate));
+    f.sort((a, b) => new Date(b.submittedDate) - new Date(a.submittedDate));
     setFiltered(f);
   }, [complaints, searchQuery, filters, quickFilter]);
 
@@ -54,12 +63,22 @@ function AllComplaints() {
     rejected: filtered.filter((c) => c.status === "rejected").length,
   };
 
-  const schools = ["FED", "FHS", "HTTC", "FGA"];
+  const schools = availableSchools;
   const schoolStats = schools.map((s) => ({
     label: s,
     count: filtered.filter((c) => c.school === s).length,
   }));
   const maxSchool = Math.max(...schoolStats.map((s) => s.count), 1);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = filtered.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
   const statusData = [
     { label: t("resolved_short"), count: stats.resolved, color: "#10B981" },
     { label: t("in_progress"), count: stats.inProgress, color: "#3B82F6" },
@@ -71,10 +90,12 @@ function AllComplaints() {
   const handleFilterChange = (type, value) => {
     setFilters((p) => ({ ...p, [type]: value }));
     setQuickFilter("All");
+    setCurrentPage(1); // Reset to first page when filters change
   };
   const handleQuickFilter = (status) => {
     setQuickFilter(status);
     setFilters((p) => ({ ...p, status: "" }));
+    setCurrentPage(1); // Reset to first page when filters change
   };
   const handleView = (id) => navigate(`/complaints/${id}`);
   const getStatusClass = (s) =>
@@ -131,10 +152,11 @@ function AllComplaints() {
             onChange={(e) => handleFilterChange("school", e.target.value)}
           >
             <option value="">{t("all_schools")}</option>
-            <option value="FED">FED</option>
-            <option value="FHS">FHS</option>
-            <option value="HTTC">HTTC</option>
-            <option value="FGA">FGA</option>
+            {schools.map((school) => (
+              <option key={school} value={school}>
+                {school}
+              </option>
+            ))}
           </select>
           <select
             className="filter-select"
@@ -305,15 +327,15 @@ function AllComplaints() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((c, idx) => (
+            {currentItems.map((c, idx) => (
               <tr key={c.id}>
-                <td>{idx + 1}</td>
+                <td>{startIndex + idx + 1}</td>
                 <td>
                   <span className="complaint-id">{c.id}</span>
                 </td>
-                <td>{c.student}</td>
-                <td>{c.studentId}</td>
-                <td>{c.course}</td>
+                <td>{c.student || c.name}</td>
+                <td>{c.studentId || c.userId || c.name}</td>
+                <td>{c.courseTitle || c.course}</td>
                 <td>
                   <span className="type-badge">{simplifyType(c.type)}</span>
                 </td>
@@ -323,7 +345,11 @@ function AllComplaints() {
                     {getStatusText(c.status)}
                   </span>
                 </td>
-                <td>{c.submitted}</td>
+                <td>
+                  {c.submittedDate
+                    ? new Date(c.submittedDate).toLocaleDateString()
+                    : c.date}
+                </td>
                 <td>
                   <button className="btn-view" onClick={() => handleView(c.id)}>
                     <Eye size={14} style={{ marginRight: "4px" }} />
@@ -337,13 +363,21 @@ function AllComplaints() {
       </div>
 
       <div className="pagination">
-        <button className="pagination-btn">
+        <button
+          className="pagination-btn"
+          disabled={currentPage === 1}
+          onClick={() => handlePageChange(currentPage - 1)}
+        >
           <ChevronLeft size={14} /> {t("previous")}
         </button>
         <span className="pagination-info">
-          Page 1 / {Math.ceil(filtered.length / 10) || 1}
+          Page {currentPage} / {totalPages || 1}
         </span>
-        <button className="pagination-btn">
+        <button
+          className="pagination-btn"
+          disabled={currentPage === totalPages || totalPages === 0}
+          onClick={() => handlePageChange(currentPage + 1)}
+        >
           {t("next")} <ChevronRight size={14} />
         </button>
       </div>

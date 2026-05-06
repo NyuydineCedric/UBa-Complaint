@@ -12,19 +12,24 @@ import {
   User,
   BookOpen,
   Calendar,
+  Building,
   Tag,
   MessageSquare,
+  Image,
+  Paperclip,
 } from "lucide-react";
 import "./ComplaintDetail.css";
 
 function ComplaintDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { complaints, updateComplaint } = useContext(AppContext);
+  const { complaints, updateComplaint, t } = useContext(AppContext);
   const complaint = complaints.find((c) => c.id === id);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedStatus, setEditedStatus] = useState(complaint?.status || "");
+  const [adminNote, setAdminNote] = useState("");
+  const [notes, setNotes] = useState(complaint?.adminNotes || []);
 
   if (!complaint) {
     return (
@@ -42,6 +47,21 @@ function ComplaintDetail() {
   const handleStatusUpdate = () => {
     updateComplaint(complaint.id, { status: editedStatus });
     setIsEditing(false);
+  };
+
+  const handleAddNote = () => {
+    if (adminNote.trim()) {
+      const newNote = {
+        id: Date.now(),
+        text: adminNote,
+        author: "Admin",
+        date: new Date().toLocaleString(),
+      };
+      const updatedNotes = [...notes, newNote];
+      setNotes(updatedNotes);
+      updateComplaint(complaint.id, { adminNotes: updatedNotes });
+      setAdminNote("");
+    }
   };
 
   const getStatusIcon = (status) => {
@@ -97,7 +117,7 @@ function ComplaintDetail() {
           </div>
         </div>
 
-        <h1 className="detail-title">Complaint ID {complaint.id}</h1>
+        <h1 className="detail-title">Complaint #{complaint.id}</h1>
 
         <div className="detail-grid">
           <div className="detail-section">
@@ -106,11 +126,13 @@ function ComplaintDetail() {
             </h3>
             <div className="info-row">
               <span className="info-label">Student Name:</span>
-              <span>{complaint.student}</span>
+              <span>{complaint.student || complaint.name}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Student ID:</span>
-              <span>{complaint.studentId}</span>
+              <span>
+                {complaint.studentId || complaint.userId || complaint.name}
+              </span>
             </div>
             <div className="info-row">
               <span className="info-label">Department:</span>
@@ -158,20 +180,19 @@ function ComplaintDetail() {
             </div>
             <div className="info-row">
               <span className="info-label">Semester:</span>
-              <span>{complaint.semester || "N/A"}</span>
+              <span>
+                {complaint.semester === "1"
+                  ? "Semester 1"
+                  : complaint.semester === "2"
+                    ? "Semester 2"
+                    : complaint.semester === "3"
+                      ? "Resit Semester"
+                      : complaint.semester || "N/A"}
+              </span>
             </div>
             <div className="info-row">
               <span className="info-label">Year:</span>
               <span>{complaint.year || "N/A"}</span>
-            </div>
-          </div>
-
-          <div className="detail-section full-width">
-            <h3>
-              <MessageSquare size={18} /> Complaint Details
-            </h3>
-            <div className="complaint-details-text">
-              <p>{complaint.details}</p>
             </div>
           </div>
 
@@ -236,6 +257,97 @@ function ComplaintDetail() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+
+        <div className="detail-section full-width">
+          <h3>
+            <MessageSquare size={18} /> Complaint Details
+          </h3>
+          <div className="complaint-details-text">
+            <p>{complaint.details}</p>
+          </div>
+        </div>
+
+        {/* Image attachment – for CA Mark complaints */}
+        {complaint.attachment && (
+          <div className="detail-section full-width">
+            <h3>
+              <Image size={18} /> Proof Attachment
+            </h3>
+            <div className="attachment-container">
+              <img
+                src={complaint.attachment}
+                alt="Attachment"
+                className="attachment-img"
+              />
+              <p>{complaint.attachmentName || "Screenshot"}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Images from files array */}
+        {complaint.files && complaint.files.length > 0 && (
+          <div className="detail-section full-width">
+            <h3>
+              <Image size={18} /> Attached Files ({complaint.files.length})
+            </h3>
+            <div className="files-gallery">
+              {complaint.files.map((file, idx) => (
+                <div key={idx} className="file-card">
+                  {file.type.startsWith("image/") ? (
+                    <>
+                      <img
+                        src={file.data}
+                        alt={file.name}
+                        className="file-preview-img"
+                      />
+                      <p className="file-name">{file.name}</p>
+                      <span className="file-size">
+                        {(file.size / 1024).toFixed(2)} KB
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="file-icon-placeholder">
+                        <Paperclip size={32} />
+                      </div>
+                      <p className="file-name">{file.name}</p>
+                      <span className="file-size">
+                        {(file.size / 1024).toFixed(2)} KB
+                      </span>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="detail-section full-width">
+          <h3>Admin Notes</h3>
+          <div className="notes-list">
+            {notes.length === 0 && <p className="no-notes">No notes yet.</p>}
+            {notes.map((note) => (
+              <div key={note.id} className="note-item">
+                <div className="note-header">
+                  <strong>{note.author}</strong>
+                  <span className="note-date">{note.date}</span>
+                </div>
+                <p className="note-text">{note.text}</p>
+              </div>
+            ))}
+          </div>
+          <div className="add-note">
+            <textarea
+              placeholder="Add a note about this complaint..."
+              value={adminNote}
+              onChange={(e) => setAdminNote(e.target.value)}
+              rows="3"
+            />
+            <button onClick={handleAddNote} className="add-note-btn">
+              Add Note
+            </button>
           </div>
         </div>
       </div>

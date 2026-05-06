@@ -1,343 +1,338 @@
-import { createContext, useState, useEffect } from "react";
+// context/AppContext.jsx
+import { createContext, useState, useEffect, useRef, useCallback } from "react";
 import { getTranslation } from "../translations";
 
 export const AppContext = createContext(null);
 
-// ========== INITIAL DATA ==========
-const initialComplaints = [
-  {
-    id: "COMP-2026-006",
-    student: "Amina Tchamba",
-    studentId: "UBA2012345",
-    department: "Department of Mathematics",
-    program: "BSc Mathematics",
-    course: "MTH151",
-    courseTitle: "Calculus I",
-    school: "FHS",
-    type: "Missing Exam Marks",
-    status: "pending",
-    priority: "High",
-    submittedDate: "2026-05-01T09:20:00.000Z",
-    submitted: "May 1, 2026",
-    lastUpdate: "May 1, 2026",
-    semester: "First",
-    year: 2026,
-    details:
-      "I have not received my final exam mark for Calculus I. The portal shows zero even though I sat the exam.",
-  },
-  {
-    id: "COMP-2026-005",
-    student: "Kofi Mensah",
-    studentId: "UBA1945678",
-    department: "Department of Physics",
-    program: "BSc Physics",
-    course: "PHY151",
-    courseTitle: "Physics I",
-    school: "FHS",
-    type: "Incorrect CA Marks",
-    status: "rejected",
-    priority: "Medium",
-    submittedDate: "2026-04-25T13:40:00.000Z",
-    submitted: "Apr 25, 2026",
-    lastUpdate: "Apr 28, 2026",
-    semester: "First",
-    year: 2026,
-    details:
-      "My CA marks appear lower than the score I received in class tests.",
-  },
-  {
-    id: "COMP-2026-004",
-    student: "Amara Dushime",
-    studentId: "UBA1932100",
-    department: "Department of Biology",
-    program: "BSc Biology",
-    course: "BIO202",
-    courseTitle: "Organic Biology",
-    school: "FED",
-    type: "Missing CA Marks",
-    status: "pending",
-    priority: "Medium",
-    submittedDate: "2026-04-29T10:30:00.000Z",
-    submitted: "Apr 29, 2026",
-    lastUpdate: "Apr 29, 2026",
-    semester: "First",
-    year: 2026,
-    details:
-      "Continuous assessment marks for Organic Biology are not reflected on my transcript.",
-  },
-  {
-    id: "COMP-2026-003",
-    student: "Sarah Nkasa",
-    studentId: "UBA1956234",
-    department: "Department of Chemistry",
-    program: "BSc Chemistry",
-    course: "CHM101",
-    courseTitle: "General Chemistry",
-    school: "HTTC",
-    type: "Missing Exam Marks",
-    status: "resolved",
-    priority: "Low",
-    submittedDate: "2026-04-26T11:55:00.000Z",
-    submitted: "Apr 26, 2026",
-    lastUpdate: "Apr 29, 2026",
-    semester: "First",
-    year: 2026,
-    details:
-      "Final exam mark is missing from the portal even though I have the exam slip.",
-  },
-  {
-    id: "COMP-2026-002",
-    student: "James Okonkwo",
-    studentId: "UBA1987654",
-    department: "Department of Economics",
-    program: "BSc Economics",
-    course: "MTH151",
-    courseTitle: "Calculus I",
-    school: "FHS",
-    type: "Incorrect Exam Marks",
-    status: "in-progress",
-    priority: "High",
-    submittedDate: "2026-04-27T11:10:00.000Z",
-    submitted: "Apr 27, 2026",
-    lastUpdate: "Apr 29, 2026",
-    semester: "First",
-    year: 2026,
-    details:
-      "My exam score has been entered incorrectly and does not match the official grade sheet.",
-  },
-  {
-    id: "COMP-2026-001",
-    student: "Nyuydine Cedric",
-    studentId: "UBA2481980",
-    department: "Department of Education",
-    program: "BA Education",
-    course: "EDU201",
-    courseTitle: "Educational Psychology",
-    school: "FED",
-    type: "Missing CA Marks",
-    status: "pending",
-    priority: "High",
-    submittedDate: "2026-04-28T15:00:00.000Z",
-    submitted: "Apr 28, 2026",
-    lastUpdate: "Apr 29, 2026",
-    semester: "First",
-    year: 2026,
-    details:
-      "The CA mark for Educational Psychology is not recorded in the system.",
-  },
-];
+const API_BASE = "/api";
 
-const initialNotifications = [
-  {
-    id: "n-001",
-    title: "New complaint submitted",
-    description: "A student has submitted a new marks complaint.",
-    time: "2m ago",
-    unread: true,
-  },
-  {
-    id: "n-002",
-    title: "Monthly summary ready",
-    description: "Your weekly complaint performance report is ready.",
-    time: "1h ago",
-    unread: false,
-  },
-];
+async function apiRequest(path, options = {}) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    ...options,
+  });
 
-const initialMessages = [
-  {
-    id: "m-001",
-    studentName: "Nyuydine Cedric",
-    studentId: "UBA2481980",
-    lastMessage: "Need an update on my complaint...",
-    time: "2m ago",
-    conversation: [
-      {
-        sender: "student",
-        text: "Need an update on my complaint for Continuous Assessment grade.",
-        time: "2m ago",
-      },
-    ],
-  },
-  {
-    id: "m-002",
-    studentName: "Dr. John Doe",
-    studentId: "STAFF001",
-    lastMessage: "Please confirm the attached report.",
-    time: "1h ago",
-    conversation: [
-      {
-        sender: "staff",
-        text: "Please confirm the attached report.",
-        time: "1h ago",
-      },
-    ],
-  },
-];
+  const data = await response.json().catch(() => null);
 
-// ========== PROVIDER ==========
-export function AppProvider({ children }) {
-  // ========== AUTHENTICATION ==========
-  const [currentUser, setCurrentUser] = useState(() => {
+  if (!response.ok) {
+    const message = data?.message || response.statusText || "Request failed";
+    throw new Error(message);
+  }
+
+  return data;
+}
+
+export default function AppProvider({ children }) {
+  // ========== USER ==========
+  const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("currentUser");
     return saved ? JSON.parse(saved) : null;
   });
 
-  const login = (user) => {
-    setCurrentUser(user);
-    localStorage.setItem("currentUser", JSON.stringify(user));
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("theme") || "light";
+  });
+
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  // ========== COMPLAINTS ==========
+  const [complaints, setComplaints] = useState([]);
+  const [lastComplaintCount, setLastComplaintCount] = useState(0);
+  const [studentResolvedNotifications, setStudentResolvedNotifications] =
+    useState(0);
+
+  const resolvedBaselineRef = useRef(null);
+  const previousResolvedCountRef = useRef(null);
+  const previousComplaintsRef = useRef([]);
+
+  // ========== TOASTS ==========
+  const [toasts, setToasts] = useState([]);
+
+  const showToast = useCallback((message, type = "success") => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000);
+  }, []);
+
+  // ========== SEARCH QUERY ==========
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const loadComplaints = async () => {
+      try {
+        const data = await apiRequest("/complaints");
+        setComplaints(data);
+        setLastComplaintCount(data.length);
+        previousComplaintsRef.current = data;
+      } catch (error) {
+        console.warn("Could not load complaints from backend:", error.message);
+      }
+    };
+
+    loadComplaints();
+
+    // Poll for new complaints and status updates every 3 seconds
+    const pollInterval = setInterval(async () => {
+      try {
+        const data = await apiRequest("/complaints");
+
+        // Detect new complaints
+        if (data.length > lastComplaintCount) {
+          setUnreadNotifications(data.length - lastComplaintCount);
+        }
+
+        // Detect complaint status changes
+        if (previousComplaintsRef.current.length > 0) {
+          data.forEach((newComplaint) => {
+            const oldComplaint = previousComplaintsRef.current.find(
+              (c) => c.id === newComplaint.id,
+            );
+            if (oldComplaint && oldComplaint.status !== newComplaint.status) {
+              console.log(
+                `Complaint ${newComplaint.id} status changed from ${oldComplaint.status} to ${newComplaint.status}`,
+              );
+              setUnreadNotifications((prev) => prev + 1);
+            }
+          });
+        }
+
+        setComplaints(data);
+        previousComplaintsRef.current = data;
+      } catch (error) {
+        console.warn("Polling error:", error.message);
+      }
+    }, 3000);
+
+    return () => clearInterval(pollInterval);
+  }, [lastComplaintCount]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+    if (theme === "dark") {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  }, [theme]);
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("currentUser", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("currentUser");
+      resolvedBaselineRef.current = null;
+      previousResolvedCountRef.current = null;
+      setStudentResolvedNotifications(0);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const resolvedCount = complaints.filter(
+      (c) => c.userId === user?.matricule && c.status === "resolved",
+    ).length;
+
+    if (resolvedBaselineRef.current === null) {
+      resolvedBaselineRef.current = resolvedCount;
+      setStudentResolvedNotifications(0);
+    } else if (resolvedCount > resolvedBaselineRef.current) {
+      setStudentResolvedNotifications(
+        resolvedCount - resolvedBaselineRef.current,
+      );
+    }
+
+    if (previousResolvedCountRef.current === null) {
+      previousResolvedCountRef.current = resolvedCount;
+    } else if (resolvedCount > previousResolvedCountRef.current) {
+      showToast(
+        `A complaint has been resolved. Check your complaints list.`,
+        "success",
+      );
+      previousResolvedCountRef.current = resolvedCount;
+    }
+  }, [complaints, user, showToast]);
+
+  const markStudentNotificationsRead = () => {
+    if (!user) return;
+    const currentResolvedCount = complaints.filter(
+      (c) => c.userId === user?.matricule && c.status === "resolved",
+    ).length;
+    resolvedBaselineRef.current = currentResolvedCount;
+    setStudentResolvedNotifications(0);
+  };
+
+  const register = async (data) => {
+    const newUser = {
+      ...data,
+      role: data.role || "student",
+      avatar: data.avatar || null,
+      createdAt: new Date().toISOString(),
+    };
+
+    return apiRequest("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(newUser),
+    });
+  };
+
+  const login = async (email, password, matricule) => {
+    try {
+      const result = await apiRequest("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password, matricule }),
+      });
+      setUser(result);
+      return true;
+    } catch (error) {
+      return false;
+    }
   };
 
   const logout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem("currentUser");
+    setUser(null);
+    setToasts([]);
   };
 
-  // Dark mode
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem("darkMode");
-    return saved === "true";
-  });
+  const getComplaints = () => complaints;
 
-  useEffect(() => {
-    if (darkMode) document.body.classList.add("dark-mode");
-    else document.body.classList.remove("dark-mode");
-    localStorage.setItem("darkMode", darkMode);
-  }, [darkMode]);
-
-  const toggleDarkMode = () => setDarkMode((prev) => !prev);
-
-  // Settings
-  const [settings, setSettings] = useState(() => {
-    const saved = localStorage.getItem("settings");
-    return saved
-      ? JSON.parse(saved)
-      : {
-          language: "English",
-          notifications: true,
-          browserNotifications: true,
-          itemsPerPage: 10,
-          defaultDateRange: "Last 30 Days",
-        };
-  });
-
-  useEffect(() => {
-    localStorage.setItem("settings", JSON.stringify(settings));
-  }, [settings]);
-
-  // Translation function
-  const t = (key) => getTranslation(settings.language, key);
-
-  // State
-  const [complaints, setComplaints] = useState(initialComplaints);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [notifications, setNotifications] = useState(initialNotifications);
-  const [messages, setMessages] = useState(initialMessages);
-
-  const unreadCount = notifications.filter((n) => n.unread).length;
-
-  // Complaint functions
-  const addComplaint = (payload) => {
-    const nextIndex = complaints.length + 1;
-    const id = `COMP-${new Date().getFullYear()}-${String(nextIndex).padStart(3, "0")}`;
-    const submittedDate = new Date().toISOString();
-    const newComplaint = {
-      id,
-      status: "pending",
-      priority: "High",
-      lastUpdate: new Date().toISOString(),
-      submittedDate,
-      submitted: new Date(submittedDate).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }),
-      semester: payload.semester,
-      year: payload.year,
-      details: payload.details,
+  const addComplaint = async (payload) => {
+    const currentUser = user || {};
+    const complaint = {
+      id: Date.now().toString(),
       ...payload,
+      userId:
+        currentUser.matricule || payload.studentId || payload.userId || "N/A",
+      student: currentUser.name || payload.student || payload.name || "Unknown",
+      name: currentUser.name || payload.name || payload.student || "Unknown",
+      studentId:
+        currentUser.matricule || payload.studentId || payload.userId || "N/A",
+      email: currentUser.email || payload.email || "N/A",
+      department:
+        currentUser.department ||
+        payload.department ||
+        payload.program ||
+        "N/A",
+      program:
+        currentUser.program ||
+        payload.program ||
+        currentUser.department ||
+        "N/A",
+      school: currentUser.school || payload.school || "N/A",
+      level: currentUser.level || payload.level || "N/A",
+      phoneNumber: currentUser.phoneNumber || payload.phoneNumber || "N/A",
+      status: "pending",
+      date: new Date().toISOString().split("T")[0],
+      submittedDate: new Date().toISOString(),
+      lastUpdate: new Date().toISOString(),
     };
-    setComplaints((prev) => [newComplaint, ...prev]);
-    setNotifications((prev) => [
-      {
-        id: `n-${Date.now()}`,
-        title: "New complaint submitted",
-        description: `${payload.student} submitted a new complaint.`,
-        time: "Just now",
-        unread: true,
-      },
-      ...prev,
-    ]);
+
+    const created = await apiRequest("/complaints", {
+      method: "POST",
+      body: JSON.stringify(complaint),
+    });
+
+    setComplaints((prev) => [created, ...prev]);
+    showToast("Complaint submitted successfully!", "success");
+    return created;
   };
 
-  const updateComplaint = (id, updates) => {
-    setComplaints((prev) =>
-      prev.map((c) =>
-        c.id === id
-          ? { ...c, ...updates, lastUpdate: new Date().toISOString() }
-          : c,
-      ),
-    );
+  const updateComplaint = async (id, updates) => {
+    const updated = await apiRequest(`/complaints/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        ...updates,
+        lastUpdate: new Date().toISOString(),
+      }),
+    });
+
+    setComplaints((prev) => prev.map((c) => (c.id === id ? updated : c)));
+
+    showToast("Complaint updated successfully!", "success");
+    return updated;
   };
 
-  // Notification functions
-  const markNotificationRead = (id) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, unread: false } : n)),
-    );
-  };
-  const markAllNotificationsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+  const updateComplaintStatus = async (id, status) => {
+    return updateComplaint(id, { status });
   };
 
-  // Message function
-  const sendMessage = (conversationId, reply) => {
-    setMessages((prev) =>
-      prev.map((msg) =>
-        msg.id === conversationId
-          ? {
-              ...msg,
-              lastMessage: reply,
-              time: "Just now",
-              conversation: [
-                ...msg.conversation,
-                { sender: "admin", text: reply, time: "Just now" },
-              ],
-            }
-          : msg,
-      ),
-    );
+  const deleteComplaint = async (id) => {
+    await apiRequest(`/complaints/${id}`, { method: "DELETE" });
+    setComplaints((prev) => prev.filter((c) => c.id !== id));
+    showToast("Complaint deleted successfully!", "success");
+  };
+
+  const updateProfile = async (matricule, updates) => {
+    const updated = await apiRequest(`/users/${matricule}`, {
+      method: "PUT",
+      body: JSON.stringify(updates),
+    });
+
+    if (user?.matricule === matricule) {
+      setUser(updated);
+    }
+
+    return updated;
+  };
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
+
+  const [settings, setSettings] = useState({
+    language: localStorage.getItem("language") || "en",
+    notifications: true,
+  });
+
+  const t = (key) => {
+    return getTranslation(settings.language, key);
   };
 
   return (
     <AppContext.Provider
       value={{
-        // AUTH
-        currentUser,
+        user,
+        currentUser: user,
+        setUser,
+        register,
         login,
         logout,
-        // EXISTING
+        theme,
+        darkMode: theme === "dark",
+        setTheme,
+        toggleTheme,
+        toggleDarkMode: toggleTheme,
         complaints,
+        getComplaints,
         addComplaint,
         updateComplaint,
+        updateComplaintStatus,
+        deleteComplaint,
+        updateProfile,
+        toasts,
+        showToast,
+        removeToast,
         searchQuery,
         setSearchQuery,
-        darkMode,
-        toggleDarkMode,
-        notifications,
-        markNotificationRead,
-        markAllNotificationsRead,
-        unreadCount,
-        messages,
-        sendMessage,
         settings,
         setSettings,
         t,
+        unreadNotifications,
+        setUnreadNotifications,
+        studentResolvedNotifications,
+        markStudentNotificationsRead,
       }}
     >
       {children}
     </AppContext.Provider>
   );
 }
-
-export default AppProvider;

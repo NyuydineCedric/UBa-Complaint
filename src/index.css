@@ -189,13 +189,25 @@ body.dark-mode .search-input::placeholder {
   color: var(--text-secondary) !important;
 }
 
-body.dark-mode input,
-body.dark-mode select,
-body.dark-mode textarea,
-body.dark-mode .search-input {
-  background: var(--input-bg) !important;
+body.dark-mode button,
+body.dark-mode .btn,
+body.dark-mode .quick-filter-btn,
+body.dark-mode .pagination-btn,
+body.dark-mode .btn-view,
+body.dark-mode .theme-toggle,
+body.dark-mode .theme-toggle-header {
+  background: var(--bg-card) !important;
   border-color: var(--border-light) !important;
   color: var(--text-primary) !important;
+}
+
+body.dark-mode button:hover,
+body.dark-mode .btn:hover,
+body.dark-mode .quick-filter-btn:hover,
+body.dark-mode .pagination-btn:hover,
+body.dark-mode .btn-view:hover {
+  background: var(--accent) !important;
+  color: white !important;
 }
 
 body.dark-mode .btn-view,

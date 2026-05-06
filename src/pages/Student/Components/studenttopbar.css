@@ -1,0 +1,311 @@
+
+.student-topbar {
+  height: 70px;
+  background-color: var(--student-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--student-table-top);
+  transition: all 0.3s ease;
+}
+
+/* LEFT SIDE – SEARCH BAR CONTAINER */
+.student-title {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+/* SEARCH INPUT STYLING */
+.student-title input {
+  width: 280px;
+  padding: 8px 16px;
+  background-color: var(--student-input-bg, #f1f5f9);
+  border: 1px solid var(--student-table-top, #e2e8f0);
+  border-radius: 40px;
+  font-size: 14px;
+  color: var(--student-text-main, #1e293b);
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.student-title input::placeholder {
+  color: var(--student-text-secondary, #94a3b8);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.student-title input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  background-color: var(--student-bg-card, #ffffff);
+}
+
+/* RIGHT SIDE – PROFILE, NOTIFICATION, THEME TOGGLE */
+.student-topbar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  height: 100%;
+}
+
+/* PROFILE IMAGE */
+.proffile-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* THEME TOGGLE CONTAINER */
+.student-theme-toggle-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--student-theme-toggle-bg);
+  padding: 4px;
+  border-radius: 50px;
+  gap: 4px;
+}
+
+/* THEME TOGGLE BUTTONS */
+.student-toggle-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  transition: all 0.3s ease;
+}
+
+.student-toggle-btn.active {
+  background-color: #ffffff;
+  color: #6366f1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .student-toggle-btn.active {
+  background-color: #1e293b;
+  color: #818cf8;
+}
+
+/* NOTIFICATION BELL CONTAINER */
+.student-notification-container {
+  position: relative;
+  display: inline-block;
+}
+
+.student-notification {
+  position: relative;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* BELL ICON SVG */
+.student-icon {
+  width: 28px;
+  height: 28px;
+  display: block;
+  color: var(--student-text-secondary);
+}
+
+/* NOTIFICATION BADGE (RED CIRCLE) */
+.student-badge {
+  position: absolute;
+  top: -8px;
+  right: -5px;
+  background-color: #ef4444;
+  color: white;
+  font-size: 15px;
+  padding: 2px 6px;
+  border-radius: 50%;
+}
+
+/* NOTIFICATION DROPDOWN */
+.student-notification-dropdown {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  width: 350px;
+  max-height: 400px;
+  background-color: var(--student-bg-card);
+  border: 1px solid var(--student-table-top);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.student-notification-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--student-table-top);
+  background-color: var(--student-bg-primary);
+}
+
+.student-notification-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--student-text-main);
+}
+
+.student-notification-list {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.student-notification-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--student-table-top);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.student-notification-item:hover {
+  background-color: var(--student-bg-hover);
+}
+
+.student-notification-item.empty {
+  text-align: center;
+  color: var(--student-text-secondary);
+  font-style: italic;
+  cursor: default;
+}
+
+.student-notification-item.empty:hover {
+  background-color: transparent;
+}
+
+.student-notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.student-notification-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--student-text-main);
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.student-notification-course {
+  font-size: 12px;
+  color: var(--student-text-secondary);
+  margin-bottom: 6px;
+}
+
+.student-notification-status {
+  margin-bottom: 4px;
+}
+
+.status-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.status-inprogress {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.status-resolved {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-rejected {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+[data-theme='dark'] .status-pending {
+  background-color: #451a03;
+  color: #fbbf24;
+}
+
+[data-theme='dark'] .status-inprogress {
+  background-color: #1e3a8a;
+  color: #60a5fa;
+}
+
+[data-theme='dark'] .status-resolved {
+  background-color: #064e3b;
+  color: #34d399;
+}
+
+[data-theme='dark'] .status-rejected {
+  background-color: #7f1d1d;
+  color: #f87171;
+}
+
+.student-notification-time {
+  font-size: 11px;
+  color: var(--student-text-secondary);
+  white-space: nowrap;
+  margin-left: 12px;
+}
+
+/* PROFILE TEXT BLOCK  */
+.student-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.student-profile-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.student-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--student-text-main);
+}
+
+.student-role {
+  font-size: 12px;
+  color: var(--student-text-secondary);
+}
+
+/* OTHER GENERIC TITLE STYLES */
+.student-title-one {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--student-text-main);
+  font-family: var(--student-font-family);
+}
+
+.student-title-paragraph {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--student-text-secondary);
+  font-family: var(--student-font-family);
+}
