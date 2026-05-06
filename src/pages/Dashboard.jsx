@@ -13,37 +13,45 @@ function Dashboard() {
     rejected: complaints.filter((c) => c.status === "rejected").length,
   };
 
-  const schoolStats = ["FED", "FHS", "HTTC", "FGA"].map((school) => ({
-    label: school,
-    value: complaints.filter((c) => c.school === school).length,
-    color:
-      school === "FED"
-        ? "#6366F1"
-        : school === "FHS"
-          ? "#3B82F6"
-          : school === "HTTC"
-            ? "#10B981"
-            : "#F59E0B",
-  }));
+  const schoolStats = (() => {
+    // Get unique schools from complaints data
+    const uniqueSchools = [
+      ...new Set(complaints.map((c) => c.school).filter(Boolean)),
+    ];
+    return uniqueSchools.map((school, index) => ({
+      label: school,
+      value: complaints.filter((c) => c.school === school).length,
+      color: [
+        "#6366F1", // blue
+        "#3B82F6", // lighter blue
+        "#10B981", // green
+        "#F59E0B", // yellow
+        "#EF4444", // red
+        "#8B5CF6", // purple
+        "#EC4899", // pink
+        "#06B6D4", // cyan
+      ][index % 8],
+    }));
+  })();
 
   const totalComplaints = stats.total;
 
   const semesterCounts = {
-    First: complaints.filter((c) => c.semester === "First").length,
-    Second: complaints.filter((c) => c.semester === "Second").length,
-    Resit: complaints.filter((c) => c.semester === "Resit").length,
+    "Semester 1": complaints.filter((c) => c.semester === "1").length,
+    "Semester 2": complaints.filter((c) => c.semester === "2").length,
+    "Resit Semester": complaints.filter((c) => c.semester === "3").length,
   };
   const maxCount = Math.max(
-    semesterCounts.First,
-    semesterCounts.Second,
-    semesterCounts.Resit,
+    semesterCounts["Semester 1"],
+    semesterCounts["Semester 2"],
+    semesterCounts["Resit Semester"],
     1,
   );
 
   const barHeights = {
-    First: (semesterCounts.First / maxCount) * 100,
-    Second: (semesterCounts.Second / maxCount) * 100,
-    Resit: (semesterCounts.Resit / maxCount) * 100,
+    "Semester 1": (semesterCounts["Semester 1"] / maxCount) * 100,
+    "Semester 2": (semesterCounts["Semester 2"] / maxCount) * 100,
+    "Resit Semester": (semesterCounts["Resit Semester"] / maxCount) * 100,
   };
 
   const formatPercent = (val) =>
@@ -54,6 +62,12 @@ function Dashboard() {
       day: "numeric",
       year: "numeric",
     });
+
+  const getWeeklyComplaints = () => {
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    return complaints.filter((c) => new Date(c.submittedDate) > weekAgo).length;
+  };
 
   return (
     <div className="dashboard">
@@ -70,15 +84,7 @@ function Dashboard() {
           <div className="stat-label">{t("total_complaints")}</div>
           <div className="stat-value">{stats.total}</div>
           <div className="stat-badge-new">
-            +
-            {
-              complaints.filter(
-                (c) =>
-                  new Date(c.submittedDate) >
-                  new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-              ).length
-            }{" "}
-            {t("this_week")}
+            +{getWeeklyComplaints()} {t("this_week")}
           </div>
         </div>
         <div className="stat-card">
@@ -176,24 +182,26 @@ function Dashboard() {
           <h2>{t("complaints_overview")}</h2>
           <div className="bar-chart">
             <div className="bars-container">
-              {["First", "Second", "Resit"].map((semester, idx) => {
-                const count = semesterCounts[semester];
-                const barHeight = barHeights[semester];
-                const colors = ["#3B82F6", "#10B981", "#F59E0B"];
-                return (
-                  <div key={semester} className="bar-wrapper">
-                    <div className="bar-value-top">{count}</div>
-                    <div
-                      className="bar"
-                      style={{
-                        height: `${barHeight}%`,
-                        backgroundColor: colors[idx],
-                      }}
-                    ></div>
-                    <div className="x-label">{semester}</div>
-                  </div>
-                );
-              })}
+              {["Semester 1", "Semester 2", "Resit Semester"].map(
+                (semester, idx) => {
+                  const count = semesterCounts[semester];
+                  const barHeight = barHeights[semester];
+                  const colors = ["#3B82F6", "#10B981", "#F59E0B"];
+                  return (
+                    <div key={semester} className="bar-wrapper">
+                      <div className="bar-value-top">{count}</div>
+                      <div
+                        className="bar"
+                        style={{
+                          height: `${barHeight}%`,
+                          backgroundColor: colors[idx],
+                        }}
+                      ></div>
+                      <div className="x-label">{semester}</div>
+                    </div>
+                  );
+                },
+              )}
             </div>
           </div>
         </div>

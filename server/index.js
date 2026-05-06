@@ -1,18 +1,125 @@
+/* global process */
 import express from "express";
 import cors from "cors";
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_FILE = path.join(__dirname, "data.json");
 const PORT = process.env.PORT || 4000;
 
+const EMAIL_HOST = process.env.EMAIL_HOST;
+const EMAIL_PORT = Number(process.env.EMAIL_PORT || 587);
+const EMAIL_SECURE = process.env.EMAIL_SECURE === "true";
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
+let EMAIL_FROM = process.env.EMAIL_FROM || EMAIL_USER;
+
+let emailTransporter = null;
+
+async function configureEmailTransporter() {
+  if (!EMAIL_HOST) {
+    console.warn("Email SMTP host is not configured. Skipping email transporter setup.");
+    return;
+  }
+
+  try {
+    if (EMAIL_HOST === "smtp.gmail.com") {
+      // Gmail SMTP configuration
+      if (!EMAIL_USER || !EMAIL_PASS) {
+        console.error("❌ Gmail SMTP requires EMAIL_USER and EMAIL_PASS to be set.");
+        console.error("   Please set your Gmail address and App Password in .env");
+        return;
+      }
+
+      emailTransporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: EMAIL_USER,
+          pass: EMAIL_PASS,
+        },
+      });
+
+      console.log("🔧 Gmail SMTP transport configured for production email delivery.");
+      console.log(`   From: ${EMAIL_FROM}`);
+      console.log("   ✅ Ready to send real emails to students!");
+
+    } else if (EMAIL_HOST === "smtp.ethereal.email") {
+      // Ethereal test configuration (fallback)
+      const shouldUseEtherealTestAccount =
+        !EMAIL_USER || !EMAIL_PASS || EMAIL_USER === "testuser@ethereal.email" || EMAIL_PASS === "testpass123";
+
+      if (shouldUseEtherealTestAccount) {
+        const testAccount = await nodemailer.createTestAccount();
+        emailTransporter = nodemailer.createTransport({
+          host: EMAIL_HOST,
+          port: EMAIL_PORT,
+          secure: EMAIL_SECURE,
+          auth: {
+            user: testAccount.user,
+            pass: testAccount.pass,
+          },
+        });
+
+        if (!EMAIL_FROM || EMAIL_FROM === "testuser@ethereal.email") {
+          EMAIL_FROM = testAccount.user;
+        }
+
+        console.log("🔧 Ethereal email transport configured for local testing.");
+        console.log(`   Login: https://ethereal.email/login`);
+        console.log(`   Username: ${testAccount.user}`);
+        console.log(`   Password: ${testAccount.pass}`);
+        console.log("   ⚠️  NOTE: This sends test emails only. Use Gmail for real delivery.");
+      } else {
+        // Custom Ethereal configuration
+        emailTransporter = nodemailer.createTransport({
+          host: EMAIL_HOST,
+          port: EMAIL_PORT,
+          secure: EMAIL_SECURE,
+          auth: {
+            user: EMAIL_USER,
+            pass: EMAIL_PASS,
+          },
+        });
+      }
+    } else {
+      // Generic SMTP configuration
+      if (!EMAIL_USER || !EMAIL_PASS) {
+        console.warn("Email credentials are missing. Email notifications will be disabled.");
+        return;
+      }
+
+      emailTransporter = nodemailer.createTransport({
+        host: EMAIL_HOST,
+        port: EMAIL_PORT,
+        secure: EMAIL_SECURE,
+        auth: {
+          user: EMAIL_USER,
+          pass: EMAIL_PASS,
+        },
+      });
+
+      console.log(`🔧 Custom SMTP transport configured: ${EMAIL_HOST}:${EMAIL_PORT}`);
+    }
+  } catch (error) {
+    console.error("Failed to configure email transporter:", error.message);
+    console.error("Please check your .env configuration.");
+    console.error(error);
+  }
+}
+
+await configureEmailTransporter();
+
 const app = express();
-app.use(cors({ origin: ["http://localhost:5173", "http://127.0.0.1:5173"] }));
+app.use(cors({ origin: ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"] }));
 app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 async function readData() {
   const raw = await readFile(DATA_FILE, "utf-8");
@@ -21,6 +128,36 @@ async function readData() {
 
 async function writeData(data) {
   await writeFile(DATA_FILE, JSON.stringify(data, null, 2), "utf-8");
+}
+
+async function sendNotificationEmail(to, subject, text) {
+  if (!emailTransporter) {
+    console.log("Email not sent: SMTP is not configured.", { to, subject });
+    console.log("To configure email, set these environment variables:");
+    console.log("  EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, EMAIL_FROM");
+    return;
+  }
+
+  try {
+    console.log(`Sending email with transporter config to ${to}...`);
+    const result = await emailTransporter.sendMail({
+      from: EMAIL_FROM,
+      to,
+      subject,
+      text,
+    });
+
+    console.log(`Email sent successfully to ${to}. Message ID: ${result.messageId}`);
+
+    const previewUrl = nodemailer.getTestMessageUrl(result);
+    if (previewUrl) {
+      console.log(`Preview URL: ${previewUrl}`);
+      console.log("NOTE: This is an Ethereal test email. Open the preview URL to view the message in your browser.");
+    }
+  } catch (error) {
+    console.error("Failed to send email notification:", error.message);
+    console.error("Error details:", error);
+  }
 }
 
 app.get("/api/health", (_, res) => {
@@ -155,14 +292,60 @@ app.put("/api/complaints/:id", async (req, res) => {
       return res.status(404).json({ message: "Complaint not found." });
     }
 
-    data.complaints[index] = {
-      ...data.complaints[index],
+    const existingComplaint = data.complaints[index];
+    const updatedComplaint = {
+      ...existingComplaint,
       ...updates,
       lastUpdate: new Date().toISOString(),
     };
 
+    data.complaints[index] = updatedComplaint;
     await writeData(data);
-    res.json(data.complaints[index]);
+
+    if (
+      updates.status &&
+      updates.status !== existingComplaint.status
+    ) {
+      console.log(`Status update triggered for complaint ${req.params.id}: ${existingComplaint.status} -> ${updates.status}`);
+      console.log(`Email address: ${existingComplaint.email}`);
+
+      const statusText = updates.status.charAt(0).toUpperCase() + updates.status.slice(1);
+      const subject = `UBa Complaint System - Status Update: ${statusText}`;
+
+      const message = `Dear ${existingComplaint.name || "Student"},
+
+Your complaint has been updated with the following details:
+
+Complaint ID: ${existingComplaint.id}
+Course: ${existingComplaint.courseTitle || existingComplaint.course}
+Type: ${existingComplaint.type}
+Previous Status: ${existingComplaint.status.charAt(0).toUpperCase() + existingComplaint.status.slice(1)}
+New Status: ${statusText}
+Updated Date: ${new Date().toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit'
+})}
+
+Please log in to your student dashboard to view more details about your complaint.
+
+If you have any questions, please contact the UBa Complaint Support Team.
+
+Best regards,
+UBa Complaint Management System
+University of Bamenda`;
+
+      if (existingComplaint.email) {
+        console.log(`Attempting to send email to ${existingComplaint.email}`);
+        await sendNotificationEmail(existingComplaint.email, subject, message);
+      } else {
+        console.warn(`No email address found for complaint ${req.params.id}`);
+      }
+    }
+
+    res.json(updatedComplaint);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Unable to update complaint." });

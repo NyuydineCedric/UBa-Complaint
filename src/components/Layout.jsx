@@ -22,7 +22,7 @@ function Layout() {
     darkMode,
     toggleDarkMode,
     t,
-    currentUser,
+
     logout,
     unreadNotifications,
     setUnreadNotifications,
@@ -152,6 +152,13 @@ function Layout() {
                             <div className="notification-course">
                               {complaint.course} - {complaint.type}
                             </div>
+                            <div className="notification-status">
+                              <span
+                                className={`status-badge status-${complaint.status}`}
+                              >
+                                {complaint.status}
+                              </span>
+                            </div>
                           </div>
                           <div className="notification-time">
                             {new Date(
@@ -174,9 +181,7 @@ function Layout() {
             <div className="user-profile">
               <img src={ubalogo} alt="User" className="profile-img" />
               <div className="user-info-header">
-                <span className="profile-name">
-                  {currentUser?.name || "Administrator"}
-                </span>
+                <span className="profile-name">Administrator</span>
               </div>
               <button className="logout-btn-header" onClick={handleLogout}>
                 <LogOut size={16} /> Logout

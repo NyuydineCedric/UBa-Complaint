@@ -45,6 +45,7 @@ export default function AppProvider({ children }) {
 
   const resolvedBaselineRef = useRef(null);
   const previousResolvedCountRef = useRef(null);
+  const previousComplaintsRef = useRef([]);
 
   // ========== TOASTS ==========
   const [toasts, setToasts] = useState([]);
@@ -66,6 +67,7 @@ export default function AppProvider({ children }) {
         const data = await apiRequest("/complaints");
         setComplaints(data);
         setLastComplaintCount(data.length);
+        previousComplaintsRef.current = data;
       } catch (error) {
         console.warn("Could not load complaints from backend:", error.message);
       }
@@ -73,21 +75,40 @@ export default function AppProvider({ children }) {
 
     loadComplaints();
 
-    // Poll for new complaints every 3 seconds
+    // Poll for new complaints and status updates every 3 seconds
     const pollInterval = setInterval(async () => {
       try {
         const data = await apiRequest("/complaints");
+
+        // Detect new complaints
         if (data.length > lastComplaintCount) {
           setUnreadNotifications(data.length - lastComplaintCount);
         }
+
+        // Detect complaint status changes
+        if (previousComplaintsRef.current.length > 0) {
+          data.forEach((newComplaint) => {
+            const oldComplaint = previousComplaintsRef.current.find(
+              (c) => c.id === newComplaint.id,
+            );
+            if (oldComplaint && oldComplaint.status !== newComplaint.status) {
+              console.log(
+                `Complaint ${newComplaint.id} status changed from ${oldComplaint.status} to ${newComplaint.status}`,
+              );
+              setUnreadNotifications((prev) => prev + 1);
+            }
+          });
+        }
+
         setComplaints(data);
+        previousComplaintsRef.current = data;
       } catch (error) {
         console.warn("Polling error:", error.message);
       }
     }, 3000);
 
     return () => clearInterval(pollInterval);
-  }, []);
+  }, [lastComplaintCount]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);

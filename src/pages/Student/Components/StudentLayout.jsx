@@ -1,6 +1,6 @@
 // pages/Student/Components/StudentLayout.jsx
 import { Outlet } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 
 import Sidebar from "./studentSidebar";
 import Topbar from "./studentTopbar";
@@ -11,7 +11,14 @@ import "../StudentStyle.css";
 import { AppContext } from "../../../context/AppContext";
 
 function Layout() {
-  const { toasts, removeToast } = useContext(AppContext);
+  const { toasts, removeToast, darkMode } = useContext(AppContext);
+
+  useEffect(() => {
+    document.documentElement.setAttribute(
+      "data-theme",
+      darkMode ? "dark" : "light",
+    );
+  }, [darkMode]);
 
   return (
     <div className="student-layout">

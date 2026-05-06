@@ -16,9 +16,9 @@ function Reports() {
   const rejected = complaints.filter((c) => c.status === "rejected").length;
 
   const semesterData = {
-    First: complaints.filter((c) => c.semester === "First").length,
-    Second: complaints.filter((c) => c.semester === "Second").length,
-    Resit: complaints.filter((c) => c.semester === "Resit").length,
+    "Semester 1": complaints.filter((c) => c.semester === "1").length,
+    "Semester 2": complaints.filter((c) => c.semester === "2").length,
+    "Resit Semester": complaints.filter((c) => c.semester === "3").length,
   };
 
   const currentYear = new Date().getFullYear();

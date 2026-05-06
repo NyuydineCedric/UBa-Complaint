@@ -25,8 +25,8 @@
 }
 
 .student-filter.student-active {
-  background-color: #4F46E5;
-  color: white;
+  background-color: var(--student-primary);
+  color: var(--student-bg-nav-link-text);
 }
 
 /* TABLE */

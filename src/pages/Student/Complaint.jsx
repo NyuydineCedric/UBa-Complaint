@@ -135,8 +135,8 @@ export default function Complaints() {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Title</th>
-                <th>Course</th>
+                <th>Course Code</th>
+                <th>Course Name</th>
                 <th>Status</th>
                 <th>Date</th>
               </tr>
@@ -150,8 +150,8 @@ export default function Complaints() {
                   style={{ cursor: "pointer" }}
                 >
                   <td>{index + 1}</td>
-                  <td>{c.title || c.type}</td>
                   <td>{c.course}</td>
+                  <td>{c.courseTitle || c.title}</td>
                   <td>
                     <span className={`student-status student-${c.status}`}>
                       {c.status}

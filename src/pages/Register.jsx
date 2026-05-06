@@ -1,7 +1,8 @@
 // pages/Register.jsx
-import { useState, useContext } from "react";
+import { useState, useContext, useMemo, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
+import { SCHOOLS_DATA } from "../utils/schoolData";
 import {
   User,
   Mail,
@@ -21,7 +22,14 @@ import "./Register.css";
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const { register, login, showToast } = useContext(AppContext);
+  const { register, login, showToast, darkMode } = useContext(AppContext);
+
+  useEffect(() => {
+    document.documentElement.setAttribute(
+      "data-theme",
+      darkMode ? "dark" : "light",
+    );
+  }, [darkMode]);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -44,11 +52,26 @@ function RegisterPage() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    if (name === "school") {
+      setFormData((prev) => ({
+        ...prev,
+        school: value,
+        department: "",
+      }));
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+
+  const departmentOptions = useMemo(() => {
+    const school = SCHOOLS_DATA.find((item) => item.id === formData.school);
+    return school ? school.departments : [];
+  }, [formData.school]);
 
   const validateForm = () => {
     if (
@@ -56,7 +79,9 @@ function RegisterPage() {
       !formData.matricule ||
       !formData.email ||
       !formData.password ||
-      !formData.confirmPassword
+      !formData.confirmPassword ||
+      !formData.school ||
+      !formData.department
     ) {
       setError("Please fill in all required fields");
       return false;
@@ -251,14 +276,11 @@ function RegisterPage() {
                   onChange={handleChange}
                 >
                   <option value="">Select School</option>
-                  <option value="FED">Faculty of Education (FED)</option>
-                  <option value="FHS">Faculty of Health Sciences (FHS)</option>
-                  <option value="HTTC">
-                    Higher Technical Training College (HTTC)
-                  </option>
-                  <option value="FGA">
-                    Faculty of General Agriculture (FGA)
-                  </option>
+                  {SCHOOLS_DATA.map((school) => (
+                    <option key={school.id} value={school.id}>
+                      {school.name} ({school.shortName})
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -292,25 +314,18 @@ function RegisterPage() {
                   className="input-field"
                   value={formData.department}
                   onChange={handleChange}
+                  disabled={!formData.school}
                 >
-                  <option value="">Select Department</option>
-                  <option value="Computer Engineering">
-                    Computer Engineering
+                  <option value="">
+                    {formData.school
+                      ? "Select Department"
+                      : "Select school first"}
                   </option>
-                  <option value="Electrical Engineering">
-                    Electrical Engineering
-                  </option>
-                  <option value="Mechanical Engineering">
-                    Mechanical Engineering
-                  </option>
-                  <option value="Civil Engineering">Civil Engineering</option>
-                  <option value="Business Administration">
-                    Business Administration
-                  </option>
-                  <option value="Economics">Economics</option>
-                  <option value="Law">Law</option>
-                  <option value="Medicine">Medicine</option>
-                  <option value="Education">Education</option>
+                  {departmentOptions.map((department) => (
+                    <option key={department.id} value={department.name}>
+                      {department.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

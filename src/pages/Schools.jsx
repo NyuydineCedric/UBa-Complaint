@@ -5,42 +5,61 @@ import "./Schools.css";
 
 function Schools() {
   const { complaints, t } = useContext(AppContext);
-  const schools = ["FED", "FHS", "HTTC", "FGA"];
-  const schoolData = schools.map((code) => {
+
+  // Get unique schools from complaints data
+  const availableSchools = [
+    ...new Set(complaints.map((c) => c.school).filter(Boolean)),
+  ].sort();
+
+  // Create school info mapping for known schools
+  const schoolInfo = {
+    FED: {
+      name: "Faculty of Education",
+      head: "Dr. Jane Smith",
+      students: 1010,
+      response: "3.1 days",
+    },
+    FHS: {
+      name: "Faculty of Health Sciences",
+      head: "Dr. Sarah Johnson",
+      students: 850,
+      response: "2.8 days",
+    },
+    HTTC: {
+      name: "Higher Technical Training College",
+      head: "Dr. Michael Chen",
+      students: 920,
+      response: "2.9 days",
+    },
+    FGA: {
+      name: "Faculty of General Agriculture",
+      head: "Dr. Emily Davis",
+      students: 780,
+      response: "3.2 days",
+    },
+    COLTECH: {
+      name: "College of Technology",
+      head: "Dr. Robert Wilson",
+      students: 650,
+      response: "2.5 days",
+    },
+  };
+
+  const schoolData = availableSchools.map((code) => {
     const sc = complaints.filter((c) => c.school === code);
     const total = sc.length;
     const resolved = sc.filter((c) => c.status === "resolved").length;
     const pending = sc.filter((c) => c.status === "pending").length;
     const rate = total > 0 ? Math.round((resolved / total) * 100) : 0;
-    const info = {
-      FED: {
-        name: "Faculty of Education",
-        head: "Dr. Jane Smith",
-        students: 1010,
-        response: "3.1 days",
-      },
-      FHS: {
-        name: "Faculty of Health Sciences",
-        head: "Dr. Sarah Johnson",
-        students: 850,
-        response: "2.8 days",
-      },
-      HTTC: {
-        name: "Higher Technical Training College",
-        head: "Dr. Michael Chen",
-        students: 920,
-        response: "2.9 days",
-      },
-      FGA: {
-        name: "Faculty of General Agriculture",
-        head: "Dr. Emily Davis",
-        students: 780,
-        response: "3.2 days",
-      },
+    const info = schoolInfo[code] || {
+      name: `${code} Faculty`,
+      head: "TBD",
+      students: 0,
+      response: "TBD",
     };
     return {
       code,
-      ...info[code],
+      ...info,
       complaints: total,
       resolved,
       pending,
