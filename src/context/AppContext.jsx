@@ -4,8 +4,10 @@ import { getTranslation } from "../translations";
 
 export const AppContext = createContext(null);
 
-const API_BASE = "/api";
-
+// ✅ This is the correct way for Vite
+const API_BASE = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : "/api";
 async function apiRequest(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, {
     headers: {
