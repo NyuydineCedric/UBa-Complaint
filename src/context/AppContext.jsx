@@ -5,6 +5,7 @@ import { getTranslation } from "../translations";
 export const AppContext = createContext(null);
 
 const API_BASE = "https://uba-complaint-backend-3.onrender.com/api";
+
 async function apiRequest(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, {
     headers: {
@@ -74,17 +75,14 @@ export default function AppProvider({ children }) {
 
     loadComplaints();
 
-    // Poll for new complaints and status updates every 3 seconds
     const pollInterval = setInterval(async () => {
       try {
         const data = await apiRequest("/complaints");
 
-        // Detect new complaints
         if (data.length > lastComplaintCount) {
           setUnreadNotifications(data.length - lastComplaintCount);
         }
 
-        // Detect complaint status changes
         if (previousComplaintsRef.current.length > 0) {
           data.forEach((newComplaint) => {
             const oldComplaint = previousComplaintsRef.current.find(
@@ -173,7 +171,6 @@ export default function AppProvider({ children }) {
       avatar: data.avatar || null,
       createdAt: new Date().toISOString(),
     };
-
     return apiRequest("/auth/register", {
       method: "POST",
       body: JSON.stringify(newUser),
@@ -251,7 +248,6 @@ export default function AppProvider({ children }) {
     });
 
     setComplaints((prev) => prev.map((c) => (c.id === id ? updated : c)));
-
     showToast("Complaint updated successfully!", "success");
     return updated;
   };
@@ -275,7 +271,6 @@ export default function AppProvider({ children }) {
     if (user?.matricule === matricule) {
       setUser(updated);
     }
-
     return updated;
   };
 
