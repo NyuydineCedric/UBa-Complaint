@@ -263,7 +263,7 @@
   background: var(--student-bg-card);
   border: 1px solid var(--student-border-card);
   border-radius: 12px;
-  padding: 24px;
+  padding: 34px 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;

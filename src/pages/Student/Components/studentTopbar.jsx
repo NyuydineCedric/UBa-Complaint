@@ -1,5 +1,5 @@
 // pages/Student/Components/studentTopbar.jsx
-import { Bell, Sun, Moon, Search } from "lucide-react";
+import { Bell, Sun, Moon } from "lucide-react";
 import { useContext, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -49,7 +49,7 @@ export default function Topbar() {
     return complaints
       .filter((c) => c.userId === user.matricule)
       .sort((a, b) => new Date(b.lastUpdate) - new Date(a.lastUpdate))
-      .slice(0, 5);
+      .slice(0, 5); // Show latest 5
   }, [complaints, user]);
 
   const handleNotificationClick = () => {
@@ -66,22 +66,24 @@ export default function Topbar() {
 
   const getStatusText = (status) => {
     switch (status) {
-      case "pending": return "Pending";
-      case "in-progress": return "In Progress";
-      case "resolved": return "Resolved";
-      case "rejected": return "Rejected";
-      default: return status;
+      case "pending":
+        return t("pending_status");
+      case "in-progress":
+        return t("in_progress_status");
+      case "resolved":
+        return t("resolved_status");
+      case "rejected":
+        return t("rejected_status");
+      default:
+        return status;
     }
   };
 
   return (
     <div className="student-topbar">
-      {/* LEFT SIDE – SEARCH BAR WITH ICON */}
+      {/* LEFT TITLE / SEARCH */}
       <div className="student-title">
-        <div className="student-search-wrapper">
-          <Search className="student-search-icon" size={18} />
-          <input type="text" placeholder="Search complaints..." />
-        </div>
+        <input type="text" placeholder="Search..." />
       </div>
 
       {/* RIGHT ACTIONS */}
@@ -91,8 +93,24 @@ export default function Topbar() {
           <div
             className="student-notification"
             onClick={handleNotificationClick}
+            title={
+              studentResolvedNotifications > 0
+                ? "Click to view complaint updates"
+                : "No new notifications"
+            }
           >
-            <Bell className="student-icon" />
+            <Bell
+              size={28}
+              style={{
+                width: "28px",
+                height: "28px",
+                color:
+                  studentResolvedNotifications > 0
+                    ? "var(--student-primary)"
+                    : "var(--student-text-secondary)",
+              }}
+              className="student-icon"
+            />
             {studentResolvedNotifications > 0 && (
               <span className="student-badge">
                 {studentResolvedNotifications}
@@ -148,7 +166,7 @@ export default function Topbar() {
         {/* PROFILE IMAGE */}
         <img src={profile} alt="Profile Picture" className="proffile-img" />
 
-        {/* THEME SWITCH */}
+        {/* THEME SWITCH – on the far right */}
         <div className="student-theme-toggle-container">
           <button
             className={`student-toggle-btn ${theme === "light" ? "active" : ""}`}
