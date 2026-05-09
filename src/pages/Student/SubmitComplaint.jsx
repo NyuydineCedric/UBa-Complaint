@@ -1,10 +1,9 @@
 // pages/Student/SubmitComplaint.jsx
-import { useState, useContext, useEffect, useMemo } from "react";
+import { useState, useContext, useEffect } from "react";
 import "./submitcomplaint.css";
 import "./StudentStyle.css";
 import { AppContext } from "../../context/AppContext";
 import { X, Paperclip } from "lucide-react";
-import { getCoursesForDepartment } from "../../utils/courses";
 
 export default function Submit() {
   const { user, addComplaint, showToast, complaints } = useContext(AppContext);
@@ -12,36 +11,37 @@ export default function Submit() {
   const initialForm = {
     courseCode: "",
     courseTitle: "",
+    semester: "",
+    year: "",
     type: "",
-    priority: "Medium",
     description: "",
   };
 
-  const [form, setForm] = useState(initialForm);
-  const [files, setFiles] = useState([]);
-  const [dragActive, setDragActive] = useState(false);
-  const availableCourses = useMemo(() => {
-    const departmentKey =
-      user?.department || user?.program || user?.school || "";
-    return getCoursesForDepartment(departmentKey);
-  }, [user?.department, user?.program, user?.school]);
-
-  // Load draft
-  useEffect(() => {
+  const [form, setForm] = useState(() => {
+    if (typeof window === "undefined") return initialForm;
     const draft = localStorage.getItem("complaint_draft");
-    if (draft) {
+    if (!draft) return initialForm;
+
+    try {
       const parsed = JSON.parse(draft);
-      const storedForm = parsed.form || initialForm;
-      const [courseCode, courseTitle] = (storedForm.course || "").split(" - ");
-      setForm({
-        ...initialForm,
-        ...storedForm,
-        courseCode: storedForm.courseCode || courseCode || "",
-        courseTitle: storedForm.courseTitle || courseTitle || "",
-      });
-      setFiles(parsed.files || []);
+      return { ...initialForm, ...parsed.form };
+    } catch {
+      return initialForm;
     }
-  }, []); // initialForm is constant, no need to include
+  });
+
+  const [files, setFiles] = useState(() => {
+    if (typeof window === "undefined") return [];
+    const draft = localStorage.getItem("complaint_draft");
+    if (!draft) return [];
+
+    try {
+      const parsed = JSON.parse(draft);
+      return parsed.files || [];
+    } catch {
+      return [];
+    }
+  });
 
   // Auto save draft
   useEffect(() => {
@@ -50,14 +50,6 @@ export default function Submit() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === "course") {
-      setForm({
-        ...form,
-        courseCode: value,
-        courseTitle: value,
-      });
-      return;
-    }
     setForm({ ...form, [name]: value });
   };
 
@@ -85,17 +77,6 @@ export default function Submit() {
     convertFiles(e.target.files);
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragActive(false);
-    convertFiles(e.dataTransfer.files);
-  };
-
-  const handleDrag = (e) => {
-    e.preventDefault();
-    setDragActive(true);
-  };
-
   const removeFile = (index) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
@@ -117,6 +98,8 @@ export default function Submit() {
     if (
       !form.courseCode ||
       !form.courseTitle ||
+      !form.semester ||
+      !form.year ||
       !form.type ||
       !form.description
     ) {
@@ -156,9 +139,11 @@ export default function Submit() {
       title: `${form.type} - ${form.courseCode}`,
       course: form.courseCode,
       courseTitle: form.courseTitle,
+      semester: form.semester,
+      year: form.year,
       type: form.type,
-      priority: form.priority,
       description: form.description,
+      details: form.description,
       files,
     };
 
@@ -173,32 +158,64 @@ export default function Submit() {
       <h2 className="student-page-title">Submit Complaint</h2>
 
       <form className="student-form" onSubmit={handleSubmit}>
-        {/* COURSE */}
         <div className="student-form-group">
-          <label>Course</label>
-          <select
-            name="course"
-            value={
-              form.courseCode ? `${form.courseCode}|${form.courseTitle}` : ""
-            }
+          <label>Course Name</label>
+          <input
+            type="text"
+            name="courseTitle"
+            value={form.courseTitle}
             onChange={handleChange}
             className="student-input"
+            placeholder="Enter course name"
+            required
+          />
+        </div>
+        <div className="student-form-group">
+          <label>Course Code</label>
+          <input
+            type="text"
+            name="courseCode"
+            value={form.courseCode}
+            onChange={handleChange}
+            className="student-input"
+            placeholder="Enter course code"
+            required
+          />
+        </div>
+
+        <div className="student-form-group">
+          <label>Semester</label>
+          <select
+            name="semester"
+            value={form.semester}
+            onChange={handleChange}
+            className="student-select"
             required
           >
-            <option value="">
-              {availableCourses.length > 0
-                ? "Select a course"
-                : "No courses available for your department"}
-            </option>
-            {availableCourses.map((course, index) => (
-              <option key={index} value={course}>
-                {course}
-              </option>
-            ))}
+            <option value="">Select Semester</option>
+            <option value="1">Semester 1</option>
+            <option value="2">Semester 2</option>
+            <option value="3">Resit Semester</option>
           </select>
         </div>
 
-        {/* TYPE */}
+        <div className="student-form-group">
+          <label>Year</label>
+          <select
+            name="year"
+            value={form.year}
+            onChange={handleChange}
+            className="student-select"
+            required
+          >
+            <option value="">Select Year</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+          </select>
+        </div>
+
         <div className="student-form-group">
           <label>Complaint Type</label>
           <select
@@ -211,30 +228,45 @@ export default function Submit() {
             <option value="">Select Type</option>
             <option value="CA Mark">CA Mark</option>
             <option value="Exam Mark">Exam Mark</option>
-            <option value="Missing Mark">Missing Mark</option>
-            <option value="Lecture Materials">Lecture Materials</option>
-            <option value="Lab Equipment">Lab Equipment</option>
-            <option value="Schedule Conflict">Schedule Conflict</option>
-            <option value="Other">Other</option>
           </select>
         </div>
 
-        {/* PRIORITY */}
-        <div className="student-form-group">
-          <label>Priority</label>
-          <select
-            name="priority"
-            value={form.priority}
-            onChange={handleChange}
-            className="student-select"
-          >
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-          </select>
-        </div>
+        {form.type === "CA Mark" && (
+          <div className="student-form-group">
+            <label>Evidence (image required for CA Mark)</label>
+            <div className="file-upload-wrapper">
+              <label htmlFor="evidence-upload" className="file-upload-label">
+                <Paperclip size={18} style={{ marginRight: 8 }} />
+                Upload Evidence
+              </label>
+              <input
+                id="evidence-upload"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFile}
+                className="file-upload-input"
+              />
+            </div>
+            {files.length > 0 && (
+              <div className="file-preview-list">
+                {files.map((file, index) => (
+                  <div key={index} className="file-preview-item">
+                    <span>{file.name}</span>
+                    <button
+                      type="button"
+                      className="remove-file-btn"
+                      onClick={() => removeFile(index)}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-        {/* DESCRIPTION */}
         <div className="student-form-group">
           <label>Description</label>
           <textarea
@@ -246,28 +278,6 @@ export default function Submit() {
             required
           />
         </div>
-
-        {/* FILE UPLOAD - Only for CA Mark */}
-        {form.type === "CA Mark" && (
-          <div className="student-form-group">
-            <label>Attachments (Required for CA Mark)</label>
-            <div
-              className={`upload-box ${dragActive ? "active" : ""}`}
-              onDragOver={handleDrag}
-              onDragLeave={() => setDragActive(false)}
-              onDrop={handleDrop}
-            >
-              <Paperclip size={24} />
-              <p>Drag & drop files here or click to upload</p>
-              <input
-                type="file"
-                multiple
-                onChange={handleFile}
-                accept="image/*,.pdf,.doc,.docx"
-              />
-            </div>
-          </div>
-        )}
 
         {/* FILE PREVIEW */}
         {files.length > 0 && (

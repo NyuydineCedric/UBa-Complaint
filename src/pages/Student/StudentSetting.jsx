@@ -1,6 +1,6 @@
 // pages/Student/StudentSetting.jsx
 import { useState, useContext } from "react";
-import { LogOut, Moon, Sun } from "lucide-react";
+import { LogOut, Moon, Sun, Bell, User, Settings as SettingsIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { AppContext } from "../../context/AppContext";
@@ -26,7 +26,7 @@ export default function Settings() {
         <div className="student-setting-item">
           <div>
             <h4>
-              {theme === "dark" ? <Moon size={16} /> : <Sun size={16} />} 
+              {theme === "dark" ? <Moon size={18} /> : <Sun size={18} />}
               {theme === "dark" ? " Dark Mode" : " Light Mode"}
             </h4>
             <p>Switch between light and dark theme</p>
@@ -45,7 +45,9 @@ export default function Settings() {
         {/* NOTIFICATIONS */}
         <div className="student-setting-item">
           <div>
-            <h4>Notifications</h4>
+            <h4>
+              <Bell size={18} /> Notifications
+            </h4>
             <p>Enable or disable notifications</p>
           </div>
 
@@ -62,7 +64,9 @@ export default function Settings() {
         {/* ACCOUNT */}
         <div className="student-setting-item">
           <div>
-            <h4>Account</h4>
+            <h4>
+              <User size={18} /> Account
+            </h4>
             <p>Manage your account settings</p>
           </div>
 
@@ -74,7 +78,9 @@ export default function Settings() {
         {/* LOGOUT */}
         <div className="student-setting-item">
           <div>
-            <h4>Logout</h4>
+            <h4>
+              <LogOut size={18} /> Logout
+            </h4>
             <p>Sign out of your account</p>
           </div>
 

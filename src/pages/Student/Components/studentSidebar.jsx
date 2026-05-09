@@ -37,7 +37,12 @@ export default function Sidebar() {
     <div className="student-sidebar">
       {/* LOGO */}
       <div className="student-logo">
-        <img src={Logo} alt="school-logo" className="student-logo-image" />
+        <img
+          src={Logo}
+          alt="school-logo"
+          className="student-logo-image"
+          style={{ width: "100px", height: "100px" }}
+        />
         <div className="student-logo-text">
           <p className="student-logo-header">Student Portal</p>
           <p className="student-logo-paragraph">Complaint System</p>

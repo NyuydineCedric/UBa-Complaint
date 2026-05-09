@@ -180,7 +180,15 @@ function ComplaintDetail() {
             </div>
             <div className="info-row">
               <span className="info-label">Semester:</span>
-              <span>{complaint.semester || "N/A"}</span>
+              <span>
+                {complaint.semester === "1"
+                  ? "Semester 1"
+                  : complaint.semester === "2"
+                    ? "Semester 2"
+                    : complaint.semester === "3"
+                      ? "Resit Semester"
+                      : complaint.semester || "N/A"}
+              </span>
             </div>
             <div className="info-row">
               <span className="info-label">Year:</span>

@@ -41,10 +41,22 @@ export default function Dashboard() {
     <div className="student-dashboard">
       {/* HEADER */}
       <div>
-        <h2 className="student-page-title">
-          My Dashboard
-        </h2>
-        <p style={{ color: "var(--student-text-secondary)", fontSize: "14px" }}>
+        <h1
+          className="student-page-title"
+          style={{
+            fontSize: "1.7rem",
+            fontWeight: "700",
+            background: "linear-gradient(135deg, #0f172a, #3b82f6)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+            lineHeight: "1.3",
+            display: "inline-block",
+          }}
+        >
+          Welcome back, {user?.name || "User"}!
+        </h1>
+        <p style={{ color: "var(--student-text-secondary)", fontSize: "16px" }}>
           Here's what's happening with your complaints.
         </p>
       </div>

@@ -5,10 +5,12 @@ import "./StudentStyle.css";
 import { useContext, useState } from "react";
 import { AppContext } from "../../context/AppContext";
 import ComplaintModal from "./Components/ComplaintModal";
-import { Search } from "lucide-react";
+import { Search, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Complaints() {
   const { user, complaints } = useContext(AppContext);
+  const navigate = useNavigate();
 
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState("all");
@@ -117,7 +119,7 @@ export default function Complaints() {
         />
       </div>
 
-      {/* TABLE */}
+      {/* TABLE - Removed white background from header */}
       <div className="student-table-container">
         {filtered.length === 0 ? (
           <div
@@ -135,8 +137,8 @@ export default function Complaints() {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Title</th>
-                <th>Course</th>
+                <th>Course Code</th>
+                <th>Course Name</th>
                 <th>Status</th>
                 <th>Date</th>
               </tr>
@@ -150,8 +152,8 @@ export default function Complaints() {
                   style={{ cursor: "pointer" }}
                 >
                   <td>{index + 1}</td>
-                  <td>{c.title || c.type}</td>
                   <td>{c.course}</td>
+                  <td>{c.courseTitle || c.title}</td>
                   <td>
                     <span className={`student-status student-${c.status}`}>
                       {c.status}

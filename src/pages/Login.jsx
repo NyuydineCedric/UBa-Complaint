@@ -1,5 +1,5 @@
 // pages/Login.jsx
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { User, Lock, Eye, EyeOff, Mail } from "lucide-react";
@@ -9,7 +9,14 @@ import "./Login.css";
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { login, register, showToast } = useContext(AppContext);
+  const { login, register, showToast, darkMode } = useContext(AppContext);
+
+  useEffect(() => {
+    document.documentElement.setAttribute(
+      "data-theme",
+      darkMode ? "dark" : "light",
+    );
+  }, [darkMode]);
 
   const [role, setRole] = useState("student");
   const [studentId, setStudentId] = useState("");

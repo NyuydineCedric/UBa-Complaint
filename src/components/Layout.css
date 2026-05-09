@@ -226,7 +226,7 @@ body.dark-mode {
   justify-content: center;
   font-size: 0.65rem;
   font-weight: 700;
-  border: 2px solid white;
+  border: 2px solid var(--bg);
 }
 
 .notification-container {
@@ -318,6 +318,39 @@ body.dark-mode {
 .notification-course {
   color: var(--text-secondary, #64748B);
   font-size: 0.8rem;
+}
+
+.notification-status {
+  margin-top: 6px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge.status-pending {
+  background-color: #FEF3C7;
+  color: #B45309;
+}
+
+.status-badge.status-in-progress {
+  background-color: #DBEAFE;
+  color: #1E40AF;
+}
+
+.status-badge.status-resolved {
+  background-color: #D1FAE5;
+  color: #065F46;
+}
+
+.status-badge.status-rejected {
+  background-color: #FEE2E2;
+  color: #991B1B;
 }
 
 .notification-time {

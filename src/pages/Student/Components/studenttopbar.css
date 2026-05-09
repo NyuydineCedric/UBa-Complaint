@@ -1,4 +1,4 @@
-/* studenttopbar.css */
+/* studenttopbar.css - Updated search bar */
 .student-topbar {
   height: 70px;
   background-color: var(--student-bg-card);
@@ -10,101 +10,190 @@
   transition: all 0.3s ease;
 }
 
+/* LEFT SIDE – SEARCH BAR CONTAINER */
+.student-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+/* SEARCH INPUT STYLING - WITH ICON */
+.student-search-wrapper {
+  position: relative;
+  width: 320px;
+}
+
+.student-search-wrapper input {
+  width: 100%;
+  padding: 10px 16px 10px 40px;
+  background-color: var(--student-bg-main);
+  border: 1px solid var(--student-border-card);
+  border-radius: 40px;
+  font-size: 14px;
+  color: var(--student-text-main);
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.student-search-wrapper input::placeholder {
+  color: var(--student-text-secondary);
+  font-size: 13px;
+}
+
+.student-search-wrapper input:focus {
+  border-color: var(--student-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.student-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--student-text-secondary);
+}
+
+/* RIGHT SIDE – PROFILE, NOTIFICATION, THEME TOGGLE */
 .student-topbar-right {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 20px;
+  height: 100%;
 }
 
+/* PROFILE IMAGE */
+.proffile-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* THEME TOGGLE CONTAINER */
 .student-theme-toggle-container {
   display: flex;
+  align-items: center;
   background-color: var(--student-theme-toggle-bg);
   padding: 4px;
   border-radius: 50px;
   gap: 4px;
 }
 
+/* THEME TOGGLE BUTTONS */
 .student-toggle-btn {
   border: none;
   background: transparent;
   cursor: pointer;
   padding: 6px;
   border-radius: 50%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  color: #64748B;
+  justify-content: center;
+  color: #64748b;
   transition: all 0.3s ease;
 }
 
 .student-toggle-btn.active {
   background-color: #ffffff;
   color: #6366f1;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 [data-theme='dark'] .student-toggle-btn.active {
   background-color: #1e293b;
-  color: #818CF8;
+  color: #818cf8;
 }
 
-.student-icon {
-  width: 18px;
-  height: 18px;
-  color: var(--student-text-secondary);
+/* NOTIFICATION BELL CONTAINER */
+.student-notification-container {
+  position: relative;
+  display: inline-block;
 }
 
-/* NOTIFICATION */
 .student-notification {
   position: relative;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
+.student-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  color: var(--student-text-secondary);
+}
+
+/* NOTIFICATION BADGE (RED CIRCLE) */
 .student-badge {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: -8px;
+  right: -8px;
   background-color: #ef4444;
   color: white;
-  font-size: 10px;
-  padding: 2px 5px;
+  font-size: 11px;
+  padding: 2px 6px;
   border-radius: 50%;
-}
-
-/* PROFILE */
-.student-profile {
+  min-width: 18px;
+  min-height: 18px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
 }
 
-.student-profile-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  object-fit: cover;
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .student-topbar {
+    height: 60px;
+    padding: 0 12px;
+  }
+  
+  .student-search-wrapper {
+    width: 160px;
+  }
+  
+  .student-search-wrapper input {
+    padding: 8px 12px 8px 34px;
+    font-size: 12px;
+  }
+  
+  .student-topbar-right {
+    gap: 12px;
+  }
+  
+  .proffile-img {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .student-toggle-btn {
+    padding: 4px;
+  }
+  
+  .student-toggle-btn svg {
+    width: 16px;
+    height: 16px;
+  }
 }
 
-.student-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--student-text-main);
-}
-
-.student-role {
-  font-size: 12px;
-  color: var(--student-text-secondary);
-}
-
-.student-title-one {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--student-text-main);
-  font-family: var(--student-font-family);
-}
-
-.student-title-paragraph {
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--student-text-secondary);
-  font-family: var(--student-font-family);
+@media (max-width: 480px) {
+  .student-search-wrapper {
+    width: 120px;
+  }
+  
+  .student-search-wrapper input {
+    padding: 6px 10px 6px 30px;
+    font-size: 11px;
+  }
+  
+  .student-topbar-right {
+    gap: 8px;
+  }
 }
