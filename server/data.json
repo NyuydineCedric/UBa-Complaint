@@ -27,6 +27,20 @@
       "avatar": null,
       "createdAt": "2026-05-05T07:14:25.337Z",
       "id": "1777965265337"
+    },
+    {
+      "name": "Baye Brian",
+      "email": "bayebrian89@gmail.com",
+      "password": "Mancity10@",
+      "matricule": "UBa24PB012",
+      "phoneNumber": "675717944",
+      "school": "FED",
+      "level": "Level 2",
+      "department": "Computer Engineering",
+      "role": "student",
+      "avatar": null,
+      "createdAt": "2026-05-05T12:01:24.374Z",
+      "id": "1777982484374"
     }
   ],
   "complaints": [
