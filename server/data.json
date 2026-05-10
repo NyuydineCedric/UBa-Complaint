@@ -73,6 +73,32 @@
   ],
   "complaints": [
     {
+      "id": "1778378208059",
+      "userId": "UBa24PB180",
+      "student": "Nyuydine Cedric",
+      "studentId": "UBa24PB180",
+      "name": "Nyuydine Cedric",
+      "email": "nyuydinecedric@gmail.com",
+      "department": "Medicine",
+      "school": "FHS",
+      "level": "Level 4",
+      "phoneNumber": "678772649",
+      "program": "Medicine",
+      "title": "Exam Mark - jkjkjkjk",
+      "course": "jkjkjkjk",
+      "courseTitle": "jkjkjkjkjk",
+      "semester": "1",
+      "year": "2024",
+      "type": "Exam Mark",
+      "description": "jkkkjkjkjkjkjkjkjkjkjkjkjk",
+      "details": "jkkkjkjkjkjkjkjkjkjkjkjkjk",
+      "files": [],
+      "status": "resolved",
+      "date": "2026-05-10",
+      "submittedDate": "2026-05-10T01:56:48.061Z",
+      "lastUpdate": "2026-05-10T01:57:08.780Z"
+    },
+    {
       "id": "1778026623617",
       "userId": "UBa24PB182",
       "student": "Nyuydine Cedric",
@@ -233,7 +259,7 @@
       "status": "resolved",
       "date": "2026-05-05",
       "submittedDate": "2026-05-05T16:34:21.381Z",
-      "lastUpdate": "2026-05-05T23:40:55.398Z"
+      "lastUpdate": "2026-05-10T01:35:41.128Z"
     },
     {
       "id": "1777998699740",

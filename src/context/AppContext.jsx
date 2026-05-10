@@ -4,7 +4,7 @@ import { getTranslation } from "../translations";
 
 export const AppContext = createContext(null);
 
-const API_BASE = "https://uba-complaint-backend-3.onrender.com/api";
+const API_BASE = "http://localhost:4000/api";
 
 async function apiRequest(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, {
