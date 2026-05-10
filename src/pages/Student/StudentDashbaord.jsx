@@ -1,4 +1,3 @@
-// pages/Student/StudentDashbaord.jsx
 import StatCard from "./Components/StatCard";
 import {
   FileArchive,
@@ -7,6 +6,7 @@ import {
   CheckCircle,
   XCircle,
   Plus,
+  ArrowRight,
   AlertCircle,
 } from "lucide-react";
 
@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
 
 export default function Dashboard() {
-  const { user, complaints } = useContext(AppContext);
+  const { user, complaints, t } = useContext(AppContext);
   const navigate = useNavigate();
 
   // Filter user complaints
@@ -53,45 +53,45 @@ export default function Dashboard() {
             display: "inline-block",
           }}
         >
-          Welcome back, {user?.name || "User"}!
+          {t("welcome_back_student").replace("{{name}}", user?.name || "User")}
         </h1>
         <p style={{ color: "var(--student-text-secondary)", fontSize: "16px" }}>
-          Here's what's happening with your complaints.
+          {t("heres_whats_happening")}
         </p>
       </div>
 
       {/* STATS CARDS - ALL 5 STATUSES */}
       <div className="student-cards">
         <StatCard
-          title="Total Complaints"
+          title={t("total_complaints")}
           value={counts.total}
           icon={FileArchive}
           color="#4F46E5"
           variant="total"
         />
         <StatCard
-          title="Pending"
+          title={t("pending")}
           value={counts.pending}
           icon={Hourglass}
           color="#f59e0b"
           variant="pending"
         />
         <StatCard
-          title="In Progress"
+          title={t("in_progress")}
           value={counts.inProgress}
           icon={RefreshCw}
           color="#3b82f6"
           variant="progress"
         />
         <StatCard
-          title="Resolved"
+          title={t("resolved")}
           value={counts.resolved}
           icon={CheckCircle}
           color="#10b981"
           variant="resolved"
         />
         <StatCard
-          title="Rejected"
+          title={t("rejected")}
           value={counts.rejected}
           icon={XCircle}
           color="#ef4444"
@@ -104,12 +104,13 @@ export default function Dashboard() {
         {/* RECENT COMPLAINTS */}
         <div className="student-card-box">
           <div className="card-header-flex">
-            <h3>My Recent Complaints</h3>
+            <h3>{t("my_recent_complaints")}</h3>
             <span
               onClick={() => navigate("/student/complaints")}
               className="view-all-link"
             >
-              View All
+              {t("view_all")}
+              <ArrowRight size={14} style={{ marginLeft: "4px" }} />
             </span>
           </div>
 
@@ -119,7 +120,7 @@ export default function Dashboard() {
                 size={24}
                 style={{ margin: "0 auto 10px", opacity: 0.5 }}
               />
-              <p>No complaints yet</p>
+              <p>{t("no_complaints_yet")}</p>
             </div>
           ) : (
             <div className="complaint-list">
@@ -135,7 +136,7 @@ export default function Dashboard() {
                     <p className="complaint-type">{c.type}</p>
                   </div>
                   <span className={`student-status student-${c.status}`}>
-                    {c.status}
+                    {t(`${c.status}_status`)}
                   </span>
                 </div>
               ))}
@@ -145,7 +146,7 @@ export default function Dashboard() {
 
         {/* QUICK ACTIONS */}
         <div className="student-card-box">
-          <h3>Quick Actions</h3>
+          <h3>{t("quick_actions")}</h3>
           <div className="quick-actions">
             <div
               className="quick-action-item"
@@ -153,7 +154,7 @@ export default function Dashboard() {
               style={{ cursor: "pointer" }}
             >
               <Plus size={18} style={{ color: "var(--student-primary)" }} />
-              <span>Submit New Complaint</span>
+              <span>{t("submit_new_complaint")}</span>
             </div>
             <div
               className="quick-action-item"
@@ -164,7 +165,7 @@ export default function Dashboard() {
                 size={18}
                 style={{ color: "var(--student-primary)" }}
               />
-              <span>View My Complaints</span>
+              <span>{t("view_my_complaints")}</span>
             </div>
             <div
               className="quick-action-item"
@@ -175,7 +176,7 @@ export default function Dashboard() {
                 size={18}
                 style={{ color: "var(--student-primary)" }}
               />
-              <span>Update Profile</span>
+              <span>{t("update_profile")}</span>
             </div>
           </div>
         </div>
@@ -188,10 +189,8 @@ export default function Dashboard() {
             <FileArchive size={24} />
           </div>
           <div className="complaint-banner-text">
-            <h4>Have a new issue to report?</h4>
-            <p>
-              Submit a complaint and we'll get back to you as soon as possible.
-            </p>
+            <h4>{t("have_new_issue")}</h4>
+            <p>{t("submit_complaint_banner")}</p>
           </div>
         </div>
         <button
@@ -199,7 +198,7 @@ export default function Dashboard() {
           onClick={() => navigate("/student/submit")}
         >
           <Plus size={18} />
-          Submit Complaint
+          {t("submit_complaint")}
         </button>
       </div>
     </div>

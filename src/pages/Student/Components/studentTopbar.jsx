@@ -22,26 +22,29 @@ export default function Topbar() {
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
 
-  const title = useMemo(() => {
+  // Dynamic page title translation
+  const pageTitle = useMemo(() => {
     const path = location.pathname.toLowerCase();
-
     if (path === "/student" || path === "/student/") {
-      return `Welcome back, ${user?.name || "User"}`;
+      return t("welcome_back_student").replace(
+        "{{name}}",
+        user?.name || "User",
+      );
     }
     if (path.includes("complaints") && !path.includes("submit")) {
-      return "My Complaints";
+      return t("my_complaints");
     }
     if (path.includes("submit")) {
-      return "Submit Complaint";
+      return t("submit_complaint_title");
     }
     if (path.includes("profile")) {
-      return "My Profile";
+      return t("my_profile") || "My Profile";
     }
     if (path.includes("settings")) {
-      return "Settings";
+      return t("settings");
     }
-    return "Dashboard";
-  }, [location.pathname, user]);
+    return t("dashboard");
+  }, [location.pathname, user, t]);
 
   // Get student's complaints sorted by last update
   const studentComplaints = useMemo(() => {
@@ -49,7 +52,7 @@ export default function Topbar() {
     return complaints
       .filter((c) => c.userId === user.matricule)
       .sort((a, b) => new Date(b.lastUpdate) - new Date(a.lastUpdate))
-      .slice(0, 5); // Show latest 5
+      .slice(0, 5);
   }, [complaints, user]);
 
   const handleNotificationClick = () => {
@@ -83,7 +86,11 @@ export default function Topbar() {
     <div className="student-topbar">
       {/* LEFT TITLE / SEARCH */}
       <div className="student-title">
-        <input type="text" placeholder="Search..." />
+        <input
+          type="text"
+          placeholder={t("search_placeholder")}
+          aria-label={t("search_placeholder")}
+        />
       </div>
 
       {/* RIGHT ACTIONS */}
@@ -95,8 +102,8 @@ export default function Topbar() {
             onClick={handleNotificationClick}
             title={
               studentResolvedNotifications > 0
-                ? "Click to view complaint updates"
-                : "No new notifications"
+                ? t("notification_updates_available")
+                : t("notifications_empty")
             }
           >
             <Bell
@@ -121,12 +128,12 @@ export default function Topbar() {
           {showNotifications && (
             <div className="student-notification-dropdown">
               <div className="student-notification-header">
-                <h4>Complaint Updates</h4>
+                <h4>{t("complaint_updates")}</h4>
               </div>
               <div className="student-notification-list">
                 {studentComplaints.length === 0 ? (
                   <div className="student-notification-item empty">
-                    No complaints yet
+                    {t("no_complaints_yet")}
                   </div>
                 ) : (
                   studentComplaints.map((complaint) => (
@@ -164,21 +171,25 @@ export default function Topbar() {
         </div>
 
         {/* PROFILE IMAGE */}
-        <img src={profile} alt="Profile Picture" className="proffile-img" />
+        <img
+          src={profile}
+          alt={t("profile_image_alt")}
+          className="proffile-img"
+        />
 
-        {/* THEME SWITCH – on the far right */}
+        {/* THEME SWITCH */}
         <div className="student-theme-toggle-container">
           <button
             className={`student-toggle-btn ${theme === "light" ? "active" : ""}`}
             onClick={() => setTheme("light")}
-            title="Light Mode"
+            title={t("light_mode")}
           >
             <Sun size={18} />
           </button>
           <button
             className={`student-toggle-btn ${theme === "dark" ? "active" : ""}`}
             onClick={() => setTheme("dark")}
-            title="Dark Mode"
+            title={t("dark_mode")}
           >
             <Moon size={18} />
           </button>
