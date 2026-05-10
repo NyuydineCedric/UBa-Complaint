@@ -1,23 +1,100 @@
 import express from "express";
 import cors from "cors";
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_FILE = path.join(__dirname, "data.json");
 const PORT = process.env.PORT || 4000;
 
+// Email configuration
+const EMAIL_HOST = process.env.EMAIL_HOST;
+const EMAIL_PORT = Number(process.env.EMAIL_PORT || 587);
+const EMAIL_SECURE = process.env.EMAIL_SECURE === "true";
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
+let EMAIL_FROM = process.env.EMAIL_FROM || EMAIL_USER;
+
+let emailTransporter = null;
+
+async function configureEmailTransporter() {
+  if (!EMAIL_HOST) {
+    console.warn("Email SMTP host not configured. Email notifications disabled.");
+    return;
+  }
+
+  try {
+    if (EMAIL_HOST === "smtp.gmail.com") {
+      if (!EMAIL_USER || !EMAIL_PASS) {
+        console.error("❌ Gmail requires EMAIL_USER and EMAIL_PASS.");
+        return;
+      }
+      emailTransporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: EMAIL_USER, pass: EMAIL_PASS },
+      });
+      console.log("✅ Gmail SMTP configured for real emails.");
+    } else if (EMAIL_HOST === "smtp.ethereal.email") {
+      const testAccount = await nodemailer.createTestAccount();
+      emailTransporter = nodemailer.createTransport({
+        host: EMAIL_HOST,
+        port: EMAIL_PORT,
+        secure: EMAIL_SECURE,
+        auth: { user: testAccount.user, pass: testAccount.pass },
+      });
+      EMAIL_FROM = testAccount.user;
+      console.log("🔧 Ethereal email transport configured (test emails).");
+    } else {
+      emailTransporter = nodemailer.createTransport({
+        host: EMAIL_HOST,
+        port: EMAIL_PORT,
+        secure: EMAIL_SECURE,
+        auth: { user: EMAIL_USER, pass: EMAIL_PASS },
+      });
+      console.log(`🔧 Custom SMTP: ${EMAIL_HOST}:${EMAIL_PORT}`);
+    }
+  } catch (error) {
+    console.error("Email configuration failed:", error.message);
+  }
+}
+
+await configureEmailTransporter();
+
+async function sendNotificationEmail(to, subject, text) {
+  if (!emailTransporter) {
+    console.log(`Email not sent (no transporter): ${to}`);
+    return;
+  }
+  try {
+    const result = await emailTransporter.sendMail({
+      from: EMAIL_FROM,
+      to,
+      subject,
+      text,
+    });
+    console.log(`✅ Email sent to ${to}. Message ID: ${result.messageId}`);
+    const previewUrl = nodemailer.getTestMessageUrl(result);
+    if (previewUrl) console.log(`📧 Preview: ${previewUrl}`);
+  } catch (error) {
+    console.error(`❌ Failed to send email to ${to}:`, error.message);
+  }
+}
+
 const app = express();
-app.use(cors());
+app.use(cors({ origin: ["http://localhost:5173", "http://127.0.0.1:5173"] }));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Serve the built React app (from ../dist)
+// Serve static frontend (for production)
 app.use(express.static(path.join(__dirname, "../dist")));
 
-// Safe read/write with automatic file creation
+// Data functions
 async function readData() {
   try {
     const raw = await readFile(DATA_FILE, "utf-8");
@@ -33,10 +110,10 @@ async function writeData(data) {
   await writeFile(DATA_FILE, JSON.stringify(data, null, 2), "utf-8");
 }
 
-// Health check
+// ============ API ROUTES ============
+
 app.get("/api/health", (_, res) => res.json({ status: "ok" }));
 
-// Register
 app.post("/api/auth/register", async (req, res) => {
   try {
     const newUser = req.body;
@@ -55,7 +132,6 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
-// Login
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password, matricule } = req.body;
@@ -69,7 +145,6 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
-// Update user profile
 app.put("/api/users/:matricule", async (req, res) => {
   try {
     const { matricule } = req.params;
@@ -86,7 +161,6 @@ app.put("/api/users/:matricule", async (req, res) => {
   }
 });
 
-// Get all complaints
 app.get("/api/complaints", async (_, res) => {
   try {
     const data = await readData();
@@ -97,7 +171,6 @@ app.get("/api/complaints", async (_, res) => {
   }
 });
 
-// Get single complaint
 app.get("/api/complaints/:id", async (req, res) => {
   try {
     const data = await readData();
@@ -110,7 +183,6 @@ app.get("/api/complaints/:id", async (req, res) => {
   }
 });
 
-// Create complaint
 app.post("/api/complaints", async (req, res) => {
   try {
     const complaint = req.body;
@@ -131,7 +203,6 @@ app.post("/api/complaints", async (req, res) => {
   }
 });
 
-// Update complaint (status changes only – no email)
 app.put("/api/complaints/:id", async (req, res) => {
   try {
     const updates = req.body;
@@ -142,9 +213,30 @@ app.put("/api/complaints/:id", async (req, res) => {
     const updated = { ...old, ...updates, lastUpdate: new Date().toISOString() };
     data.complaints[index] = updated;
     await writeData(data);
-    if (updates.status && updates.status !== old.status) {
-      console.log(`Status changed: ${old.status} → ${updates.status} (email would be sent to ${old.email})`);
+
+    // Send email if status changed
+    if (updates.status && updates.status !== old.status && old.email) {
+      const statusText = updates.status.charAt(0).toUpperCase() + updates.status.slice(1);
+      const subject = `UBa Complaint System - Status Update: ${statusText}`;
+      const message = `Dear ${old.name || "Student"},
+
+Your complaint has been updated:
+
+Complaint ID: ${old.id}
+Course: ${old.courseTitle || old.course}
+Type: ${old.type}
+Previous Status: ${old.status}
+New Status: ${statusText}
+Updated Date: ${new Date().toLocaleString()}
+
+Please log in to your dashboard for details.
+
+Best regards,
+UBa Complaint Management System`;
+      
+      await sendNotificationEmail(old.email, subject, message);
     }
+
     res.json(updated);
   } catch (error) {
     console.error(error);
@@ -152,7 +244,6 @@ app.put("/api/complaints/:id", async (req, res) => {
   }
 });
 
-// Delete complaint
 app.delete("/api/complaints/:id", async (req, res) => {
   try {
     const data = await readData();
@@ -167,9 +258,9 @@ app.delete("/api/complaints/:id", async (req, res) => {
   }
 });
 
-// Catch-all: serve index.html for any non-API route (React Router)
+// Catch-all for React Router (must be last)
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
 
-app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Backend running on http://localhost:4000`));
