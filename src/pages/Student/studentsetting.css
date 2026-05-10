@@ -1,14 +1,16 @@
-
-/* PAGE */
+/* studentsetting.css */
 .student-settings-page {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
+
 .student-page-title {
   font-size: 22px;
   font-weight: 600;
+  color: var(--student-text-main);
 }
+
 .student-settings-card {
   background: var(--student-bg-card);
   border: 1px solid var(--student-border-card);
@@ -19,15 +21,27 @@
   flex-direction: column;
   gap: 20px;
 }
+
 .student-setting-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--student-table-top);
+}
+
+.student-setting-item:last-child {
+  border-bottom: none;
 }
 
 .student-setting-item h4 {
-  margin-bottom: 5px;
+  margin-bottom: 4px;
   color: var(--student-text-main);
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .student-setting-item p {
@@ -37,8 +51,8 @@
 
 .student-switch {
   position: relative;
-  width: 40px;
-  height: 20px;
+  width: 44px;
+  height: 24px;
 }
 
 .student-switch input {
@@ -60,17 +74,17 @@
 .student-slider::before {
   content: "";
   position: absolute;
-  width: 16px;
-  height: 16px;
-  left: 2px;
-  top: 2px;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
   background: white;
   border-radius: 50%;
   transition: 0.3s;
 }
 
 input:checked + .student-slider {
-  background-color: #4F46E5;
+  background-color: var(--student-primary);
 }
 
 input:checked + .student-slider::before {
@@ -78,16 +92,6 @@ input:checked + .student-slider::before {
 }
 
 .student-action-btn {
-  padding: 10px 10px;
-  background: #dae2ff;
-  border: 1px solid rgb(169, 169, 255);
-  color: #4F46E5;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: var(--student-font-family);
-}
-
-.student-logout-btn {
   display: flex;
   gap: 4px;
   padding: 10px 10px;
@@ -99,11 +103,53 @@ input:checked + .student-slider::before {
   align-items: center;
 }
 
+.student-action-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.student-logout-btn {
+  display: flex;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  border-radius: 8px;
+  cursor: pointer;
+  align-items: center;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.student-logout-btn:hover {
+  background: #fecaca;
+  transform: translateY(-1px);
+}
+
 .student-logout-btn p {
-  color: #4F46E5;
+  color: #dc2626;
   font-family: var(--student-font-family);
 }
+
 .student-logout-icon {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .student-setting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .student-setting-item h4 {
+    font-size: 14px;
+  }
+  
+  .student-setting-item p {
+    font-size: 12px;
+  }
 }

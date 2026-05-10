@@ -29,6 +29,20 @@
       "id": "1777965265337"
     },
     {
+<<<<<<< HEAD
+      "name": "Baye Brian",
+      "email": "bayebrian89@gmail.com",
+      "password": "Mancity10@",
+      "matricule": "UBa24PB012",
+      "phoneNumber": "675717944",
+      "school": "FED",
+      "level": "Level 2",
+      "department": "Computer Engineering",
+      "role": "student",
+      "avatar": null,
+      "createdAt": "2026-05-05T12:01:24.374Z",
+      "id": "1777982484374"
+=======
       "name": "Nyuydine Cedric",
       "email": "nyuydinecedric@gmail.com",
       "password": "Cedric123@",
@@ -69,6 +83,7 @@
       "avatar": null,
       "createdAt": "2026-05-05T23:04:22.996Z",
       "id": "1778022262996"
+>>>>>>> f39a87d2681f3ae278bce2ef40c29bfe54b0b6c5
     }
   ],
   "complaints": [

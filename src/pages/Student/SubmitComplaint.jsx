@@ -159,19 +159,6 @@ export default function Submit() {
 
       <form className="student-form" onSubmit={handleSubmit}>
         <div className="student-form-group">
-          <label>Course Code</label>
-          <input
-            type="text"
-            name="courseCode"
-            value={form.courseCode}
-            onChange={handleChange}
-            className="student-input"
-            placeholder="Enter course code"
-            required
-          />
-        </div>
-
-        <div className="student-form-group">
           <label>Course Name</label>
           <input
             type="text"
@@ -180,6 +167,18 @@ export default function Submit() {
             onChange={handleChange}
             className="student-input"
             placeholder="Enter course name"
+            required
+          />
+        </div>
+        <div className="student-form-group">
+          <label>Course Code</label>
+          <input
+            type="text"
+            name="courseCode"
+            value={form.courseCode}
+            onChange={handleChange}
+            className="student-input"
+            placeholder="Enter course code"
             required
           />
         </div>

@@ -7,6 +7,7 @@ import {
   CheckCircle,
   XCircle,
   Plus,
+  ArrowRight,
   AlertCircle,
 } from "lucide-react";
 
@@ -109,7 +110,7 @@ export default function Dashboard() {
               onClick={() => navigate("/student/complaints")}
               className="view-all-link"
             >
-              View All
+              View All<ArrowRight size={14} style={{ marginLeft: '4px' }} />
             </span>
           </div>
 
