@@ -5,12 +5,10 @@ import "./StudentStyle.css";
 import { useContext, useState } from "react";
 import { AppContext } from "../../context/AppContext";
 import ComplaintModal from "./Components/ComplaintModal";
-import { Search, Settings } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
 
 export default function Complaints() {
-  const { user, complaints } = useContext(AppContext);
-  const navigate = useNavigate();
+  const { user, complaints, t } = useContext(AppContext);
 
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState("all");
@@ -31,9 +29,7 @@ export default function Complaints() {
 
   // Filtered complaints
   const filtered = myComplaints.filter((c) => {
-    // Status filter
     if (filter !== "all" && c.status !== filter) return false;
-    // Search filter
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
       return (
@@ -46,42 +42,57 @@ export default function Complaints() {
     return true;
   });
 
+  // Helper to translate status
+  const translateStatus = (status) => {
+    switch (status) {
+      case "pending":
+        return t("pending_status");
+      case "in-progress":
+        return t("in_progress_status");
+      case "resolved":
+        return t("resolved_status");
+      case "rejected":
+        return t("rejected_status");
+      default:
+        return status;
+    }
+  };
+
   return (
     <div className="student-complaints-page">
-      {/* TITLE */}
-      <h2 className="student-page-title">My Complaints</h2>
+      <h2 className="student-page-title">{t("my_complaints")}</h2>
 
-      {/* FILTER BAR - ALL STATUSES INCLUDED */}
+      {/* FILTER BAR */}
       <div className="student-filter-bar">
         <button
           className={`student-filter ${filter === "all" ? "student-active" : ""}`}
           onClick={() => setFilter("all")}
         >
-          All ({counts.all})
+          {t("all")} ({counts.all})
         </button>
         <button
           className={`student-filter ${filter === "pending" ? "student-active" : ""}`}
           onClick={() => setFilter("pending")}
         >
-          Pending ({counts.pending})
+          {t("pending")} ({counts.pending})
         </button>
         <button
           className={`student-filter ${filter === "in-progress" ? "student-active" : ""}`}
           onClick={() => setFilter("in-progress")}
         >
-          In Progress ({counts["in-progress"]})
+          {t("in_progress")} ({counts["in-progress"]})
         </button>
         <button
           className={`student-filter ${filter === "resolved" ? "student-active" : ""}`}
           onClick={() => setFilter("resolved")}
         >
-          Resolved ({counts.resolved})
+          {t("resolved")} ({counts.resolved})
         </button>
         <button
           className={`student-filter ${filter === "rejected" ? "student-active" : ""}`}
           onClick={() => setFilter("rejected")}
         >
-          Rejected ({counts.rejected})
+          {t("rejected")} ({counts.rejected})
         </button>
       </div>
 
@@ -105,7 +116,7 @@ export default function Complaints() {
         />
         <input
           type="text"
-          placeholder="Search complaints..."
+          placeholder={t("search_complaints")}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
@@ -119,7 +130,7 @@ export default function Complaints() {
         />
       </div>
 
-      {/* TABLE - Removed white background from header */}
+      {/* TABLE */}
       <div className="student-table-container">
         {filtered.length === 0 ? (
           <div
@@ -130,17 +141,17 @@ export default function Complaints() {
               color: "var(--student-text-secondary)",
             }}
           >
-            <p>No complaints found</p>
+            <p>{t("no_complaints_found")}</p>
           </div>
         ) : (
           <table>
             <thead>
               <tr>
                 <th>#</th>
-                <th>Course Code</th>
-                <th>Course Name</th>
-                <th>Status</th>
-                <th>Date</th>
+                <th>{t("course_code")}</th>
+                <th>{t("course_name")}</th>
+                <th>{t("status")}</th>
+                <th>{t("date")}</th>
               </tr>
             </thead>
             <tbody>
@@ -156,7 +167,7 @@ export default function Complaints() {
                   <td>{c.courseTitle || c.title}</td>
                   <td>
                     <span className={`student-status student-${c.status}`}>
-                      {c.status}
+                      {translateStatus(c.status)}
                     </span>
                   </td>
                   <td>

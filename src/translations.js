@@ -1,7 +1,9 @@
+// src/translations.js
+
 export const getTranslation = (lang, key) => {
   const t = {
     en: {
-      // General
+      // ========== GENERAL ==========
       dashboard: "Dashboard",
       complaints: "All Complaints",
       reports: "Reports",
@@ -70,7 +72,9 @@ export const getTranslation = (lang, key) => {
       email: "Email",
       name: "Name",
       phone: "Phone",
-      // Reports
+      profile_image_alt: "Profile Picture",
+
+      // ========== ADMIN REPORTS ==========
       reports_title: "Reports",
       reports_subtitle: "Generate and analyze complaint reports with interactive charts",
       export_report: "Export Report",
@@ -90,7 +94,8 @@ export const getTranslation = (lang, key) => {
       feedback_impact: "Student Feedback Impact",
       feedback_impact_desc: "Measures complaint resolution satisfaction.",
       download_pdf: "Download PDF",
-      // Schools
+
+      // ========== ADMIN SCHOOLS ==========
       schools_title: "Schools Overview",
       schools_subtitle: "Monitor complaint statistics and performance by faculty",
       add_school: "Add School",
@@ -101,7 +106,8 @@ export const getTranslation = (lang, key) => {
       avg_response: "Avg Response",
       school_performance_details: "School Performance Details",
       resolution_rate: "Resolution Rate",
-      // Settings
+
+      // ========== ADMIN SETTINGS ==========
       settings_title: "Settings",
       settings_subtitle: "Configure system preferences and notifications.",
       save_changes: "Save Changes",
@@ -136,10 +142,80 @@ export const getTranslation = (lang, key) => {
       settings_saved: "Settings saved successfully!",
       switched_to_light: "Switched to light mode",
       switched_to_dark: "Switched to dark mode",
-      // Notifications
       new_complaint_submitted: "New complaint submitted",
+
+      // ========== STUDENT DASHBOARD ==========
+      welcome_back_student: "Welcome back, {{name}}!",
+      heres_whats_happening: "Here's what's happening with your complaints.",
+      my_recent_complaints: "My Recent Complaints",
+      no_complaints_yet: "No complaints yet",
+      quick_actions: "Quick Actions",
+      submit_new_complaint: "Submit New Complaint",
+      view_my_complaints: "View My Complaints",
+      update_profile: "Update Profile",
+      have_new_issue: "Have a new issue to report?",
+      submit_complaint_banner: "Submit a complaint and we'll get back to you as soon as possible.",
+      submit_complaint: "Submit Complaint",
+      my_complaints: "My Complaints",
+
+      // ========== STUDENT COMPLAINTS LIST ==========
+      search_complaints: "Search complaints...",
+      no_complaints_found: "No complaints found",
+      course_name: "Course Name",
+      date: "Date",
+
+      // ========== STUDENT PROFILE ==========
+      my_profile: "My Profile",
+      change_photo: "Change Photo",
+      full_name: "Full Name",
+      matricule: "Matricule",
+      phone_number: "Phone Number",
+      disable_field_note: "Matricule cannot be changed",
+      update_info: "Update Info",
+
+      // ========== STUDENT SETTINGS ==========
+      light_mode: "Light Mode",
+      dark_mode: "Dark Mode",
+      switch_theme: "Switch between light and dark theme",
+      notifications: "Notifications",
+      enable_disable_notifications: "Enable or disable notifications",
+      account: "Account",
+      manage_account: "Manage your account settings",
+      select_language: "Choose your preferred language",
+      logout: "Logout",
+      sign_out: "Sign out of your account",
+
+      // ========== SUBMIT COMPLAINT ==========
+      submit_complaint_title: "Submit Complaint",
+      course_name_label: "Course Name",
+      course_code_label: "Course Code",
+      semester: "Semester",
+      year: "Year",
+      ca_mark: "CA Mark",
+      exam_mark: "Exam Mark",
+      evidence: "Evidence (image required for CA Mark)",
+      upload_evidence: "Upload Evidence",
+      description_label: "Description",
+      describe_issue: "Describe your issue in detail...",
+      required_field: "Please fill all fields",
+      attach_proof: "Please attach proof for CA Mark complaints",
+      description_too_short: "Description must be at least 10 characters long",
+      duplicate_complaint: "Duplicate complaint detected!",
+
+      // ========== COMPLAINT MODAL ==========
+      complaint_details: "Complaint Details",
+      student_information: "Student Information",
+      edit: "Edit",
+      save: "Save",
+      delete: "Delete",
+
+      // ========== NOTIFICATION TOPBAR ==========
+      complaint_updates: "Complaint Updates",
+      notification_updates_available: "Click to view complaint updates",
+      notifications_empty: "No new notifications",
     },
     fr: {
+      // ========== GÉNÉRAL ==========
       dashboard: "Tableau de bord",
       complaints: "Toutes les réclamations",
       reports: "Rapports",
@@ -208,6 +284,9 @@ export const getTranslation = (lang, key) => {
       email: "Email",
       name: "Nom",
       phone: "Téléphone",
+      profile_image_alt: "Photo de profil",
+
+      // ========== RAPPORTS ADMIN ==========
       reports_title: "Rapports",
       reports_subtitle: "Générer et analyser des rapports de réclamation avec graphiques interactifs",
       export_report: "Exporter le rapport",
@@ -227,6 +306,8 @@ export const getTranslation = (lang, key) => {
       feedback_impact: "Impact des retours étudiants",
       feedback_impact_desc: "Mesure la satisfaction de résolution des réclamations.",
       download_pdf: "Télécharger PDF",
+
+      // ========== ÉCOLES ADMIN ==========
       schools_title: "Aperçu des écoles",
       schools_subtitle: "Surveiller les statistiques de réclamation par faculté",
       add_school: "Ajouter une école",
@@ -237,12 +318,14 @@ export const getTranslation = (lang, key) => {
       avg_response: "Délai moy.",
       school_performance_details: "Détails des performances par école",
       resolution_rate: "Taux de résolution",
+
+      // ========== PARAMÈTRES ADMIN ==========
       settings_title: "Paramètres",
-      settings_subtitle: "Configurer les préférences système et notifications.",
-      save_changes: "Enregistrer",
+      settings_subtitle: "Configurer les préférences système et les notifications.",
+      save_changes: "Enregistrer les modifications",
       system_information: "Informations système",
       system_name: "Nom du système",
-      admin_email: "Email admin",
+      admin_email: "Email administrateur",
       language: "Langue",
       english: "Anglais",
       french: "Français",
@@ -272,8 +355,84 @@ export const getTranslation = (lang, key) => {
       switched_to_light: "Passé en mode clair",
       switched_to_dark: "Passé en mode sombre",
       new_complaint_submitted: "Nouvelle réclamation soumise",
+
+      // ========== TABLEAU DE BORD ÉTUDIANT ==========
+      welcome_back_student: "Bon retour, {{name}} !",
+      heres_whats_happening: "Voici ce qui se passe avec vos réclamations.",
+      my_recent_complaints: "Mes réclamations récentes",
+      no_complaints_yet: "Aucune réclamation pour l'instant",
+      quick_actions: "Actions rapides",
+      submit_new_complaint: "Soumettre une nouvelle réclamation",
+      view_my_complaints: "Voir mes réclamations",
+      update_profile: "Mettre à jour le profil",
+      have_new_issue: "Vous avez un nouveau problème à signaler ?",
+      submit_complaint_banner: "Soumettez une réclamation et nous vous répondrons dès que possible.",
+      submit_complaint: "Soumettre une réclamation",
+      my_complaints: "Mes réclamations",
+
+      // ========== LISTE DES RÉCLAMATIONS ÉTUDIANT ==========
+      search_complaints: "Rechercher des réclamations...",
+      no_complaints_found: "Aucune réclamation trouvée",
+      course_name: "Nom du cours",
+      date: "Date",
+
+      // ========== PROFIL ÉTUDIANT ==========
+      my_profile: "Mon profil",
+      change_photo: "Changer la photo",
+      full_name: "Nom complet",
+      matricule: "Matricule",
+      phone_number: "Numéro de téléphone",
+      disable_field_note: "Le matricule ne peut pas être modifié",
+      update_info: "Mettre à jour les informations",
+
+      // ========== PARAMÈTRES ÉTUDIANT ==========
+      light_mode: "Mode clair",
+      dark_mode: "Mode sombre",
+      switch_theme: "Basculer entre le thème clair et sombre",
+      notifications: "Notifications",
+      enable_disable_notifications: "Activer ou désactiver les notifications",
+      account: "Compte",
+      manage_account: "Gérer les paramètres de votre compte",
+      select_language: "Choisissez votre langue préférée",
+      logout: "Déconnexion",
+      sign_out: "Déconnectez-vous de votre compte",
+
+      // ========== SOUMETTRE UNE RÉCLAMATION ==========
+      submit_complaint_title: "Soumettre une réclamation",
+      course_name_label: "Nom du cours",
+      course_code_label: "Code du cours",
+      semester: "Semestre",
+      year: "Année",
+      ca_mark: "Note de CC",
+      exam_mark: "Note d'examen",
+      evidence: "Preuve (image requise pour la note de CC)",
+      upload_evidence: "Télécharger une preuve",
+      description_label: "Description",
+      describe_issue: "Décrivez votre problème en détail...",
+      required_field: "Veuillez remplir tous les champs",
+      attach_proof: "Veuillez joindre une preuve pour les réclamations de note de CC",
+      description_too_short: "La description doit comporter au moins 10 caractères",
+      duplicate_complaint: "Réclamation en double détectée !",
+
+      // ========== MODALE DE RÉCLAMATION ==========
+      complaint_details: "Détails de la réclamation",
+      student_information: "Informations étudiant",
+      edit: "Modifier",
+      save: "Enregistrer",
+      delete: "Supprimer",
+
+      // ========== NOTIFICATIONS (TOP BAR) ==========
+      complaint_updates: "Mises à jour des réclamations",
+      notification_updates_available: "Cliquez pour voir les mises à jour",
+      notifications_empty: "Aucune nouvelle notification",
     },
   };
-  const langCode = lang === "fr" || lang === "French" ? "fr" : "en";
-  return t[langCode][key] || t.en[key] || key;
+
+  const langCode = lang === "fr" ? "fr" : "en";
+  const result = t[langCode][key];
+  if (result === undefined) {
+    // fallback to English if key missing in selected language
+    return t.en[key] || key;
+  }
+  return result;
 };

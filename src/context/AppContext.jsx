@@ -1,4 +1,3 @@
-// context/AppContext.jsx
 import { createContext, useState, useEffect, useRef, useCallback } from "react";
 import { getTranslation } from "../translations";
 
@@ -61,6 +60,22 @@ export default function AppProvider({ children }) {
   // ========== SEARCH QUERY ==========
   const [searchQuery, setSearchQuery] = useState("");
 
+  // ========== SETTINGS & TRANSLATION ==========
+  const [settings, setSettings] = useState({
+    language: localStorage.getItem("language") || "en",
+    notifications: true,
+  });
+
+  // Persist language to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("language", settings.language);
+  }, [settings.language]);
+
+  const t = (key) => {
+    return getTranslation(settings.language, key);
+  };
+
+  // ========== COMPLAINTS LOADING & POLLING ==========
   useEffect(() => {
     const loadComplaints = async () => {
       try {
@@ -107,6 +122,7 @@ export default function AppProvider({ children }) {
     return () => clearInterval(pollInterval);
   }, [lastComplaintCount]);
 
+  // ========== THEME HANDLING ==========
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
@@ -164,6 +180,7 @@ export default function AppProvider({ children }) {
     setStudentResolvedNotifications(0);
   };
 
+  // ========== API METHODS ==========
   const register = async (data) => {
     const newUser = {
       ...data,
@@ -282,15 +299,7 @@ export default function AppProvider({ children }) {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };
 
-  const [settings, setSettings] = useState({
-    language: localStorage.getItem("language") || "en",
-    notifications: true,
-  });
-
-  const t = (key) => {
-    return getTranslation(settings.language, key);
-  };
-
+  // ========== CONTEXT PROVIDER ==========
   return (
     <AppContext.Provider
       value={{

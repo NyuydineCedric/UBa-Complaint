@@ -1,4 +1,3 @@
-// pages/Student/SubmitComplaint.jsx
 import { useState, useContext, useEffect } from "react";
 import "./submitcomplaint.css";
 import "./StudentStyle.css";
@@ -6,7 +5,8 @@ import { AppContext } from "../../context/AppContext";
 import { X, Paperclip } from "lucide-react";
 
 export default function Submit() {
-  const { user, addComplaint, showToast, complaints } = useContext(AppContext);
+  const { user, addComplaint, showToast, complaints, t } =
+    useContext(AppContext);
 
   const initialForm = {
     courseCode: "",
@@ -91,7 +91,7 @@ export default function Submit() {
     );
   };
 
-  // Submit - CLEAN VERSION
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -103,23 +103,23 @@ export default function Submit() {
       !form.type ||
       !form.description
     ) {
-      showToast("Please fill all fields", "error");
+      showToast(t("required_field"), "error");
       return;
     }
 
     // Check if file is required for CA Mark
     if (form.type === "CA Mark" && files.length === 0) {
-      showToast("Please attach proof for CA Mark complaints", "error");
+      showToast(t("attach_proof"), "error");
       return;
     }
 
     if (form.description.length < 10) {
-      showToast("Description must be at least 10 characters long", "error");
+      showToast(t("description_too_short"), "error");
       return;
     }
 
     if (isDuplicate()) {
-      showToast("Duplicate complaint detected!", "error");
+      showToast(t("duplicate_complaint"), "error");
       return;
     }
 
@@ -155,36 +155,36 @@ export default function Submit() {
 
   return (
     <div className="student-submit-page">
-      <h2 className="student-page-title">Submit Complaint</h2>
+      <h2 className="student-page-title">{t("submit_complaint_title")}</h2>
 
       <form className="student-form" onSubmit={handleSubmit}>
         <div className="student-form-group">
-          <label>Course Name</label>
+          <label>{t("course_name_label")}</label>
           <input
             type="text"
             name="courseTitle"
             value={form.courseTitle}
             onChange={handleChange}
             className="student-input"
-            placeholder="Enter course name"
+            placeholder={t("course_name_label")}
             required
           />
         </div>
         <div className="student-form-group">
-          <label>Course Code</label>
+          <label>{t("course_code_label")}</label>
           <input
             type="text"
             name="courseCode"
             value={form.courseCode}
             onChange={handleChange}
             className="student-input"
-            placeholder="Enter course code"
+            placeholder={t("course_code_label")}
             required
           />
         </div>
 
         <div className="student-form-group">
-          <label>Semester</label>
+          <label>{t("semester")}</label>
           <select
             name="semester"
             value={form.semester}
@@ -192,15 +192,15 @@ export default function Submit() {
             className="student-select"
             required
           >
-            <option value="">Select Semester</option>
-            <option value="1">Semester 1</option>
-            <option value="2">Semester 2</option>
-            <option value="3">Resit Semester</option>
+            <option value="">{t("semester")}</option>
+            <option value="1">{t("semester")} 1</option>
+            <option value="2">{t("semester")} 2</option>
+            <option value="3">Resit {t("semester")}</option>
           </select>
         </div>
 
         <div className="student-form-group">
-          <label>Year</label>
+          <label>{t("year")}</label>
           <select
             name="year"
             value={form.year}
@@ -208,7 +208,7 @@ export default function Submit() {
             className="student-select"
             required
           >
-            <option value="">Select Year</option>
+            <option value="">{t("year")}</option>
             <option value="2024">2024</option>
             <option value="2025">2025</option>
             <option value="2026">2026</option>
@@ -217,7 +217,7 @@ export default function Submit() {
         </div>
 
         <div className="student-form-group">
-          <label>Complaint Type</label>
+          <label>{t("complaint_type")}</label>
           <select
             name="type"
             value={form.type}
@@ -225,19 +225,19 @@ export default function Submit() {
             className="student-select"
             required
           >
-            <option value="">Select Type</option>
-            <option value="CA Mark">CA Mark</option>
-            <option value="Exam Mark">Exam Mark</option>
+            <option value="">{t("complaint_type")}</option>
+            <option value="CA Mark">{t("ca_mark")}</option>
+            <option value="Exam Mark">{t("exam_mark")}</option>
           </select>
         </div>
 
         {form.type === "CA Mark" && (
           <div className="student-form-group">
-            <label>Evidence (image required for CA Mark)</label>
+            <label>{t("evidence")}</label>
             <div className="file-upload-wrapper">
               <label htmlFor="evidence-upload" className="file-upload-label">
                 <Paperclip size={18} style={{ marginRight: 8 }} />
-                Upload Evidence
+                {t("upload_evidence")}
               </label>
               <input
                 id="evidence-upload"
@@ -268,12 +268,12 @@ export default function Submit() {
         )}
 
         <div className="student-form-group">
-          <label>Description</label>
+          <label>{t("description_label")}</label>
           <textarea
             name="description"
             value={form.description}
             onChange={handleChange}
-            placeholder="Describe your issue in detail..."
+            placeholder={t("describe_issue")}
             className="student-textarea"
             required
           />
@@ -299,7 +299,7 @@ export default function Submit() {
 
         {/* SUBMIT */}
         <button type="submit" className="student-submit-btn">
-          Submit Complaint
+          {t("submit_complaint")}
         </button>
       </form>
     </div>

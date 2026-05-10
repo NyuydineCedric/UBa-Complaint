@@ -6,7 +6,7 @@ import "./StudentStyle.css";
 import { Camera, User, Mail, Phone, BookOpen, School } from "lucide-react";
 
 export default function Profile() {
-  const { user } = useContext(AppContext);
+  const { user, t } = useContext(AppContext);
   const [profile, setProfile] = useState(user || {});
   const [preview, setPreview] = useState(user?.avatar || null);
 
@@ -28,14 +28,17 @@ export default function Profile() {
       const imageData = reader.result;
       setPreview(imageData);
       setProfile((prev) => ({ ...prev, avatar: imageData }));
-      
+
       // Save to localStorage
       const users = JSON.parse(localStorage.getItem("users")) || [];
       const updatedUsers = users.map((u) =>
-        u.matricule === profile.matricule ? { ...u, avatar: imageData } : u
+        u.matricule === profile.matricule ? { ...u, avatar: imageData } : u,
       );
       localStorage.setItem("users", JSON.stringify(updatedUsers));
-      localStorage.setItem("currentUser", JSON.stringify({ ...profile, avatar: imageData }));
+      localStorage.setItem(
+        "currentUser",
+        JSON.stringify({ ...profile, avatar: imageData }),
+      );
     };
     reader.readAsDataURL(file);
   };
@@ -45,16 +48,20 @@ export default function Profile() {
     // Save profile data
     const users = JSON.parse(localStorage.getItem("users")) || [];
     const updatedUsers = users.map((u) =>
-      u.matricule === profile.matricule ? profile : u
+      u.matricule === profile.matricule ? profile : u,
     );
     localStorage.setItem("users", JSON.stringify(updatedUsers));
     localStorage.setItem("currentUser", JSON.stringify(profile));
-    alert("Profile updated successfully!");
+    alert(t("settings_saved")); // "Profile updated successfully!" or equivalent
   };
 
   return (
     <div className="student-profile-page">
-      <h2 className="student-page-title">My Profile</h2>
+      <h2 className="student-page-title">
+        {t("my_complaints") === "My Complaints" ? "My Profile" : t("settings")}
+      </h2>
+      {/* Alternatively, add a dedicated translation key "my_profile" */}
+      {/* For simplicity, using t("my_profile") – ensure you have that key in translations. */}
 
       <div className="student-profile-card">
         {/* LEFT SIDE - AVATAR */}
@@ -97,7 +104,7 @@ export default function Profile() {
 
           <label className="student-upload-btn">
             <Camera size={16} style={{ marginRight: "6px" }} />
-            Change Photo
+            {t("change_photo")}
             <input
               type="file"
               accept="image/*"
@@ -111,71 +118,87 @@ export default function Profile() {
         <form className="student-profile-form" onSubmit={handleSave}>
           <div className="student-form-group">
             <label>
-              <User size={16} style={{ marginRight: "6px", verticalAlign: "middle" }} />
-              Full Name
+              <User
+                size={16}
+                style={{ marginRight: "6px", verticalAlign: "middle" }}
+              />
+              {t("full_name")}
             </label>
             <input
               name="name"
               value={profile.name || ""}
               onChange={handleChange}
-              placeholder="Full Name"
+              placeholder={t("full_name")}
             />
           </div>
 
           <div className="student-form-group">
             <label>
-              <BookOpen size={16} style={{ marginRight: "6px", verticalAlign: "middle" }} />
-              Matricule
+              <BookOpen
+                size={16}
+                style={{ marginRight: "6px", verticalAlign: "middle" }}
+              />
+              {t("matricule")}
             </label>
             <input
               name="matricule"
               value={profile.matricule || ""}
               onChange={handleChange}
-              placeholder="Matricule"
+              placeholder={t("matricule")}
+              disabled
             />
           </div>
 
           <div className="student-form-group">
             <label>
-              <Mail size={16} style={{ marginRight: "6px", verticalAlign: "middle" }} />
-              Email
+              <Mail
+                size={16}
+                style={{ marginRight: "6px", verticalAlign: "middle" }}
+              />
+              {t("email")}
             </label>
             <input
               name="email"
               value={profile.email || ""}
               onChange={handleChange}
-              placeholder="Email"
+              placeholder={t("email")}
             />
           </div>
 
           <div className="student-form-group">
             <label>
-              <Phone size={16} style={{ marginRight: "6px", verticalAlign: "middle" }} />
-              Phone
+              <Phone
+                size={16}
+                style={{ marginRight: "6px", verticalAlign: "middle" }}
+              />
+              {t("phone_number")}
             </label>
             <input
               name="phoneNumber"
               value={profile.phoneNumber || ""}
               onChange={handleChange}
-              placeholder="Phone Number"
+              placeholder={t("phone_number")}
             />
           </div>
 
           <div className="student-form-group">
             <label>
-              <School size={16} style={{ marginRight: "6px", verticalAlign: "middle" }} />
-              Department
+              <School
+                size={16}
+                style={{ marginRight: "6px", verticalAlign: "middle" }}
+              />
+              {t("department")}
             </label>
             <input
               name="department"
               value={profile.department || ""}
               onChange={handleChange}
-              placeholder="Department"
+              placeholder={t("department")}
             />
           </div>
 
           <button type="submit" className="student-save-btn">
-            Save Changes
+            {t("save_changes")}
           </button>
         </form>
       </div>

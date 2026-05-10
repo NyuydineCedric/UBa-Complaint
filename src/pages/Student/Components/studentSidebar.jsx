@@ -15,16 +15,8 @@ import { AppContext } from "../../../context/AppContext";
 import "./studentsidebar.css";
 import "../StudentStyle.css";
 
-const navItems = [
-  { name: "Dashboard", path: "/student", icon: LayoutDashboard },
-  { name: "Submit Complaint", path: "/student/submit", icon: PlusCircle },
-  { name: "My Complaints", path: "/student/complaints", icon: FileText },
-  { name: "Profile", path: "/student/profile", icon: User },
-  { name: "Settings", path: "/student/settings", icon: Settings },
-];
-
 export default function Sidebar() {
-  const { logout } = useContext(AppContext);
+  const { logout, t } = useContext(AppContext);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -32,6 +24,19 @@ export default function Sidebar() {
     logout();
     navigate("/login");
   };
+
+  // Navigation items with translation keys
+  const navItems = [
+    { nameKey: "dashboard", path: "/student", icon: LayoutDashboard },
+    {
+      nameKey: "submit_new_complaint",
+      path: "/student/submit",
+      icon: PlusCircle,
+    },
+    { nameKey: "my_complaints", path: "/student/complaints", icon: FileText },
+    { nameKey: "my_profile", path: "/student/profile", icon: User },
+    { nameKey: "settings", path: "/student/settings", icon: Settings },
+  ];
 
   return (
     <div className="student-sidebar">
@@ -70,7 +75,7 @@ export default function Sidebar() {
               }
             >
               <Icon className="student-icon" />
-              <span>{item.name}</span>
+              <span>{t(item.nameKey)}</span>
             </NavLink>
           );
         })}
@@ -80,7 +85,7 @@ export default function Sidebar() {
       <div className="student-sidebar-footer">
         <div className="student-sidebar-logout-btn" onClick={handleLogout}>
           <LogOut className="student-logout-icon" />
-          <p>Logout</p>
+          <p>{t("logout")}</p>
         </div>
         <p style={{ fontSize: "11px", color: "var(--student-text-secondary)" }}>
           © 2026 Student System
