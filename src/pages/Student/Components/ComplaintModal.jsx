@@ -2,7 +2,7 @@
 import { useContext, useState } from "react";
 import { AppContext } from "../../../context/AppContext";
 import "./complaintModal.css";
-import { X, Edit, Save, Trash2, User, Mail, School, MapPin, BookOpen } from "lucide-react";
+import { X, Edit, Save, Trash2, User, BookOpen } from "lucide-react";
 
 export default function ComplaintModal({ complaint, onClose }) {
   const {

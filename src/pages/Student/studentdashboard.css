@@ -13,9 +13,7 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  line-height: 1.3;
-  display: inline-block;
-  margin-bottom: 8px;
+  display: inline-block
 }
 
 .student-dashboard-header {
@@ -25,6 +23,7 @@
 .student-dashboard-header p {
   color: var(--student-text-secondary);
   font-size: 16px;
+  margin-top: -15px;
 }
 
 /* STATS CARDS - ONE LINE */
