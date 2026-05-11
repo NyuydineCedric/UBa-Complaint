@@ -172,3 +172,9 @@
     justify-content: center;
   }
 }
+/* studentsidebar.css - Add this at the bottom */
+@media (max-width: 768px) {
+  .student-sidebar {
+    display: none;
+  }
+}

@@ -260,6 +260,7 @@
     width: 100%;
     justify-content: center;
   }
+  
 }
 
 @media (max-width: 480px) {
@@ -284,5 +285,147 @@
   .student-stat-icon svg {
     width: 16px;
     height: 16px;
+  }
+}
+/* studentdashboard.css - Add this at the bottom */
+@media (max-width: 768px) {
+  .student-dashboard {
+    padding: 12px;
+  }
+  
+  .student-page-title {
+    font-size: 1.3rem;
+  }
+  
+  .student-dashboard-header p {
+    font-size: 14px;
+  }
+  
+  .student-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .student-stat-card {
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .student-stat-value {
+    font-size: 20px;
+  }
+  
+  .student-stat-title {
+    font-size: 11px;
+  }
+  
+  .student-stat-icon {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .student-stat-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .student-dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .student-card-box {
+    padding: 16px;
+  }
+  
+  .student-card-box h3 {
+    font-size: 14px;
+  }
+  
+  .student-complaint {
+    padding: 8px 0;
+  }
+  
+  .complaint-course {
+    font-size: 13px;
+  }
+  
+  .complaint-type {
+    font-size: 11px;
+  }
+  
+  .student-status {
+    font-size: 10px;
+    padding: 2px 10px;
+  }
+  
+  .quick-action-item {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .complaint-banner {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+    padding: 16px;
+  }
+  
+  .complaint-banner-content {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .complaint-banner-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .complaint-banner-text h4 {
+    font-size: 14px;
+  }
+  
+  .complaint-banner-text p {
+    font-size: 13px;
+  }
+  
+  .complaint-banner-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .student-cards {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  
+  .student-stat-card {
+    padding: 10px;
+  }
+  
+  .student-stat-value {
+    font-size: 18px;
+  }
+  
+  .student-stat-title {
+    font-size: 10px;
+  }
+  
+  .student-stat-icon {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .student-stat-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .student-page-title {
+    font-size: 1.1rem;
   }
 }
