@@ -52,6 +52,7 @@
 
 .student-input,
 .student-textarea {
+  background: var(--student-bg-card);
   padding: 10px;
   border: 1px solid var(--student-table-top);
   border-radius: 8px;

@@ -1,117 +1,174 @@
-/* SIDEBAR */
+/* studentsidebar.css */
 .student-sidebar {
-  width: 210px;
+  width: 220px;
   height: 100vh;
   background-color: var(--student-bg-sidebar);
   border-right: 1px solid var(--student-sidebar-border-color);
-  color: var(--student-text-main);
+  color: var(--student-sidebar-text);
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  
+  padding: 20px 15px;
+  position: sticky;
+  top: 0;
+  transition: all 0.3s ease;
 }
 
 /* LOGO */
 .student-logo {
   display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin: 5px 0px 35px 0px;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 40px;
+  padding: 0 5px;
 }
+
 .student-logo-image {
-  max-width: 50px;
-  max-height: 50px;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
 }
+
+.student-logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
 .student-logo-header {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 600;
-  color: var(--student-text-main);
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    "Open Sans",
-    "Helvetica Neue",
-    sans-serif;
+  color: #ffffff;
+  font-family: var(--student-font-family);
 }
+
 .student-logo-paragraph {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 400;
-  color: var(--student-text-secondary);
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    "Open Sans",
-    "Helvetica Neue",
-    sans-serif;
+  color: #94a3b8;
+  font-family: var(--student-font-family);
 }
 
 /* NAV */
 .student-nav {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
+  flex: 1;
 }
+
 .student-nav-link {
   display: flex;
   align-items: center;
   font-size: 14px;
   font-weight: 500;
-  gap: 10px;
+  gap: 12px;
   padding: 10px 15px;
-  border-radius: 4px;
+  border-radius: 8px;
   text-decoration: none;
-  color: var(--student-text-main);
+  color: #94a3b8; /* Light gray for better contrast */
   font-family: var(--student-font-family);
-  transition: 0.3s;
+  transition: all 0.3s ease;
+}
+
+.student-nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
 }
 
 .student-nav-link.active {
-  background-color: var(--student-bg-nav-link);
-  color: var(--student-bg-nav-link-text);
+  background-color: var(--student-sidebar-active);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
+
 .student-icon {
-  width: 20px;
-  height: 20px;
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  color: #94a3b8;
+}
+
+.student-nav-link:hover .student-icon {
+  color: #ffffff;
+}
+
+.student-nav-link.active .student-icon {
+  color: #ffffff;
 }
 
 /* FOOTER */
 .student-sidebar-footer {
   margin-top: auto;
-  font-size: 12px;
-  color: var(--student-text-secondary);
+  padding-top: 20px;
+  border-top: 1px solid var(--student-sidebar-border-color);
 }
+
 .student-sidebar-logout-btn {
   display: flex;
-  margin-bottom: 10px;
   align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  color: #94a3b8;
+  transition: all 0.3s ease;
+}
+
+.student-sidebar-logout-btn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.student-sidebar-logout-btn p {
   font-size: 14px;
   font-weight: 500;
-  gap: 10px;
-  padding: 10px 15px;
-  border-radius: 4px;
-  background: var(--student-bg-nav-link);
-  text-decoration: none;
-  color: #4f46e5;
-  font-family: var(--student-font-family);
-  transition: 0.3s;
-}
-.student-sidebar-logout-btn p {
-  color: #4f46e5;
   font-family: var(--student-font-family);
 }
+
 .student-logout-icon {
   width: 20px;
   height: 20px;
+  color: #94a3b8;
+}
+
+.student-sidebar-logout-btn:hover .student-logout-icon {
+  color: #ffffff;
+}
+
+.student-sidebar-footer-text {
+  font-size: 11px;
+  color: #64748b;
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .student-sidebar {
+    width: 70px;
+    padding: 20px 10px;
+  }
+  
+  .student-logo-text,
+  .student-nav-link span,
+  .student-sidebar-logout-btn p,
+  .student-sidebar-footer-text {
+    display: none;
+  }
+  
+  .student-logo {
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+  
+  .student-nav-link {
+    justify-content: center;
+    padding: 12px;
+  }
+  
+  .student-sidebar-logout-btn {
+    justify-content: center;
+  }
 }

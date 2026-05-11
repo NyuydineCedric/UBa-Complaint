@@ -107,10 +107,10 @@ export default function Topbar() {
             }
           >
             <Bell
-              size={28}
+              size={24}
               style={{
-                width: "28px",
-                height: "28px",
+                width: "24px",
+                height: "24px",
                 color:
                   studentResolvedNotifications > 0
                     ? "var(--student-primary)"
