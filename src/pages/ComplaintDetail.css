@@ -1,5 +1,5 @@
 .detail-container {
-  padding: 1.5rem;
+  padding: 1rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -7,16 +7,17 @@
 .detail-card {
   background: white;
   border-radius: 28px;
-  padding: 2rem;
+  padding: 1.25rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .detail-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
@@ -32,6 +33,8 @@
   cursor: pointer;
   transition: all 0.2s;
   font-size: 0.85rem;
+  font-weight: 500;
+  color: #0f172a;
 }
 
 .back-btn:hover {
@@ -45,23 +48,24 @@
 }
 
 .detail-title {
-  font-size: 2rem;
-  font-weight: 500;
-  margin-bottom: 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
   color: #0f172a;
+  word-break: break-word;
 }
 
 .detail-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .detail-section {
   background: #f8fafc;
   border-radius: 20px;
-  padding: 1.25rem;
+  padding: 1rem;
   border: 1px solid #e2e8f0;
 }
 
@@ -69,17 +73,18 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   color: #0f172a;
 }
 
 .info-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-  font-size: 0.85rem;
+  
+  
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  
 }
 
 .info-label {
@@ -131,6 +136,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .edit-status-btn {
@@ -152,10 +158,11 @@
 }
 
 .status-select {
-  padding: 0.25rem 0.5rem;
+  padding: 0.35rem 0.6rem;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   font-size: 0.8rem;
+  background: white;
 }
 
 .save-status-btn,
@@ -164,7 +171,7 @@
   background: #6366f1;
   border: none;
   color: white;
-  padding: 0.25rem 0.75rem;
+  padding: 0.3rem 0.8rem;
   border-radius: 20px;
   cursor: pointer;
   font-size: 0.7rem;
@@ -188,8 +195,42 @@
   border-radius: 12px;
   border: 1px solid #e2e8f0;
   margin-top: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   line-height: 1.5;
+  color: #0f172a;
+}
+
+/* Notes section */
+.notes-list {
+  margin-bottom: 1rem;
+}
+
+.note-item {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  color: #475569;
+}
+
+.note-text {
+  font-size: 0.8rem;
+  color: #0f172a;
+  line-height: 1.4;
+}
+
+.no-notes {
+  color: #64748b;
+  font-style: italic;
+  font-size: 0.8rem;
 }
 
 .add-note textarea {
@@ -198,13 +239,28 @@
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   resize: vertical;
+  margin-bottom: 0.5rem;
+  background: white;
+}
+
+/* Attachments */
+.attachment-container {
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.attachment-img {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
 }
 
 .files-gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -262,45 +318,131 @@
   display: block;
 }
 
+/* Responsive */
+@media (max-width: 768px) {
+  .detail-container {
+    padding: 0.75rem;
+  }
+  .detail-card {
+    padding: 1rem;
+  }
+  .detail-title {
+    font-size: 1rem;
+  }
+  .detail-grid {
+    gap: 0.75rem;
+  }
+  .detail-section {
+    padding: 0.75rem;
+  }
+  .info-row {
+    font-size: 0.75rem;
+  }
+  .status-display {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .status-edit {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .files-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.75rem;
+  }
+}
 
-/* Dark mode */
+@media (max-width: 480px) {
+  .detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .back-btn {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+  }
+  .complaint-badge {
+    align-self: flex-start;
+  }
+  .detail-card {
+    border-radius: 20px;
+  }
+  .detail-section h3 {
+    font-size: 0.85rem;
+  }
+  .note-header {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+/* Dark mode – all text colors fixed */
 body.dark-mode .detail-card {
   background: #1e293b;
   border-color: #334155;
 }
+
 body.dark-mode .detail-title {
   color: #f1f5f9;
 }
+
 body.dark-mode .detail-section {
   background: #0f172a;
   border-color: #334155;
 }
+
 body.dark-mode .detail-section h3 {
   color: #f1f5f9;
 }
+
 body.dark-mode .info-label {
   color: #94a3b8;
 }
+
+body.dark-mode .info-row span:last-child {
+  color: #cbd5e1;
+}
+
 body.dark-mode .complaint-details-text {
   background: #0f172a;
   border-color: #334155;
   color: #e2e8f0;
 }
+
 body.dark-mode .note-item {
   background: #0f172a;
   border-color: #334155;
 }
+
+body.dark-mode .note-header {
+  color: #94a3b8;
+}
+
+body.dark-mode .note-text {
+  color: #e2e8f0;
+}
+
+body.dark-mode .no-notes {
+  color: #94a3b8;
+}
+
 body.dark-mode .back-btn {
   border-color: #334155;
   color: #f1f5f9;
 }
+
 body.dark-mode .back-btn:hover {
   background: #334155;
 }
+
 body.dark-mode .add-note textarea {
   background: #0f172a;
   border-color: #334155;
   color: #f1f5f9;
+}
+
+body.dark-mode .add-note textarea::placeholder {
+  color: #64748b;
 }
 
 body.dark-mode .file-card {
@@ -319,4 +461,48 @@ body.dark-mode .file-name {
 
 body.dark-mode .file-size {
   color: #94a3b8;
+}
+
+body.dark-mode .status-select {
+  background: #0f172a;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+
+body.dark-mode .cancel-btn {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .attachment-img {
+  border-color: #334155;
+}
+
+/* Ensure status badges in dark mode are still readable (keep original colors but adjust background if needed) */
+body.dark-mode .status-pending {
+  background: #422b0f;
+  color: #fbbf24;
+}
+body.dark-mode .status-in-progress {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+body.dark-mode .status-resolved {
+  background: #064e3b;
+  color: #34d399;
+}
+body.dark-mode .status-rejected {
+  background: #7f1d1d;
+  color: #fca5a5;
+}
+
+/* Priority colors in dark mode */
+body.dark-mode .priority-high {
+  color: #f87171;
+}
+body.dark-mode .priority-medium {
+  color: #fbbf24;
+}
+body.dark-mode .priority-low {
+  color: #34d399;
 }

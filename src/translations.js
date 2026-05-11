@@ -213,6 +213,36 @@ export const getTranslation = (lang, key) => {
       complaint_updates: "Complaint Updates",
       notification_updates_available: "Click to view complaint updates",
       notifications_empty: "No new notifications",
+
+      // ========== COMPLAINT DETAIL PAGE (added) ==========
+      complaint_not_found: "Complaint not found",
+      back_to_complaints: "Back to complaints",
+      back: "Back",
+      course_information: "Course Information",
+      date_information: "Date Information",
+      proof_attachment: "Proof Attachment",
+      attached_files: "Attached Files",
+      status_and_priority: "Status & Priority",
+      last_update: "Last Update",
+      student_id_label: "Student ID",     // already exists but ensuring
+      department: "Department",           // already exists
+      school_label: "School",             // already exists
+      submitted_label: "Submitted",       // already exists
+      complaint_id_label: "Complaint ID",
+      na: "N/A",
+      low: "Low",
+      medium: "Medium",
+      high: "High",
+      semester_1: "Semester 1",
+      semester_2: "Semester 2",
+      resit_semester: "Resit Semester",
+      admin_notes: "Admin Notes",
+      no_notes: "No notes yet.",
+      add_note_placeholder: "Add a note about this complaint...",
+      add_note: "Add Note",
+      admin: "Admin",
+      screenshot: "Screenshot",
+      cancel: "Cancel",
     },
     fr: {
       // ========== GÉNÉRAL ==========
@@ -425,6 +455,32 @@ export const getTranslation = (lang, key) => {
       complaint_updates: "Mises à jour des réclamations",
       notification_updates_available: "Cliquez pour voir les mises à jour",
       notifications_empty: "Aucune nouvelle notification",
+
+      // ========== PAGE DÉTAIL RÉCLAMATION (ajouté) ==========
+      complaint_not_found: "Réclamation non trouvée",
+      back_to_complaints: "Retour aux réclamations",
+      back: "Retour",
+      course_information: "Informations du cours",
+      date_information: "Informations de date",
+      proof_attachment: "Preuve jointe",
+      attached_files: "Fichiers joints",
+      status_and_priority: "Statut et priorité",
+      last_update: "Dernière mise à jour",
+      complaint_id_label: "ID réclamation",
+      na: "N/A",
+      low: "Basse",
+      medium: "Moyenne",
+      high: "Haute",
+      semester_1: "Semestre 1",
+      semester_2: "Semestre 2",
+      resit_semester: "Semestre de rattrapage",
+      admin_notes: "Notes d'administration",
+      no_notes: "Aucune note pour le moment.",
+      add_note_placeholder: "Ajouter une note sur cette réclamation...",
+      add_note: "Ajouter une note",
+      admin: "Admin",
+      screenshot: "Capture d'écran",
+      cancel: "Annuler",
     },
   };
 
