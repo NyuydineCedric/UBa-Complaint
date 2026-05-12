@@ -27,8 +27,6 @@ function ComplaintDetail() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedStatus, setEditedStatus] = useState(complaint?.status || "");
-  const [adminNote, setAdminNote] = useState("");
-  const [notes, setNotes] = useState(complaint?.adminNotes || []);
 
   if (!complaint) {
     return (
@@ -46,21 +44,6 @@ function ComplaintDetail() {
   const handleStatusUpdate = () => {
     updateComplaint(complaint.id, { status: editedStatus });
     setIsEditing(false);
-  };
-
-  const handleAddNote = () => {
-    if (adminNote.trim()) {
-      const newNote = {
-        id: Date.now(),
-        text: adminNote,
-        author: t("admin"),
-        date: new Date().toLocaleString(),
-      };
-      const updatedNotes = [...notes, newNote];
-      setNotes(updatedNotes);
-      updateComplaint(complaint.id, { adminNotes: updatedNotes });
-      setAdminNote("");
-    }
   };
 
   const getStatusIcon = (status) => {
@@ -332,34 +315,6 @@ function ComplaintDetail() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Admin Notes Section */}
-        <div className="detail-section full-width">
-          <h3>{t("admin_notes")}</h3>
-          <div className="notes-list">
-            {notes.length === 0 && <p className="no-notes">{t("no_notes")}</p>}
-            {notes.map((note) => (
-              <div key={note.id} className="note-item">
-                <div className="note-header">
-                  <strong>{note.author}</strong>
-                  <span className="note-date">{note.date}</span>
-                </div>
-                <p className="note-text">{note.text}</p>
-              </div>
-            ))}
-          </div>
-          <div className="add-note">
-            <textarea
-              placeholder={t("add_note_placeholder")}
-              value={adminNote}
-              onChange={(e) => setAdminNote(e.target.value)}
-              rows="3"
-            />
-            <button onClick={handleAddNote} className="add-note-btn">
-              {t("add_note")}
-            </button>
           </div>
         </div>
       </div>

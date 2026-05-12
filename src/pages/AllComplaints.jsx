@@ -314,7 +314,7 @@ function AllComplaints() {
         <table className="complaints-table">
           <thead>
             <tr>
-              <th>#</th>
+              <th>No</th>
               <th>{t("complaint_id")}</th>
               <th>{t("student_name")}</th>
               <th>{t("student_id_label")}</th>

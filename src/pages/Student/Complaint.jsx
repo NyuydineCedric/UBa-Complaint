@@ -147,7 +147,7 @@ export default function Complaints() {
           <table>
             <thead>
               <tr>
-                <th>#</th>
+                <th>No</th>
                 <th>{t("course_code")}</th>
                 <th>{t("course_name")}</th>
                 <th>{t("status")}</th>
