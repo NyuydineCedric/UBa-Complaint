@@ -34,7 +34,12 @@ body.dark-mode .complaints-page {
   color: #6B7280;
   margin-top: 4px;
 }
-
+body.dark-mode .page-header h1 {
+  background: linear-gradient(135deg, #F9FAFB, #A5B4FC);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 body.dark-mode .page-header p {
   color: #9CA3AF;
 }
@@ -173,20 +178,14 @@ body.dark-mode .stat-box {
   font-weight: 800;
   color: #111827;
 }
-body.dark-mode .stat-number {
-  color: #F9FAFB; /* fallback */
-}
-/* Keep original colors for stat numbers */
 .pending-box .stat-number { color: #F59E0B !important; }
 .progress-box .stat-number { color: #3B82F6 !important; }
 .resolved-box .stat-number { color: #10B981 !important; }
 .rejected-box .stat-number { color: #EF4444 !important; }
-/* Ensure these colors also work in dark mode (no override) */
 body.dark-mode .pending-box .stat-number { color: #FBBF24 !important; }
 body.dark-mode .progress-box .stat-number { color: #60A5FA !important; }
 body.dark-mode .resolved-box .stat-number { color: #34D399 !important; }
 body.dark-mode .rejected-box .stat-number { color: #F87171 !important; }
-
 .stat-label {
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -233,7 +232,8 @@ body.dark-mode .chart-card h3 {
 .horizontal-bar-item {
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 .school-label {
   width: 45px;
@@ -250,6 +250,7 @@ body.dark-mode .school-label {
   border-radius: 30px;
   height: 24px;
   overflow: hidden;
+  min-width: 100px;
 }
 body.dark-mode .bar-bg {
   background: #374151;
@@ -332,16 +333,8 @@ body.dark-mode .school-count {
 body.dark-mode .legend-text {
   color: #E5E7EB;
 }
-@media (max-width: 768px) {
-  .mini-pie-chart { width: 160px; height: 160px; }
-  .legend-text { font-size: 0.8rem; }
-}
-@media (max-width: 480px) {
-  .mini-pie-chart { width: 130px; height: 130px; }
-  .legend-text { font-size: 0.7rem; }
-}
 
-/* Table container */
+/* Table container – horizontal scroll on mobile */
 .table-container {
   background: #FFFFFF;
   border-radius: 24px;
@@ -355,7 +348,7 @@ body.dark-mode .table-container {
 }
 .complaints-table {
   width: 100%;
-  min-width: 800px;
+  min-width: 800px;        /* ensures horizontal scroll on small screens */
   border-collapse: collapse;
   font-size: 0.8rem;
 }
@@ -373,23 +366,6 @@ body.dark-mode .complaints-table th {
 body.dark-mode .complaints-table td {
   border-bottom-color: #4B5563;
   color: #F9FAFB;
-}
-body.dark-mode .complaints-table tr:hover {
-  background-color: #2D3748 !important;
-}
-body.dark-mode .complaints-table tr:hover td {
-  color: #FFFFFF !important;
-}
-body.dark-mode .complaints-table tr:hover .complaint-id {
-  background: #4A5568;
-  color: #E2E8F0;
-}
-body.dark-mode .complaints-table tr:hover .type-badge {
-  background: #5B6A9A;
-  color: #E0E7FF;
-}
-body.dark-mode .complaints-table tr:hover .status-badge {
-  filter: brightness(1.1);
 }
 .complaint-id {
   font-family: monospace;
@@ -466,6 +442,7 @@ body.dark-mode .btn-view:hover {
   gap: 16px;
   align-items: center;
   margin-top: 24px;
+  flex-wrap: wrap;
 }
 .pagination-btn {
   background: #FFFFFF;
@@ -501,29 +478,62 @@ body.dark-mode .pagination-info {
   color: #9CA3AF;
 }
 
+/* ========== RESPONSIVE (mobile first enhancements) ========== */
 @media (max-width: 768px) {
   .complaints-page { padding: 16px; }
   .page-header h1 { font-size: 1.5rem; }
   .filter-controls { flex-direction: column; }
   .filter-select { width: 100%; }
   .quick-filter-section { flex-direction: column; align-items: flex-start; }
-  .complaints-stats { gap: 12px; }
+  .quick-filter-buttons { width: 100%; justify-content: space-between; }
+  .quick-filter-btn { flex: 1; text-align: center; padding: 8px 10px; font-size: 0.75rem; }
+  .complaints-stats { gap: 12px; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+  .stats-grid { gap: 12px; }
   .charts-row { grid-template-columns: 1fr; gap: 20px; }
-  .stat-number { font-size: 1.5rem; }
+  .horizontal-bar-item { gap: 8px; flex-wrap: wrap; }
+  .bar-bg { min-width: 120px; }
+  .mini-pie-container { justify-content: center; text-align: center; }
+  .mini-pie-chart { width: 160px; height: 160px; }
+  .legend-text { font-size: 0.8rem; }
+  .table-container { border-radius: 20px; }
+  .pagination { gap: 12px; }
+  .pagination-btn { padding: 5px 14px; font-size: 0.75rem; }
+  .pagination-info { font-size: 0.75rem; }
 }
+
 @media (max-width: 480px) {
   .complaints-page { padding: 12px; }
   .stat-box { padding: 12px; }
-  .stat-number { font-size: 1.3rem; }
-  .quick-filter-buttons { width: 100%; justify-content: space-between; }
-  .quick-filter-btn { flex: 1; text-align: center; padding: 6px 10px; font-size: 0.7rem; }
+  .stat-number { font-size: 1.4rem; }
+  .stat-label { font-size: 0.7rem; }
+  .quick-filter-btn { font-size: 0.7rem; padding: 6px 8px; }
   .chart-card { padding: 16px; }
-  .pagination { gap: 10px; }
-  .pagination-btn { padding: 4px 12px; font-size: 0.7rem; }
+  .horizontal-bar-item { gap: 6px; flex-direction: column; align-items: flex-start; }
+  .school-label { width: auto; }
+  .bar-bg { width: 100%; }
+  .school-count { text-align: left; margin-top: 2px; }
+  .mini-pie-chart { width: 130px; height: 130px; }
+  .legend-text { font-size: 0.7rem; }
+  .pagination { gap: 8px; }
+  .pagination-btn { padding: 4px 10px; font-size: 0.7rem; }
+  .pagination-info { font-size: 0.7rem; }
 }
-body.dark-mode .page-header h1 {
-  background: linear-gradient(135deg, #F9FAFB, #A5B4FC);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+
+/* Ensure table rows have proper hover in dark mode */
+body.dark-mode .complaints-table tr:hover {
+  background-color: #2D3748 !important;
+}
+body.dark-mode .complaints-table tr:hover td {
+  color: #FFFFFF !important;
+}
+body.dark-mode .complaints-table tr:hover .complaint-id {
+  background: #4A5568;
+  color: #E2E8F0;
+}
+body.dark-mode .complaints-table tr:hover .type-badge {
+  background: #5B6A9A;
+  color: #E0E7FF;
+}
+body.dark-mode .complaints-table tr:hover .status-badge {
+  filter: brightness(1.1);
 }
