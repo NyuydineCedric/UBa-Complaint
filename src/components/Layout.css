@@ -61,6 +61,7 @@ body.dark-mode {
   width: 70px;
 }
 
+/* Sidebar header with menu button */
 .sidebar-header {
   display: flex;
   align-items: center;
@@ -69,11 +70,32 @@ body.dark-mode {
   border-bottom: 1px solid var(--sidebar-border);
   transition: padding 0.3s;
   flex-shrink: 0;
+  position: relative;
+}
+
+.sidebar-menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--sidebar-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.sidebar-menu-btn:hover {
+  background: var(--sidebar-hover);
 }
 
 .layout.sidebar-collapsed .sidebar-header {
   justify-content: center;
   padding: 24px 0;
+}
+.layout.sidebar-collapsed .sidebar-menu-btn {
+  margin: 0 auto;
 }
 
 .logo-img {
@@ -82,7 +104,6 @@ body.dark-mode {
   border-radius: 50%;
   object-fit: cover;
 }
-
 .layout.sidebar-collapsed .logo-img {
   margin: 0;
 }
@@ -167,22 +188,7 @@ body.dark-mode {
   flex: 1;
 }
 
-.hamburger-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 40px;
-  transition: background 0.2s;
-}
-.hamburger-btn:hover {
-  background: var(--sidebar-hover);
-}
+/* No hamburger button here – it's moved to sidebar */
 
 .search-bar {
   position: relative;
@@ -218,6 +224,7 @@ body.dark-mode {
   flex-wrap: wrap;
 }
 
+/* Dropdown and bell (unchanged) */
 .notification-container {
   position: relative;
 }
@@ -522,5 +529,70 @@ body.dark-mode .logout-btn-header:hover {
     width: 100%;
     max-height: 60vh;
     border-radius: 20px 20px 0 0;
+  }
+}
+
+/* Mobile menu button (visible only on small screens) */
+.mobile-menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: none; /* hidden by default on desktop */
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 40px;
+  transition: background 0.2s;
+}
+.mobile-menu-btn:hover {
+  background: var(--sidebar-hover);
+}
+
+/* Sidebar close button for mobile */
+.sidebar-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--sidebar-text);
+  display: none; /* hidden on desktop */
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.sidebar-close-btn:hover {
+  background: var(--sidebar-hover);
+}
+
+/* Responsive: on mobile (<768px) */
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: flex; /* show hamburger in top header */
+  }
+  .sidebar-menu-btn {
+    display: none; /* hide the desktop menu button inside sidebar */
+  }
+  .sidebar-close-btn {
+    display: flex; /* show close button inside sidebar on mobile */
+  }
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 200;
+    width: 260px;
+  }
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  .layout.sidebar-collapsed .sidebar {
+    width: 260px; /* mobile always full width when open */
   }
 }
