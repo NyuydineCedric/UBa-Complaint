@@ -83,6 +83,20 @@
       "avatar": null,
       "createdAt": "2026-05-10T03:30:12.980Z",
       "id": "1778383812980"
+    },
+    {
+      "name": "Jey",
+      "email": "cedricnyuydine@gmail.com",
+      "password": "Cedric123@",
+      "matricule": "UBa24PB111",
+      "phoneNumber": "678272652",
+      "school": "HICM",
+      "level": "Level 3",
+      "department": "Marketing",
+      "role": "student",
+      "avatar": null,
+      "createdAt": "2026-05-11T06:09:53.046Z",
+      "id": "1778479793046"
     }
   ],
   "complaints": [
