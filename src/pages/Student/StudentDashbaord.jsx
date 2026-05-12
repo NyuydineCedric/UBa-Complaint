@@ -39,7 +39,7 @@ export default function Dashboard() {
   return (
     <div className="student-dashboard">
       {/* HEADER */}
-      <div>
+      <div className="student-dashboard-header">
         <h1
           className="student-page-title"
           style={{
@@ -49,13 +49,12 @@ export default function Dashboard() {
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             color: "transparent",
-            lineHeight: "1.3",
             display: "inline-block",
           }}
         >
           {t("welcome_back_student").replace("{{name}}", user?.name || "User")}
         </h1>
-        <p style={{ color: "var(--student-text-secondary)", fontSize: "16px" }}>
+        <p style={{ color: "var(--student-text-secondary)", fontSize: "16px",  }}>
           {t("heres_whats_happening")}
         </p>
       </div>

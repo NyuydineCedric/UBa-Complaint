@@ -161,7 +161,7 @@ function RegisterPage() {
       <div className="register-container">
         <div className="register-card success-card">
           <CheckCircle size={56} color="#10b981" />
-          <h1>Registration Successful! 🎉</h1>
+          <h1>Registration Successful!</h1>
           <p>Your account has been created successfully.</p>
           <p>You will be redirected to your dashboard shortly...</p>
         </div>
