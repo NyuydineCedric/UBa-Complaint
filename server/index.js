@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 const DATA_FILE = path.join(__dirname, "data.json");
 const PORT = process.env.PORT || 4000;
 
-// Email configuration
+// ---------- Email configuration ----------
 const EMAIL_HOST = process.env.EMAIL_HOST;
 const EMAIL_PORT = Number(process.env.EMAIL_PORT || 587);
 const EMAIL_SECURE = process.env.EMAIL_SECURE === "true";
@@ -28,7 +28,6 @@ async function configureEmailTransporter() {
     console.warn("Email SMTP host not configured. Email notifications disabled.");
     return;
   }
-
   try {
     if (EMAIL_HOST === "smtp.gmail.com") {
       if (!EMAIL_USER || !EMAIL_PASS) {
@@ -86,24 +85,17 @@ async function sendNotificationEmail(to, subject, text) {
   }
 }
 
+// ---------- Express app ----------
 const app = express();
 
-// ========== CORS – allow localhost and Vercel frontend ==========
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
-  "https://ub-a-complaint.vercel.app",
-];
+// ========== CORS – allow any origin (including Vercel) ==========
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: true,                 // allows any origin – safe for debugging
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.options('*', cors());       // handle preflight requests
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
@@ -111,7 +103,7 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 // Serve static frontend (for production)
 app.use(express.static(path.join(__dirname, "../dist")));
 
-// Data functions
+// ---------- Data functions ----------
 async function readData() {
   try {
     const raw = await readFile(DATA_FILE, "utf-8");
@@ -127,8 +119,7 @@ async function writeData(data) {
   await writeFile(DATA_FILE, JSON.stringify(data, null, 2), "utf-8");
 }
 
-// ============ API ROUTES ============
-
+// ---------- API ROUTES ----------
 app.get("/api/health", (_, res) => res.json({ status: "ok" }));
 
 app.post("/api/auth/register", async (req, res) => {
