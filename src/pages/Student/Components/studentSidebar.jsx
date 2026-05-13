@@ -15,16 +15,8 @@ import { AppContext } from "../../../context/AppContext";
 import "./studentsidebar.css";
 import "../StudentStyle.css";
 
-const navItems = [
-  { name: "Dashboard", path: "/student", icon: LayoutDashboard },
-  { name: "Submit Complaint", path: "/student/submit", icon: PlusCircle },
-  { name: "My Complaints", path: "/student/complaints", icon: FileText },
-  { name: "Profile", path: "/student/profile", icon: User },
-  { name: "Settings", path: "/student/settings", icon: Settings },
-];
-
 export default function Sidebar() {
-  const { logout } = useContext(AppContext);
+  const { logout, t } = useContext(AppContext);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -32,6 +24,14 @@ export default function Sidebar() {
     logout();
     navigate("/login");
   };
+
+  const navItems = [
+    { name: t("dashboard"), path: "/student", icon: LayoutDashboard },
+    { name: t("submit_complaint"), path: "/student/submit", icon: PlusCircle },
+    { name: t("my_complaints"), path: "/student/complaints", icon: FileText },
+    { name: t("profile"), path: "/student/profile", icon: User },
+    { name: t("settings"), path: "/student/settings", icon: Settings },
+  ];
 
   return (
     <div className="student-sidebar">
@@ -43,8 +43,8 @@ export default function Sidebar() {
           className="student-logo-image"
         />
         <div className="student-logo-text">
-          <p className="student-logo-header">Student Portal</p>
-          <p className="student-logo-paragraph">Complaint System</p>
+          <p className="student-logo-header">{t("student_portal")}</p>
+          <p className="student-logo-paragraph">{t("complaint_system")}</p>
         </div>
       </div>
 
@@ -79,10 +79,10 @@ export default function Sidebar() {
       <div className="student-sidebar-footer">
         <div className="student-sidebar-logout-btn" onClick={handleLogout}>
           <LogOut className="student-logout-icon" />
-          <p>Logout</p>
+          <p>{t("logout")}</p>
         </div>
         <p className="student-sidebar-footer-text">
-          © 2026 Student System
+          © 2026 {t("student_system")}
         </p>
       </div>
     </div>
