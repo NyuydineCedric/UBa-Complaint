@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
@@ -13,41 +12,39 @@ const __dirname = path.dirname(__filename);
 const DATA_FILE = path.join(__dirname, "data.json");
 const PORT = process.env.PORT || 4000;
 
-// ✅ Gmail SMTP using App Password (port 465 SSL — not blocked on Render)
-const EMAIL_FROM = process.env.EMAIL_FROM || process.env.EMAIL_USER;
+const EMAIL_FROM = process.env.EMAIL_FROM || "noreply@uba.cm";
+const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "UBa Complaint System";
 
-let emailTransporter = null;
-
-if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-  emailTransporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // SSL — works on Render unlike port 587
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS, // Gmail App Password
-    },
-  });
-  console.log("✅ Gmail SMTP configured.");
-} else {
-  console.warn("⚠️  EMAIL_USER or EMAIL_PASS not set. Emails disabled.");
-}
-
+// ✅ Brevo API — sends over HTTPS, never blocked by Render
 async function sendNotificationEmail(to, subject, text) {
-  if (!emailTransporter) {
-    console.warn(`⚠️  No email transporter. Skipping email to ${to}`);
+  if (!process.env.BREVO_API_KEY) {
+    console.warn("⚠️  BREVO_API_KEY not set. Email not sent.");
     return;
   }
   try {
-    const result = await emailTransporter.sendMail({
-      from: EMAIL_FROM,
-      to,
-      subject,
-      text,
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+      },
+      body: JSON.stringify({
+        sender: { name: EMAIL_FROM_NAME, email: EMAIL_FROM },
+        to: [{ email: to }],
+        subject,
+        textContent: text,
+      }),
     });
-    console.log(`✅ Email sent to ${to}. Message ID: ${result.messageId}`);
-  } catch (error) {
-    console.error(`❌ Failed to send email to ${to}:`, error.message);
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(`❌ Failed to send email to ${to}:`, data.message || JSON.stringify(data));
+    } else {
+      console.log(`✅ Email sent to ${to}. Message ID: ${data.messageId}`);
+    }
+  } catch (err) {
+    console.error(`❌ Email error:`, err.message);
   }
 }
 
