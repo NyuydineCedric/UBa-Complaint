@@ -96,51 +96,21 @@ export default function Complaints() {
         </button>
       </div>
 
-      {/* SEARCH BAR */}
-      <div
-        className="student-search-bar"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          background: "var(--student-bg-card)",
-          border: "1px solid var(--student-border-card)",
-          borderRadius: "8px",
-          padding: "8px 12px",
-        }}
-      >
-        <Search
-          size={18}
-          className="search-icon"
-          style={{ color: "var(--student-text-secondary)" }}
-        />
+      {/* SEARCH BAR - Fixed */}
+      <div className="student-search-bar">
+        <Search size={20} className="student-search-icon" />
         <input
           type="text"
           placeholder={t("search_complaints")}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            border: "none",
-            background: "transparent",
-            outline: "none",
-            width: "100%",
-            color: "var(--student-text-main)",
-            fontSize: "14px",
-          }}
         />
       </div>
 
       {/* TABLE */}
       <div className="student-table-container">
         {filtered.length === 0 ? (
-          <div
-            className="no-complaints"
-            style={{
-              textAlign: "center",
-              padding: "40px 20px",
-              color: "var(--student-text-secondary)",
-            }}
-          >
+          <div className="no-complaints">
             <p>{t("no_complaints_found")}</p>
           </div>
         ) : (
