@@ -83,6 +83,18 @@
       "avatar": null,
       "createdAt": "2026-05-12T22:28:15.632Z",
       "id": "1778624895632"
+    },
+    {
+      "matricule": "ADM001",
+      "email": "admin@unibamenda.cm",
+      "password": "admin123",
+      "name": "Administrator",
+      "role": "admin",
+      "department": "Administration",
+      "school": "University of Bamenda",
+      "createdAt": "2026-05-13T01:32:48.718Z",
+      "avatar": null,
+      "id": "1778635968718"
     }
   ],
   "complaints": [

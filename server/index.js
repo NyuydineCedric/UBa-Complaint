@@ -85,10 +85,9 @@ async function sendNotificationEmail(to, subject, text) {
   }
 }
 
-// ---------- Express app ----------
 const app = express();
 
-// 🟢 CORS – allow all origins (fixes the Render error once and for all)
+// ========== CORS – allow every origin ==========
 app.use(cors());
 app.options('*', cors());
 
@@ -217,7 +216,6 @@ app.put("/api/complaints/:id", async (req, res) => {
     data.complaints[index] = updated;
     await writeData(data);
 
-    // Send email if status changed
     if (updates.status && updates.status !== old.status && old.email) {
       const statusText = updates.status.charAt(0).toUpperCase() + updates.status.slice(1);
       const subject = `UBa Complaint System - Status Update: ${statusText}`;
@@ -226,7 +224,7 @@ app.put("/api/complaints/:id", async (req, res) => {
 Your complaint has been updated:
 
 Complaint ID: ${old.id}
-Course: `${old.courseTitle || old.course}`
+Course: ${old.courseTitle || old.course}
 Type: ${old.type}
 Previous Status: ${old.status}
 New Status: ${statusText}
