@@ -9,6 +9,7 @@ import {
   School,
   Settings,
   Menu,
+  X,
   Sun,
   Moon,
   LogOut,
@@ -22,7 +23,6 @@ function Layout() {
     darkMode,
     toggleDarkMode,
     t,
-
     logout,
     unreadNotifications,
     setUnreadNotifications,
@@ -30,65 +30,81 @@ function Layout() {
   } = useContext(AppContext);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const navigate = useNavigate();
+
   const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
+  const toggleMobileSidebar = () => setMobileSidebarOpen(!mobileSidebarOpen);
+  const closeMobileSidebar = () => setMobileSidebarOpen(false);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
-
   const handleNotificationClick = () => {
     setUnreadNotifications(0);
     setShowNotifications(!showNotifications);
   };
-
   const handleViewComplaint = (id) => {
     setShowNotifications(false);
     navigate(`/complaints/${id}`);
   };
 
-  // Get recent complaints for notifications
   const recentComplaints = complaints
     .sort((a, b) => new Date(b.submittedDate) - new Date(a.submittedDate))
     .slice(0, 5);
 
   return (
     <div className={`layout ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
-      <aside className="sidebar">
+      <aside className={`sidebar ${mobileSidebarOpen ? "mobile-open" : ""}`}>
         <div className="sidebar-header">
+          <button className="sidebar-close-btn" onClick={closeMobileSidebar}>
+            <X size={20} />
+          </button>
           <div className="logo-circle">
             <img src={ubalogo} alt="UBa Logo" className="logo-img" />
           </div>
           {!sidebarCollapsed && <h2>{t("app_name")}</h2>}
+
+          <button className="sidebar-menu-btn" onClick={toggleSidebar}>
+            <Menu size={20} />
+          </button>
         </div>
+
         <nav className="sidebar-nav">
-          <Link to="/" className="nav-item">
+          <Link to="/" className="nav-item" onClick={closeMobileSidebar}>
             <LayoutDashboard size={20} className="nav-icon" />
             {!sidebarCollapsed && (
               <span className="nav-text">{t("dashboard")}</span>
             )}
           </Link>
-          <Link to="/complaints" className="nav-item">
+          <Link
+            to="/complaints"
+            className="nav-item"
+            onClick={closeMobileSidebar}
+          >
             <FileText size={20} className="nav-icon" />
             {!sidebarCollapsed && (
               <span className="nav-text">{t("complaints")}</span>
             )}
           </Link>
-          <Link to="/reports" className="nav-item">
+          <Link to="/reports" className="nav-item" onClick={closeMobileSidebar}>
             <BarChart3 size={20} className="nav-icon" />
             {!sidebarCollapsed && (
               <span className="nav-text">{t("reports")}</span>
             )}
           </Link>
-          <Link to="/schools" className="nav-item">
+          <Link to="/schools" className="nav-item" onClick={closeMobileSidebar}>
             <School size={20} className="nav-icon" />
             {!sidebarCollapsed && (
               <span className="nav-text">{t("schools")}</span>
             )}
           </Link>
-
-          <Link to="/settings" className="nav-item">
+          <Link
+            to="/settings"
+            className="nav-item"
+            onClick={closeMobileSidebar}
+          >
             <Settings size={20} className="nav-icon" />
             {!sidebarCollapsed && (
               <span className="nav-text">{t("settings")}</span>
@@ -101,7 +117,7 @@ function Layout() {
       <div className="main-content">
         <header className="top-header">
           <div className="header-left">
-            <button className="hamburger-btn" onClick={toggleSidebar}>
+            <button className="mobile-menu-btn" onClick={toggleMobileSidebar}>
               <Menu size={24} />
             </button>
             <div className="search-bar">
@@ -174,9 +190,7 @@ function Layout() {
             </div>
             <button className="theme-toggle-header" onClick={toggleDarkMode}>
               {darkMode ? <Sun size={16} /> : <Moon size={16} />}
-              <span style={{ marginLeft: "8px" }}>
-                {darkMode ? "Light" : "Dark"}
-              </span>
+              <span>{darkMode ? "Light" : "Dark"}</span>
             </button>
             <div className="user-profile">
               <img src={ubalogo} alt="User" className="profile-img" />
@@ -196,4 +210,5 @@ function Layout() {
     </div>
   );
 }
+
 export default Layout;
