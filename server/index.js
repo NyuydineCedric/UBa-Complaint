@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 const DATA_FILE = path.join(__dirname, "data.json");
 const PORT = process.env.PORT || 4000;
 
-// ---------- Email configuration ----------
+// Email configuration
 const EMAIL_HOST = process.env.EMAIL_HOST;
 const EMAIL_PORT = Number(process.env.EMAIL_PORT || 587);
 const EMAIL_SECURE = process.env.EMAIL_SECURE === "true";
@@ -28,6 +28,7 @@ async function configureEmailTransporter() {
     console.warn("Email SMTP host not configured. Email notifications disabled.");
     return;
   }
+
   try {
     if (EMAIL_HOST === "smtp.gmail.com") {
       if (!EMAIL_USER || !EMAIL_PASS) {
@@ -85,27 +86,15 @@ async function sendNotificationEmail(to, subject, text) {
   }
 }
 
-// ---------- Express app ----------
 const app = express();
-
-// ========== CORS – allow any origin (fixes CORS errors) ==========
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
-
+app.use(cors({ origin: ["http://localhost:5173", "http://127.0.0.1:5173"] }));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // Serve static frontend (for production)
 app.use(express.static(path.join(__dirname, "../dist")));
 
-// ---------- Data functions ----------
+// Data functions
 async function readData() {
   try {
     const raw = await readFile(DATA_FILE, "utf-8");
@@ -121,12 +110,10 @@ async function writeData(data) {
   await writeFile(DATA_FILE, JSON.stringify(data, null, 2), "utf-8");
 }
 
-// ========== API ROUTES ==========
+// ============ API ROUTES ============
 
-// Health check
 app.get("/api/health", (_, res) => res.json({ status: "ok" }));
 
-// ---------- AUTH ROUTES ----------
 app.post("/api/auth/register", async (req, res) => {
   try {
     const newUser = req.body;
@@ -174,7 +161,6 @@ app.put("/api/users/:matricule", async (req, res) => {
   }
 });
 
-// ---------- COMPLAINTS ROUTES ----------
 app.get("/api/complaints", async (_, res) => {
   try {
     const data = await readData();
