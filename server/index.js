@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import { readFile, writeFile } from "fs/promises";
@@ -87,7 +88,7 @@ async function sendNotificationEmail(to, subject, text) {
 // ---------- Express app ----------
 const app = express();
 
-// ========== MANUAL CORS – ALLOW EVERYTHING (OVERRIDE ALL) ==========
+// ========== CORS – allow any origin (fixes CORS errors) ==========
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -120,9 +121,12 @@ async function writeData(data) {
   await writeFile(DATA_FILE, JSON.stringify(data, null, 2), "utf-8");
 }
 
-// ---------- API ROUTES ----------
+// ========== API ROUTES ==========
+
+// Health check
 app.get("/api/health", (_, res) => res.json({ status: "ok" }));
 
+// ---------- AUTH ROUTES ----------
 app.post("/api/auth/register", async (req, res) => {
   try {
     const newUser = req.body;
@@ -170,6 +174,7 @@ app.put("/api/users/:matricule", async (req, res) => {
   }
 });
 
+// ---------- COMPLAINTS ROUTES ----------
 app.get("/api/complaints", async (_, res) => {
   try {
     const data = await readData();

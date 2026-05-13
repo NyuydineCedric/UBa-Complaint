@@ -2,12 +2,12 @@ import React, { createContext, useState, useEffect, useCallback } from "react";
 
 export const AppContext = createContext(null);
 
-// API base URL – from environment variable or fallback to localhost for development
+// API base URL – from environment variable or fallback to localhost
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 export function AppProvider({ children }) {
   // ---------- State ----------
-  const [complaints, setComplaints] = useState([]); // always array, never null
+  const [complaints, setComplaints] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("darkMode");
@@ -51,7 +51,7 @@ export function AppProvider({ children }) {
         setComplaints(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to load complaints:", err);
-        setComplaints([]); // fallback to empty array
+        setComplaints([]);
       } finally {
         setLoading(false);
       }
@@ -80,12 +80,12 @@ export function AppProvider({ children }) {
     }
   }, [currentUser]);
 
-  // ---------- Translation helper (simple fallback) ----------
+  // ---------- Translation helper (fallback) ----------
   const t = (key) => {
     const translations = {
       en: {
         dashboard: "Dashboard",
-        complaints: "All Complaints" /* ... add other keys */,
+        complaints: "All Complaints" /* add other keys */,
       },
       fr: {
         dashboard: "Tableau de bord",
@@ -104,7 +104,6 @@ export function AppProvider({ children }) {
         body: JSON.stringify(complaint),
       });
       setComplaints((prev) => [newComplaint, ...prev]);
-      // Also add a notification for admin
       setNotifications((prev) => [
         {
           id: Date.now().toString(),
@@ -142,6 +141,20 @@ export function AppProvider({ children }) {
   };
 
   // ---------- Auth functions ----------
+  const register = async (userData) => {
+    try {
+      const newUser = await fetchAPI("/auth/register", {
+        method: "POST",
+        body: JSON.stringify(userData),
+      });
+      setCurrentUser(newUser);
+      return true;
+    } catch (err) {
+      console.error("Registration failed:", err);
+      return false;
+    }
+  };
+
   const login = async (email, password, matricule) => {
     try {
       const user = await fetchAPI("/auth/login", {
@@ -168,11 +181,6 @@ export function AppProvider({ children }) {
   };
   const unreadCount = notifications.filter((n) => n.unread).length;
 
-  // ---------- Message functions ----------
-  const sendMessage = async (conversationId, reply) => {
-    // your implementation
-  };
-
   // ---------- Toggle dark mode ----------
   const toggleDarkMode = () => setDarkMode((prev) => !prev);
 
@@ -187,6 +195,7 @@ export function AppProvider({ children }) {
     darkMode,
     toggleDarkMode,
     currentUser,
+    register,
     login,
     logout,
     settings,
@@ -196,7 +205,6 @@ export function AppProvider({ children }) {
     markNotificationRead,
     unreadCount,
     messages,
-    sendMessage,
     loading,
   };
 
