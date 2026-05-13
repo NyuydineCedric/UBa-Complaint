@@ -36,7 +36,7 @@ async function configureEmailTransporter() {
         return;
       }
       emailTransporter = nodemailer.createTransport({
-        service: 'gmail',
+        service: "gmail",
         auth: { user: EMAIL_USER, pass: EMAIL_PASS },
       });
       console.log("✅ Gmail SMTP configured for real emails.");
@@ -87,12 +87,26 @@ async function sendNotificationEmail(to, subject, text) {
 }
 
 const app = express();
-app.use(cors({ origin: ["http://localhost:5173", "http://127.0.0.1:5173"] }));
+
+// ✅ CORS: allow all origins in production (frontend is served by same server),
+// and localhost for local development
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (mobile apps, curl, Render health checks)
+      // or any origin — since frontend is served from same domain anyway
+      callback(null, true);
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Serve static frontend (for production)
-app.use(express.static(path.join(__dirname, "../dist")));
+// ✅ Serve static frontend build — path is relative to server/index.js
+const distPath = path.join(__dirname, "../dist");
+app.use(express.static(distPath));
 
 // Data functions
 async function readData() {
@@ -122,7 +136,12 @@ app.post("/api/auth/register", async (req, res) => {
       (user) => user.matricule === newUser.matricule || user.email === newUser.email
     );
     if (existing) return res.status(400).json({ message: "Already registered." });
-    const createdUser = { ...newUser, id: Date.now().toString(), role: newUser.role || "student", createdAt: new Date().toISOString() };
+    const createdUser = {
+      ...newUser,
+      id: Date.now().toString(),
+      role: newUser.role || "student",
+      createdAt: new Date().toISOString(),
+    };
     data.users.push(createdUser);
     await writeData(data);
     res.status(201).json(createdUser);
@@ -136,7 +155,9 @@ app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password, matricule } = req.body;
     const data = await readData();
-    const user = data.users.find(u => u.email === email && u.password === password && u.matricule === matricule);
+    const user = data.users.find(
+      (u) => u.email === email && u.password === password && u.matricule === matricule
+    );
     if (!user) return res.status(401).json({ message: "Invalid credentials." });
     res.json(user);
   } catch (error) {
@@ -150,7 +171,7 @@ app.put("/api/users/:matricule", async (req, res) => {
     const { matricule } = req.params;
     const updates = req.body;
     const data = await readData();
-    const index = data.users.findIndex(u => u.matricule === matricule);
+    const index = data.users.findIndex((u) => u.matricule === matricule);
     if (index === -1) return res.status(404).json({ message: "User not found." });
     data.users[index] = { ...data.users[index], ...updates };
     await writeData(data);
@@ -174,7 +195,7 @@ app.get("/api/complaints", async (_, res) => {
 app.get("/api/complaints/:id", async (req, res) => {
   try {
     const data = await readData();
-    const complaint = data.complaints.find(c => c.id === req.params.id);
+    const complaint = data.complaints.find((c) => c.id === req.params.id);
     if (!complaint) return res.status(404).json({ message: "Not found." });
     res.json(complaint);
   } catch (error) {
@@ -207,7 +228,7 @@ app.put("/api/complaints/:id", async (req, res) => {
   try {
     const updates = req.body;
     const data = await readData();
-    const index = data.complaints.findIndex(c => c.id === req.params.id);
+    const index = data.complaints.findIndex((c) => c.id === req.params.id);
     if (index === -1) return res.status(404).json({ message: "Not found." });
     const old = data.complaints[index];
     const updated = { ...old, ...updates, lastUpdate: new Date().toISOString() };
@@ -216,7 +237,8 @@ app.put("/api/complaints/:id", async (req, res) => {
 
     // Send email if status changed
     if (updates.status && updates.status !== old.status && old.email) {
-      const statusText = updates.status.charAt(0).toUpperCase() + updates.status.slice(1);
+      const statusText =
+        updates.status.charAt(0).toUpperCase() + updates.status.slice(1);
       const subject = `UBa Complaint System - Status Update: ${statusText}`;
       const message = `Dear ${old.name || "Student"},
 
@@ -233,7 +255,7 @@ Please log in to your dashboard for details.
 
 Best regards,
 UBa Complaint Management System`;
-      
+
       await sendNotificationEmail(old.email, subject, message);
     }
 
@@ -247,9 +269,9 @@ UBa Complaint Management System`;
 app.delete("/api/complaints/:id", async (req, res) => {
   try {
     const data = await readData();
-    const exists = data.complaints.some(c => c.id === req.params.id);
+    const exists = data.complaints.some((c) => c.id === req.params.id);
     if (!exists) return res.status(404).json({ message: "Not found." });
-    data.complaints = data.complaints.filter(c => c.id !== req.params.id);
+    data.complaints = data.complaints.filter((c) => c.id !== req.params.id);
     await writeData(data);
     res.json({ message: "Deleted." });
   } catch (error) {
@@ -258,9 +280,9 @@ app.delete("/api/complaints/:id", async (req, res) => {
   }
 });
 
-// Catch-all for React Router (must be last)
+// ✅ Catch-all: send React app for any non-API route (React Router support)
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist", "index.html"));
+  res.sendFile(path.join(distPath, "index.html"));
 });
 
-app.listen(PORT, () => console.log(`Backend running on http://localhost:4000`));
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
