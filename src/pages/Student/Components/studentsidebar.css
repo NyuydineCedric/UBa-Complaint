@@ -64,7 +64,7 @@
   padding: 10px 15px;
   border-radius: 8px;
   text-decoration: none;
-  color: #94a3b8; /* Light gray for better contrast */
+  color: #94a3b8;
   font-family: var(--student-font-family);
   transition: all 0.3s ease;
 }
@@ -81,10 +81,10 @@
 }
 
 .student-icon {
-  width: 10px;
-  height: 10px;
-  /* flex-shrink: 0; */
-  color: red;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: #94a3b8;
 }
 
 .student-nav-link:hover .student-icon {
@@ -144,35 +144,7 @@
   margin-top: 12px;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .student-sidebar {
-    width: 70px;
-    padding: 20px 10px;
-  }
-  
-  .student-logo-text,
-  .student-nav-link span,
-  .student-sidebar-logout-btn p,
-  .student-sidebar-footer-text {
-    display: none;
-  }
-  
-  .student-logo {
-    justify-content: center;
-    margin-bottom: 30px;
-  }
-  
-  .student-nav-link {
-    justify-content: center;
-    padding: 12px;
-  }
-  
-  .student-sidebar-logout-btn {
-    justify-content: center;
-  }
-}
-/* studentsidebar.css - Add this at the bottom */
+/* Responsive - Hide sidebar on mobile */
 @media (max-width: 768px) {
   .student-sidebar {
     display: none;
