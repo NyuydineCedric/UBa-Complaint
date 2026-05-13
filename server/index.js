@@ -88,14 +88,9 @@ async function sendNotificationEmail(to, subject, text) {
 // ---------- Express app ----------
 const app = express();
 
-// ========== CORS – allow any origin (including Vercel) ==========
-app.use(cors({
-  origin: true,                 // allows any origin – safe for debugging
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-app.options('*', cors());       // handle preflight requests
+// 🟢 CORS – allow all origins (fixes the Render error once and for all)
+app.use(cors());
+app.options('*', cors());
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
@@ -231,7 +226,7 @@ app.put("/api/complaints/:id", async (req, res) => {
 Your complaint has been updated:
 
 Complaint ID: ${old.id}
-Course: ${old.courseTitle || old.course}
+Course: `${old.courseTitle || old.course}`
 Type: ${old.type}
 Previous Status: ${old.status}
 New Status: ${statusText}
