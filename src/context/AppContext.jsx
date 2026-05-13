@@ -1,341 +1,204 @@
-import { createContext, useState, useEffect, useRef, useCallback } from "react";
-import { getTranslation } from "../translations";
+import React, { createContext, useState, useEffect, useCallback } from "react";
 
 export const AppContext = createContext(null);
 
+// API base URL – from environment variable or fallback to localhost for development
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
-async function apiRequest(path, options = {}) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    ...options,
+export function AppProvider({ children }) {
+  // ---------- State ----------
+  const [complaints, setComplaints] = useState([]); // always array, never null
+  const [searchQuery, setSearchQuery] = useState("");
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem("darkMode");
+    return saved === "true";
   });
-
-  const data = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const message = data?.message || response.statusText || "Request failed";
-    throw new Error(message);
-  }
-
-  return data;
-}
-
-export default function AppProvider({ children }) {
-  // ========== USER ==========
-  const [user, setUser] = useState(() => {
+  const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem("currentUser");
     return saved ? JSON.parse(saved) : null;
   });
-
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem("theme") || "light";
+  const [settings, setSettings] = useState(() => {
+    const saved = localStorage.getItem("settings");
+    return saved
+      ? JSON.parse(saved)
+      : {
+          language: "English",
+          notifications: true,
+          browserNotifications: true,
+          itemsPerPage: 10,
+          defaultDateRange: "Last 30 Days",
+        };
   });
+  const [notifications, setNotifications] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
-
-  // ========== COMPLAINTS ==========
-  const [complaints, setComplaints] = useState([]);
-  const [lastComplaintCount, setLastComplaintCount] = useState(0);
-  const [studentResolvedNotifications, setStudentResolvedNotifications] =
-    useState(0);
-
-  const resolvedBaselineRef = useRef(null);
-  const previousResolvedCountRef = useRef(null);
-  const previousComplaintsRef = useRef([]);
-
-  // ========== TOASTS ==========
-  const [toasts, setToasts] = useState([]);
-
-  const showToast = useCallback((message, type = "success") => {
-    const id = Date.now() + Math.random();
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 3000);
+  // ---------- Helper: fetch with error handling ----------
+  const fetchAPI = useCallback(async (endpoint, options = {}) => {
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      headers: { "Content-Type": "application/json" },
+      ...options,
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
   }, []);
 
-  // ========== SEARCH QUERY ==========
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // ========== SETTINGS & TRANSLATION ==========
-  const [settings, setSettings] = useState({
-    language: localStorage.getItem("language") || "en",
-    notifications: true,
-  });
-
-  // Persist language to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("language", settings.language);
-  }, [settings.language]);
-
-  const t = (key) => {
-    return getTranslation(settings.language, key);
-  };
-
-  // ========== COMPLAINTS LOADING & POLLING ==========
+  // ---------- Load complaints on mount ----------
   useEffect(() => {
     const loadComplaints = async () => {
       try {
-        const data = await apiRequest("/complaints");
-        setComplaints(data);
-        setLastComplaintCount(data.length);
-        previousComplaintsRef.current = data;
-      } catch (error) {
-        console.warn("Could not load complaints from backend:", error.message);
+        const data = await fetchAPI("/complaints");
+        setComplaints(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to load complaints:", err);
+        setComplaints([]); // fallback to empty array
+      } finally {
+        setLoading(false);
       }
     };
-
     loadComplaints();
+  }, [fetchAPI]);
 
-    const pollInterval = setInterval(async () => {
-      try {
-        const data = await apiRequest("/complaints");
-
-        if (data.length > lastComplaintCount) {
-          setUnreadNotifications(data.length - lastComplaintCount);
-        }
-
-        if (previousComplaintsRef.current.length > 0) {
-          data.forEach((newComplaint) => {
-            const oldComplaint = previousComplaintsRef.current.find(
-              (c) => c.id === newComplaint.id,
-            );
-            if (oldComplaint && oldComplaint.status !== newComplaint.status) {
-              console.log(
-                `Complaint ${newComplaint.id} status changed from ${oldComplaint.status} to ${newComplaint.status}`,
-              );
-              setUnreadNotifications((prev) => prev + 1);
-            }
-          });
-        }
-
-        setComplaints(data);
-        previousComplaintsRef.current = data;
-      } catch (error) {
-        console.warn("Polling error:", error.message);
-      }
-    }, 3000);
-
-    return () => clearInterval(pollInterval);
-  }, [lastComplaintCount]);
-
-  // ========== THEME HANDLING ==========
+  // ---------- Dark mode persistence ----------
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-    if (theme === "dark") {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-  }, [theme]);
+    if (darkMode) document.body.classList.add("dark-mode");
+    else document.body.classList.remove("dark-mode");
+    localStorage.setItem("darkMode", darkMode);
+  }, [darkMode]);
 
+  // ---------- Settings persistence ----------
   useEffect(() => {
-    if (user) {
-      localStorage.setItem("currentUser", JSON.stringify(user));
+    localStorage.setItem("settings", JSON.stringify(settings));
+  }, [settings]);
+
+  // ---------- Current user persistence ----------
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
     } else {
       localStorage.removeItem("currentUser");
-      resolvedBaselineRef.current = null;
-      previousResolvedCountRef.current = null;
-      setStudentResolvedNotifications(0);
     }
-  }, [user]);
+  }, [currentUser]);
 
-  useEffect(() => {
-    if (!user) return;
-
-    const resolvedCount = complaints.filter(
-      (c) => c.userId === user?.matricule && c.status === "resolved",
-    ).length;
-
-    if (resolvedBaselineRef.current === null) {
-      resolvedBaselineRef.current = resolvedCount;
-      setStudentResolvedNotifications(0);
-    } else if (resolvedCount > resolvedBaselineRef.current) {
-      setStudentResolvedNotifications(
-        resolvedCount - resolvedBaselineRef.current,
-      );
-    }
-
-    if (previousResolvedCountRef.current === null) {
-      previousResolvedCountRef.current = resolvedCount;
-    } else if (resolvedCount > previousResolvedCountRef.current) {
-      showToast(
-        `A complaint has been resolved. Check your complaints list.`,
-        "success",
-      );
-      previousResolvedCountRef.current = resolvedCount;
-    }
-  }, [complaints, user, showToast]);
-
-  const markStudentNotificationsRead = () => {
-    if (!user) return;
-    const currentResolvedCount = complaints.filter(
-      (c) => c.userId === user?.matricule && c.status === "resolved",
-    ).length;
-    resolvedBaselineRef.current = currentResolvedCount;
-    setStudentResolvedNotifications(0);
-  };
-
-  // ========== API METHODS ==========
-  const register = async (data) => {
-    const newUser = {
-      ...data,
-      role: data.role || "student",
-      avatar: data.avatar || null,
-      createdAt: new Date().toISOString(),
+  // ---------- Translation helper (simple fallback) ----------
+  const t = (key) => {
+    const translations = {
+      en: {
+        dashboard: "Dashboard",
+        complaints: "All Complaints" /* ... add other keys */,
+      },
+      fr: {
+        dashboard: "Tableau de bord",
+        complaints: "Toutes les réclamations" /* ... */,
+      },
     };
-    return apiRequest("/auth/register", {
-      method: "POST",
-      body: JSON.stringify(newUser),
-    });
+    const lang = settings.language === "French" ? "fr" : "en";
+    return translations[lang]?.[key] || key;
   };
 
+  // ---------- Complaint functions ----------
+  const addComplaint = async (complaint) => {
+    try {
+      const newComplaint = await fetchAPI("/complaints", {
+        method: "POST",
+        body: JSON.stringify(complaint),
+      });
+      setComplaints((prev) => [newComplaint, ...prev]);
+      // Also add a notification for admin
+      setNotifications((prev) => [
+        {
+          id: Date.now().toString(),
+          title: "New complaint submitted",
+          description: `${complaint.student} submitted a new complaint.`,
+          time: "Just now",
+          unread: true,
+        },
+        ...prev,
+      ]);
+    } catch (err) {
+      console.error("Failed to add complaint:", err);
+    }
+  };
+
+  const updateComplaint = async (id, updates) => {
+    try {
+      const updated = await fetchAPI(`/complaints/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(updates),
+      });
+      setComplaints((prev) => prev.map((c) => (c.id === id ? updated : c)));
+    } catch (err) {
+      console.error("Failed to update complaint:", err);
+    }
+  };
+
+  const deleteComplaint = async (id) => {
+    try {
+      await fetchAPI(`/complaints/${id}`, { method: "DELETE" });
+      setComplaints((prev) => prev.filter((c) => c.id !== id));
+    } catch (err) {
+      console.error("Failed to delete complaint:", err);
+    }
+  };
+
+  // ---------- Auth functions ----------
   const login = async (email, password, matricule) => {
     try {
-      const result = await apiRequest("/auth/login", {
+      const user = await fetchAPI("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password, matricule }),
       });
-      setUser(result);
+      setCurrentUser(user);
       return true;
-    } catch (error) {
+    } catch (err) {
+      console.error("Login failed:", err);
       return false;
     }
   };
 
   const logout = () => {
-    setUser(null);
-    setToasts([]);
+    setCurrentUser(null);
   };
 
-  const getComplaints = () => complaints;
+  // ---------- Notification functions ----------
+  const markNotificationRead = (id) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, unread: false } : n)),
+    );
+  };
+  const unreadCount = notifications.filter((n) => n.unread).length;
 
-  const addComplaint = async (payload) => {
-    const currentUser = user || {};
-    const complaint = {
-      id: Date.now().toString(),
-      ...payload,
-      userId:
-        currentUser.matricule || payload.studentId || payload.userId || "N/A",
-      student: currentUser.name || payload.student || payload.name || "Unknown",
-      name: currentUser.name || payload.name || payload.student || "Unknown",
-      studentId:
-        currentUser.matricule || payload.studentId || payload.userId || "N/A",
-      email: currentUser.email || payload.email || "N/A",
-      department:
-        currentUser.department ||
-        payload.department ||
-        payload.program ||
-        "N/A",
-      program:
-        currentUser.program ||
-        payload.program ||
-        currentUser.department ||
-        "N/A",
-      school: currentUser.school || payload.school || "N/A",
-      level: currentUser.level || payload.level || "N/A",
-      phoneNumber: currentUser.phoneNumber || payload.phoneNumber || "N/A",
-      status: "pending",
-      date: new Date().toISOString().split("T")[0],
-      submittedDate: new Date().toISOString(),
-      lastUpdate: new Date().toISOString(),
-    };
-
-    const created = await apiRequest("/complaints", {
-      method: "POST",
-      body: JSON.stringify(complaint),
-    });
-
-    setComplaints((prev) => [created, ...prev]);
-    showToast("Complaint submitted successfully!", "success");
-    return created;
+  // ---------- Message functions ----------
+  const sendMessage = async (conversationId, reply) => {
+    // your implementation
   };
 
-  const updateComplaint = async (id, updates) => {
-    const updated = await apiRequest(`/complaints/${id}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        ...updates,
-        lastUpdate: new Date().toISOString(),
-      }),
-    });
+  // ---------- Toggle dark mode ----------
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
 
-    setComplaints((prev) => prev.map((c) => (c.id === id ? updated : c)));
-    showToast("Complaint updated successfully!", "success");
-    return updated;
+  // ---------- Provider value ----------
+  const value = {
+    complaints,
+    addComplaint,
+    updateComplaint,
+    deleteComplaint,
+    searchQuery,
+    setSearchQuery,
+    darkMode,
+    toggleDarkMode,
+    currentUser,
+    login,
+    logout,
+    settings,
+    setSettings,
+    t,
+    notifications,
+    markNotificationRead,
+    unreadCount,
+    messages,
+    sendMessage,
+    loading,
   };
 
-  const updateComplaintStatus = async (id, status) => {
-    return updateComplaint(id, { status });
-  };
-
-  const deleteComplaint = async (id) => {
-    await apiRequest(`/complaints/${id}`, { method: "DELETE" });
-    setComplaints((prev) => prev.filter((c) => c.id !== id));
-    showToast("Complaint deleted successfully!", "success");
-  };
-
-  const updateProfile = async (matricule, updates) => {
-    const updated = await apiRequest(`/users/${matricule}`, {
-      method: "PUT",
-      body: JSON.stringify(updates),
-    });
-
-    if (user?.matricule === matricule) {
-      setUser(updated);
-    }
-    return updated;
-  };
-
-  const removeToast = (id) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
-  };
-
-  // ========== CONTEXT PROVIDER ==========
-  return (
-    <AppContext.Provider
-      value={{
-        user,
-        currentUser: user,
-        setUser,
-        register,
-        login,
-        logout,
-        theme,
-        darkMode: theme === "dark",
-        setTheme,
-        toggleTheme,
-        toggleDarkMode: toggleTheme,
-        complaints,
-        getComplaints,
-        addComplaint,
-        updateComplaint,
-        updateComplaintStatus,
-        deleteComplaint,
-        updateProfile,
-        toasts,
-        showToast,
-        removeToast,
-        searchQuery,
-        setSearchQuery,
-        settings,
-        setSettings,
-        t,
-        unreadNotifications,
-        setUnreadNotifications,
-        studentResolvedNotifications,
-        markStudentNotificationsRead,
-      }}
-    >
-      {children}
-    </AppContext.Provider>
-  );
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
