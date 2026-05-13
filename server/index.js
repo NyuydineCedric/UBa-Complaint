@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
@@ -13,98 +13,39 @@ const __dirname = path.dirname(__filename);
 const DATA_FILE = path.join(__dirname, "data.json");
 const PORT = process.env.PORT || 4000;
 
-// Email configuration
-const EMAIL_HOST = process.env.EMAIL_HOST;
-const EMAIL_PORT = Number(process.env.EMAIL_PORT || 587);
-const EMAIL_SECURE = process.env.EMAIL_SECURE === "true";
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
-let EMAIL_FROM = process.env.EMAIL_FROM || EMAIL_USER;
-
-let emailTransporter = null;
-
-async function configureEmailTransporter() {
-  if (!EMAIL_HOST) {
-    console.warn("Email SMTP host not configured. Email notifications disabled.");
-    return;
-  }
-
-  try {
-    if (EMAIL_HOST === "smtp.gmail.com") {
-      if (!EMAIL_USER || !EMAIL_PASS) {
-        console.error("❌ Gmail requires EMAIL_USER and EMAIL_PASS.");
-        return;
-      }
-      emailTransporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: { user: EMAIL_USER, pass: EMAIL_PASS },
-      });
-      console.log("✅ Gmail SMTP configured for real emails.");
-    } else if (EMAIL_HOST === "smtp.ethereal.email") {
-      const testAccount = await nodemailer.createTestAccount();
-      emailTransporter = nodemailer.createTransport({
-        host: EMAIL_HOST,
-        port: EMAIL_PORT,
-        secure: EMAIL_SECURE,
-        auth: { user: testAccount.user, pass: testAccount.pass },
-      });
-      EMAIL_FROM = testAccount.user;
-      console.log("🔧 Ethereal email transport configured (test emails).");
-    } else {
-      emailTransporter = nodemailer.createTransport({
-        host: EMAIL_HOST,
-        port: EMAIL_PORT,
-        secure: EMAIL_SECURE,
-        auth: { user: EMAIL_USER, pass: EMAIL_PASS },
-      });
-      console.log(`🔧 Custom SMTP: ${EMAIL_HOST}:${EMAIL_PORT}`);
-    }
-  } catch (error) {
-    console.error("Email configuration failed:", error.message);
-  }
-}
-
-await configureEmailTransporter();
+// ✅ Resend email setup (works on Render — uses HTTPS, not blocked SMTP ports)
+const resend = new Resend(process.env.RESEND_API_KEY);
+const EMAIL_FROM = process.env.EMAIL_FROM || "onboarding@resend.dev";
 
 async function sendNotificationEmail(to, subject, text) {
-  if (!emailTransporter) {
-    console.log(`Email not sent (no transporter): ${to}`);
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("⚠️  RESEND_API_KEY not set. Email not sent.");
     return;
   }
   try {
-    const result = await emailTransporter.sendMail({
+    const { data, error } = await resend.emails.send({
       from: EMAIL_FROM,
       to,
       subject,
       text,
     });
-    console.log(`✅ Email sent to ${to}. Message ID: ${result.messageId}`);
-    const previewUrl = nodemailer.getTestMessageUrl(result);
-    if (previewUrl) console.log(`📧 Preview: ${previewUrl}`);
-  } catch (error) {
-    console.error(`❌ Failed to send email to ${to}:`, error.message);
+    if (error) {
+      console.error(`❌ Failed to send email to ${to}:`, error.message);
+    } else {
+      console.log(`✅ Email sent to ${to}. ID: ${data.id}`);
+    }
+  } catch (err) {
+    console.error(`❌ Email error:`, err.message);
   }
 }
 
 const app = express();
 
-// ✅ CORS: allow all origins in production (frontend is served by same server),
-// and localhost for local development
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (mobile apps, curl, Render health checks)
-      // or any origin — since frontend is served from same domain anyway
-      callback(null, true);
-    },
-    credentials: true,
-  })
-);
-
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// ✅ Serve static frontend build — path is relative to server/index.js
+// Serve static frontend build (for when running as single service)
 const distPath = path.join(__dirname, "../dist");
 app.use(express.static(distPath));
 
@@ -235,7 +176,7 @@ app.put("/api/complaints/:id", async (req, res) => {
     data.complaints[index] = updated;
     await writeData(data);
 
-    // Send email if status changed
+    // ✅ Send email notification when status changes
     if (updates.status && updates.status !== old.status && old.email) {
       const statusText =
         updates.status.charAt(0).toUpperCase() + updates.status.slice(1);
@@ -245,8 +186,8 @@ app.put("/api/complaints/:id", async (req, res) => {
 Your complaint has been updated:
 
 Complaint ID: ${old.id}
-Course: ${old.courseTitle || old.course}
-Type: ${old.type}
+Course: ${old.courseTitle || old.course || "N/A"}
+Type: ${old.type || "N/A"}
 Previous Status: ${old.status}
 New Status: ${statusText}
 Updated Date: ${new Date().toLocaleString()}
@@ -280,7 +221,7 @@ app.delete("/api/complaints/:id", async (req, res) => {
   }
 });
 
-// ✅ Catch-all: send React app for any non-API route (React Router support)
+// Catch-all for React Router (must be last)
 app.get("*", (req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
