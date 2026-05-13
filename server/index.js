@@ -1,5 +1,4 @@
 import express from "express";
-import cors from "cors";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import { readFile, writeFile } from "fs/promises";
@@ -85,11 +84,19 @@ async function sendNotificationEmail(to, subject, text) {
   }
 }
 
+// ---------- Express app ----------
 const app = express();
 
-// ========== CORS – allow every origin ==========
-app.use(cors());
-app.options('*', cors());
+// ========== MANUAL CORS – ALLOW EVERYTHING (OVERRIDE ALL) ==========
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
@@ -216,6 +223,7 @@ app.put("/api/complaints/:id", async (req, res) => {
     data.complaints[index] = updated;
     await writeData(data);
 
+    // Send email if status changed
     if (updates.status && updates.status !== old.status && old.email) {
       const statusText = updates.status.charAt(0).toUpperCase() + updates.status.slice(1);
       const subject = `UBa Complaint System - Status Update: ${statusText}`;
