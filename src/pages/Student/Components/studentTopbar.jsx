@@ -1,12 +1,11 @@
 // pages/Student/Components/studentTopbar.jsx
-import { Bell, Sun, Moon } from "lucide-react";
+import { Bell, Sun, Moon, Search, User } from "lucide-react";
 import { useContext, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { AppContext } from "../../../context/AppContext";
 import "./studenttopbar.css";
 import "../StudentStyle.css";
-import profile from "../../../assets/profile.jpg";
 
 export default function Topbar() {
   const {
@@ -84,13 +83,16 @@ export default function Topbar() {
 
   return (
     <div className="student-topbar">
-      {/* LEFT TITLE / SEARCH */}
+      {/* LEFT SIDE – SEARCH BAR WITH ICON */}
       <div className="student-title">
-        <input
-          type="text"
-          placeholder={t("search_placeholder")}
-          aria-label={t("search_placeholder")}
-        />
+        <div className="student-search-wrapper">
+          <Search className="student-search-icon" size={18} />
+          <input
+            type="text"
+            placeholder={t("search_placeholder")}
+            aria-label={t("search_placeholder")}
+          />
+        </div>
       </div>
 
       {/* RIGHT ACTIONS */}
@@ -108,14 +110,6 @@ export default function Topbar() {
           >
             <Bell
               size={24}
-              style={{
-                width: "24px",
-                height: "24px",
-                color:
-                  studentResolvedNotifications > 0
-                    ? "var(--student-primary)"
-                    : "var(--student-text-secondary)",
-              }}
               className="student-icon"
             />
             {studentResolvedNotifications > 0 && (
@@ -170,15 +164,13 @@ export default function Topbar() {
           )}
         </div>
 
-        {/* PROFILE IMAGE */}
-        <img
-          src={profile}
-          alt={t("profile_image_alt")}
-          className="proffile-img"
-        />
+        {/* PROFILE ICON - Replaced image with icon */}
+        <div className="student-profile-icon-wrapper" onClick={() => navigate("/student/profile")}>
+          <User size={24} className="student-profile-icon" />
+        </div>
 
-        {/* THEME SWITCH */}
-        <div className="student-theme-toggle-container">
+        {/* THEME TOGGLE - Hidden on mobile */}
+        <div className="student-theme-toggle-container desktop-only">
           <button
             className={`student-toggle-btn ${theme === "light" ? "active" : ""}`}
             onClick={() => setTheme("light")}
