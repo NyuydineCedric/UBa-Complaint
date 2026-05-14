@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
@@ -13,86 +12,51 @@ const __dirname = path.dirname(__filename);
 const DATA_FILE = path.join(__dirname, "data.json");
 const PORT = process.env.PORT || 4000;
 
-// Email configuration
-const EMAIL_HOST = process.env.EMAIL_HOST;
-const EMAIL_PORT = Number(process.env.EMAIL_PORT || 587);
-const EMAIL_SECURE = process.env.EMAIL_SECURE === "true";
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
-let EMAIL_FROM = process.env.EMAIL_FROM || EMAIL_USER;
+const EMAIL_FROM = process.env.EMAIL_FROM || "noreply@uba.cm";
+const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "UBa Complaint System";
 
-let emailTransporter = null;
-
-async function configureEmailTransporter() {
-  if (!EMAIL_HOST) {
-    console.warn("Email SMTP host not configured. Email notifications disabled.");
-    return;
-  }
-
-  try {
-    if (EMAIL_HOST === "smtp.gmail.com") {
-      if (!EMAIL_USER || !EMAIL_PASS) {
-        console.error("❌ Gmail requires EMAIL_USER and EMAIL_PASS.");
-        return;
-      }
-      emailTransporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user: EMAIL_USER, pass: EMAIL_PASS },
-      });
-      console.log("✅ Gmail SMTP configured for real emails.");
-    } else if (EMAIL_HOST === "smtp.ethereal.email") {
-      const testAccount = await nodemailer.createTestAccount();
-      emailTransporter = nodemailer.createTransport({
-        host: EMAIL_HOST,
-        port: EMAIL_PORT,
-        secure: EMAIL_SECURE,
-        auth: { user: testAccount.user, pass: testAccount.pass },
-      });
-      EMAIL_FROM = testAccount.user;
-      console.log("🔧 Ethereal email transport configured (test emails).");
-    } else {
-      emailTransporter = nodemailer.createTransport({
-        host: EMAIL_HOST,
-        port: EMAIL_PORT,
-        secure: EMAIL_SECURE,
-        auth: { user: EMAIL_USER, pass: EMAIL_PASS },
-      });
-      console.log(`🔧 Custom SMTP: ${EMAIL_HOST}:${EMAIL_PORT}`);
-    }
-  } catch (error) {
-    console.error("Email configuration failed:", error.message);
-  }
-}
-
-await configureEmailTransporter();
-
+// ✅ Brevo API — sends over HTTPS, never blocked by Render
 async function sendNotificationEmail(to, subject, text) {
-  if (!emailTransporter) {
-    console.log(`Email not sent (no transporter): ${to}`);
+  if (!process.env.BREVO_API_KEY) {
+    console.warn("⚠️  BREVO_API_KEY not set. Email not sent.");
     return;
   }
   try {
-    const result = await emailTransporter.sendMail({
-      from: EMAIL_FROM,
-      to,
-      subject,
-      text,
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+      },
+      body: JSON.stringify({
+        sender: { name: EMAIL_FROM_NAME, email: EMAIL_FROM },
+        to: [{ email: to }],
+        subject,
+        textContent: text,
+      }),
     });
-    console.log(`✅ Email sent to ${to}. Message ID: ${result.messageId}`);
-    const previewUrl = nodemailer.getTestMessageUrl(result);
-    if (previewUrl) console.log(`📧 Preview: ${previewUrl}`);
-  } catch (error) {
-    console.error(`❌ Failed to send email to ${to}:`, error.message);
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(`❌ Failed to send email to ${to}:`, data.message || JSON.stringify(data));
+    } else {
+      console.log(`✅ Email sent to ${to}. Message ID: ${data.messageId}`);
+    }
+  } catch (err) {
+    console.error(`❌ Email error:`, err.message);
   }
 }
 
 const app = express();
-app.use(cors({ origin: ["http://localhost:5173", "http://127.0.0.1:5173"] }));
+
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Serve static frontend (for production)
-app.use(express.static(path.join(__dirname, "../dist")));
+// Serve static frontend build
+const distPath = path.join(__dirname, "../dist");
+app.use(express.static(distPath));
 
 // Data functions
 async function readData() {
@@ -122,7 +86,12 @@ app.post("/api/auth/register", async (req, res) => {
       (user) => user.matricule === newUser.matricule || user.email === newUser.email
     );
     if (existing) return res.status(400).json({ message: "Already registered." });
-    const createdUser = { ...newUser, id: Date.now().toString(), role: newUser.role || "student", createdAt: new Date().toISOString() };
+    const createdUser = {
+      ...newUser,
+      id: Date.now().toString(),
+      role: newUser.role || "student",
+      createdAt: new Date().toISOString(),
+    };
     data.users.push(createdUser);
     await writeData(data);
     res.status(201).json(createdUser);
@@ -136,7 +105,9 @@ app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password, matricule } = req.body;
     const data = await readData();
-    const user = data.users.find(u => u.email === email && u.password === password && u.matricule === matricule);
+    const user = data.users.find(
+      (u) => u.email === email && u.password === password && u.matricule === matricule
+    );
     if (!user) return res.status(401).json({ message: "Invalid credentials." });
     res.json(user);
   } catch (error) {
@@ -150,7 +121,7 @@ app.put("/api/users/:matricule", async (req, res) => {
     const { matricule } = req.params;
     const updates = req.body;
     const data = await readData();
-    const index = data.users.findIndex(u => u.matricule === matricule);
+    const index = data.users.findIndex((u) => u.matricule === matricule);
     if (index === -1) return res.status(404).json({ message: "User not found." });
     data.users[index] = { ...data.users[index], ...updates };
     await writeData(data);
@@ -174,7 +145,7 @@ app.get("/api/complaints", async (_, res) => {
 app.get("/api/complaints/:id", async (req, res) => {
   try {
     const data = await readData();
-    const complaint = data.complaints.find(c => c.id === req.params.id);
+    const complaint = data.complaints.find((c) => c.id === req.params.id);
     if (!complaint) return res.status(404).json({ message: "Not found." });
     res.json(complaint);
   } catch (error) {
@@ -207,24 +178,25 @@ app.put("/api/complaints/:id", async (req, res) => {
   try {
     const updates = req.body;
     const data = await readData();
-    const index = data.complaints.findIndex(c => c.id === req.params.id);
+    const index = data.complaints.findIndex((c) => c.id === req.params.id);
     if (index === -1) return res.status(404).json({ message: "Not found." });
     const old = data.complaints[index];
     const updated = { ...old, ...updates, lastUpdate: new Date().toISOString() };
     data.complaints[index] = updated;
     await writeData(data);
 
-    // Send email if status changed
+    // ✅ Send email when status changes
     if (updates.status && updates.status !== old.status && old.email) {
-      const statusText = updates.status.charAt(0).toUpperCase() + updates.status.slice(1);
+      const statusText =
+        updates.status.charAt(0).toUpperCase() + updates.status.slice(1);
       const subject = `UBa Complaint System - Status Update: ${statusText}`;
       const message = `Dear ${old.name || "Student"},
 
 Your complaint has been updated:
 
 Complaint ID: ${old.id}
-Course: ${old.courseTitle || old.course}
-Type: ${old.type}
+Course: ${old.courseTitle || old.course || "N/A"}
+Type: ${old.type || "N/A"}
 Previous Status: ${old.status}
 New Status: ${statusText}
 Updated Date: ${new Date().toLocaleString()}
@@ -233,7 +205,7 @@ Please log in to your dashboard for details.
 
 Best regards,
 UBa Complaint Management System`;
-      
+
       await sendNotificationEmail(old.email, subject, message);
     }
 
@@ -247,9 +219,9 @@ UBa Complaint Management System`;
 app.delete("/api/complaints/:id", async (req, res) => {
   try {
     const data = await readData();
-    const exists = data.complaints.some(c => c.id === req.params.id);
+    const exists = data.complaints.some((c) => c.id === req.params.id);
     if (!exists) return res.status(404).json({ message: "Not found." });
-    data.complaints = data.complaints.filter(c => c.id !== req.params.id);
+    data.complaints = data.complaints.filter((c) => c.id !== req.params.id);
     await writeData(data);
     res.json({ message: "Deleted." });
   } catch (error) {
@@ -260,7 +232,7 @@ app.delete("/api/complaints/:id", async (req, res) => {
 
 // Catch-all for React Router (must be last)
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist", "index.html"));
+  res.sendFile(path.join(distPath, "index.html"));
 });
 
-app.listen(PORT, () => console.log(`Backend running on http://localhost:4000`));
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
