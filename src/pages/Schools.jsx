@@ -171,11 +171,6 @@ function Schools() {
                 }}
               ></div>
             </div>
-            <div className="card-footer">
-              <div>
-                <span>{t("head")}:</span> {s.head}
-              </div>
-            </div>
           </div>
         ))}
       </div>
@@ -208,7 +203,7 @@ function Schools() {
             <thead>
               <tr>
                 <th>{t("school")}</th>
-                <th>{t("head")}</th>
+
                 <th>{t("students_count")}</th>
                 <th>{t("complaints_count")}</th>
                 <th>{t("resolved_short")}</th>
@@ -224,7 +219,7 @@ function Schools() {
                   <td>
                     <small>{s.code}</small>
                   </td>
-                  <td>{s.head}</td>
+
                   <td>{s.students.toLocaleString()}</td>
                   <td>{s.complaints}</td>
                   <td style={{ color: "#10B981", fontWeight: "600" }}>

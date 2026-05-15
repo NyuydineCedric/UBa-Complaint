@@ -249,7 +249,11 @@ function Dashboard() {
                     </span>
                   </td>
 
-                  <td>{c.submitted}</td>
+                  <td>
+                    {c.submittedDate
+                      ? new Date(c.submittedDate).toLocaleDateString()
+                      : c.date}
+                  </td>
                   <td>
                     <button
                       className="view-btn"
