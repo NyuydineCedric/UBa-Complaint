@@ -1,4 +1,4 @@
-/* Login.css */
+/* Login.css – automatically follows device theme (light/dark) */
 .login-container {
   min-height: 100vh;
   display: flex;
@@ -21,10 +21,6 @@
   backdrop-filter: blur(10px);
 }
 
-[data-theme='dark'] .login-card {
-  background: rgba(30, 41, 59, 0.95);
-}
-
 .login-header {
   text-align: center;
   margin-bottom: 2rem;
@@ -44,17 +40,9 @@
   margin: 0.5rem 0 5px;
 }
 
-[data-theme='dark'] .login-header h1 {
-  color: #F8FAFC;
-}
-
 .login-header p {
   color: #6b7280;
   margin: 0.25rem 0;
-}
-
-[data-theme='dark'] .login-header p {
-  color: #94A3B8;
 }
 
 .login-subtitle {
@@ -73,10 +61,6 @@
   font-weight: 600;
   color: #374151;
   margin-bottom: 0.5rem;
-}
-
-[data-theme='dark'] .role-selection label {
-  color: #F8FAFC;
 }
 
 .role-buttons {
@@ -100,31 +84,15 @@
   justify-content: center;
 }
 
-[data-theme='dark'] .role-btn {
-  border-color: #334155;
-  background: #1E293B;
-  color: #94A3B8;
-}
-
 .role-btn:hover {
   border-color: #6366f1;
   background: #eef2ff;
-}
-
-[data-theme='dark'] .role-btn:hover {
-  border-color: #818CF8;
-  background: #1E293B;
 }
 
 .role-btn.active {
   background: #6366f1;
   color: white;
   border-color: #6366f1;
-}
-
-[data-theme='dark'] .role-btn.active {
-  background: #818CF8;
-  border-color: #818CF8;
 }
 
 .input-group {
@@ -138,10 +106,6 @@
   font-weight: 600;
   color: #374151;
   margin-bottom: 0.5rem;
-}
-
-[data-theme='dark'] .input-group label {
-  color: #F8FAFC;
 }
 
 .input-icon-wrapper {
@@ -169,21 +133,16 @@
   color: #111827;
 }
 
-[data-theme='dark'] .input-group input {
-  background: #0F172A;
-  border-color: #334155;
-  color: #F8FAFC;
+/* Placeholder styling for light mode */
+.input-group input::placeholder {
+  color: #9ca3af;
+  opacity: 1;
 }
 
 .input-group input:focus {
   outline: none;
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-[data-theme='dark'] .input-group input:focus {
-  border-color: #818CF8;
-  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
 }
 
 .password-toggle {
@@ -216,12 +175,6 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-}
-
-[data-theme='dark'] .error-message {
-  background: #1E293B;
-  color: #F87171;
-  border: 1px solid #ef4444;
 }
 
 .login-btn {
@@ -257,10 +210,6 @@
   color: #6b7280;
 }
 
-[data-theme='dark'] .register-link {
-  color: #94A3B8;
-}
-
 .register-link a {
   color: #6366f1;
   font-weight: 600;
@@ -271,18 +220,14 @@
   text-decoration: underline;
 }
 
-[data-theme='dark'] .register-link a {
-  color: #818CF8;
-}
-
 /* Responsive */
 @media (max-width: 640px) {
   .login-card {
     padding: 1.5rem;
   }
   .login-logo {
-    width: 60px;
-    height: 60px;
+    width: 180px;
+    height: 180px;
   }
   .login-header h1 {
     font-size: 1.5rem;
@@ -290,5 +235,75 @@
   .role-btn {
     padding: 10px 8px;
     font-size: 0.85rem;
+  }
+}
+
+/* ========== DARK MODE – follows device system theme ========== */
+@media (prefers-color-scheme: dark) {
+  .login-card {
+    background: rgba(30, 41, 59, 0.95);
+  }
+
+  .login-header h1 {
+    color: #F8FAFC;
+  }
+
+  .login-header p {
+    color: #94A3B8;
+  }
+
+  .role-selection label {
+    color: #F8FAFC;
+  }
+
+  .role-btn {
+    border-color: #334155;
+    background: #1E293B;
+    color: #94A3B8;
+  }
+
+  .role-btn:hover {
+    border-color: #818CF8;
+    background: #1E293B;
+  }
+
+  .role-btn.active {
+    background: #818CF8;
+    border-color: #818CF8;
+  }
+
+  .input-group label {
+    color: #F8FAFC;
+  }
+
+  .input-group input {
+    background: #0F172A;
+    border-color: #334155;
+    color: #F8FAFC;
+  }
+
+  /* Placeholder styling for dark mode */
+  .input-group input::placeholder {
+    color: #64748b;
+    opacity: 1;
+  }
+
+  .input-group input:focus {
+    border-color: #818CF8;
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
+  }
+
+  .error-message {
+    background: #1E293B;
+    color: #F87171;
+    border: 1px solid #ef4444;
+  }
+
+  .register-link {
+    color: #94A3B8;
+  }
+
+  .register-link a {
+    color: #818CF8;
   }
 }
