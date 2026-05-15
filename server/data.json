@@ -1,20 +1,6 @@
 {
   "users": [
     {
-      "name": "Nyuydine Cedric",
-      "email": "nyuydinecedric@gmail.com",
-      "password": "Cedric123@",
-      "matricule": "UBa24PB180",
-      "phoneNumber": "678772649",
-      "school": "COLTECH",
-      "level": "Level 3",
-      "department": "Computer Engineering",
-      "role": "student",
-      "avatar": null,
-      "createdAt": "2026-05-12T21:00:44.699Z",
-      "id": "1778619644699"
-    },
-    {
       "name": "Roman",
       "email": "cedricnyuydine0@gmail.com",
       "password": "Cedric123@",
@@ -110,8 +96,10 @@
       "createdAt": "2026-05-14T12:23:26.190Z",
       "id": "1778761406190"
     }
+    
   ],
   "complaints": [
+    
     {
       "id": "1778761577185",
       "userId": "UBa24PB190",
@@ -281,65 +269,6 @@
       "date": "2026-05-12",
       "submittedDate": "2026-05-12T22:14:04.677Z",
       "lastUpdate": "2026-05-12T22:14:28.918Z"
-    },
-    {
-      "id": "1778622079368",
-      "userId": "UBa24PB180",
-      "student": "Nyuydine Cedric",
-      "studentId": "UBa24PB180",
-      "name": "Nyuydine Cedric",
-      "email": "nyuydinecedric@gmail.com",
-      "department": "Computer Engineering",
-      "school": "COLTECH",
-      "level": "Level 3",
-      "phoneNumber": "678772649",
-      "program": "Computer Engineering",
-      "title": "CA Mark - CENP2321",
-      "course": "CENP2321",
-      "courseTitle": "Computer Architcture & Organization1",
-      "semester": "2",
-      "year": "2026",
-      "type": "CA Mark",
-      "description": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "details": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      "files": [
-        {
-          "name": "profile1.jpg",
-          "type": "image/jpeg",
-          "size": 7246,
-          "data": "data:image/jpeg;base64,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"
-        }
-      ],
-      "status": "in-progress",
-      "date": "2026-05-12",
-      "submittedDate": "2026-05-12T21:41:19.363Z",
-      "lastUpdate": "2026-05-12T22:04:58.797Z"
-    },
-    {
-      "id": "1778619741052",
-      "userId": "UBa24PB180",
-      "student": "Nyuydine Cedric",
-      "studentId": "UBa24PB180",
-      "name": "Nyuydine Cedric",
-      "email": "nyuydinecedric@gmail.com",
-      "department": "Computer Engineering",
-      "school": "COLTECH",
-      "level": "Level 3",
-      "phoneNumber": "678772649",
-      "program": "Computer Engineering",
-      "title": "Exam Mark - CENP3131",
-      "course": "CENP3131",
-      "courseTitle": "Computer Architcture & Organization",
-      "semester": "1",
-      "year": "2026",
-      "type": "Exam Mark",
-      "description": "testing testing testing testing testing testing",
-      "details": "testing testing testing testing testing testing",
-      "files": [],
-      "status": "resolved",
-      "date": "2026-05-12",
-      "submittedDate": "2026-05-12T21:02:21.047Z",
-      "lastUpdate": "2026-05-12T22:08:44.510Z"
     }
   ]
 }
