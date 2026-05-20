@@ -1,59 +1,154 @@
 import "./AllComplaints.css";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { SCHOOLS_DATA } from "../utils/schoolData";
 
 function AllComplaints() {
-  const { complaints, searchQuery, setSearchQuery, t } = useContext(AppContext);
+  const { complaints, searchQuery, setSearchQuery, t, currentUser } =
+    useContext(AppContext);
   const navigate = useNavigate();
   const [filtered, setFiltered] = useState([]);
-  const [filters, setFilters] = useState({ status: "", school: "", type: "" });
+  const [filters, setFilters] = useState({
+    status: "",
+    complaintType: "",
+    type: "",
+  });
+
   const [quickFilter, setQuickFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const isSuperAdmin = currentUser?.role === "admin";
+  const isSchoolAdmin = currentUser?.role === "school_admin";
+  const defaultFilterApplied = useRef(false);
+
+  useEffect(() => {
+    if (isSuperAdmin && !defaultFilterApplied.current) {
+      setFilters((prev) => ({ ...prev, complaintType: "wide" }));
+      defaultFilterApplied.current = true;
+    }
+  }, [isSuperAdmin]);
+
+  const allSchools = SCHOOLS_DATA.map((s) => ({
+    id: s.id,
+    name: s.name,
+    shortName: s.shortName,
+  }));
 
   const simplifyType = (type) => {
     if (!type) return "CA Mark";
     return type.toLowerCase().includes("ca") ? "CA Mark" : "Exam Mark";
   };
 
-  // Get unique schools from complaints data
-  const availableSchools = [
-    ...new Set(complaints.map((c) => c.school).filter(Boolean)),
-  ].sort();
+  const getDepartmentStats = (arr) => {
+    const map = new Map();
+    arr.forEach((c) => {
+      const dept = c.department || "Unknown";
+      map.set(dept, (map.get(dept) || 0) + 1);
+    });
+    return Array.from(map.entries()).map(([label, count]) => ({
+      label,
+      count,
+    }));
+  };
 
-  useEffect(() => {
-    const sorted = [...complaints].sort(
-      (a, b) => new Date(b.submittedDate) - new Date(a.submittedDate),
-    );
-    setFiltered(sorted);
-  }, [complaints]);
+  const getSchoolStats = (arr) => {
+    const map = new Map();
+    arr.forEach((c) => {
+      const label =
+        c.complaintType === "wide" || c.school === "UNIVERSITY_WIDE"
+          ? "University Wide"
+          : c.school || "Unknown";
+      map.set(label, (map.get(label) || 0) + 1);
+    });
+    return Array.from(map.entries()).map(([label, count]) => ({
+      label,
+      count,
+    }));
+  };
 
   useEffect(() => {
     let f = [...complaints];
+
+    // School admin safety net
+    if (isSchoolAdmin && currentUser?.school) {
+      f = f.filter((c) => {
+        if (
+          c.complaintType === "wide" ||
+          c.school === "UNIVERSITY_WIDE" ||
+          c.responsibleSchool === "UNIVERSITY_WIDE"
+        )
+          return false;
+        const target = c.responsibleSchool || c.school;
+        return target === currentUser.school;
+      });
+    }
+
+    // Search
     if (searchQuery) {
       f = f.filter(
         (c) =>
           c.student?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           c.studentId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.userId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           c.course?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           c.courseTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           c.school?.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
+
+    // Status filter
     if (filters.status) f = f.filter((c) => c.status === filters.status);
-    if (filters.school) f = f.filter((c) => c.school === filters.school);
+
+    // CA/Exam type filter
     if (filters.type)
       f = f.filter((c) => simplifyType(c.type) === filters.type);
-    if (quickFilter !== "All")
-      f = f.filter(
-        (c) => c.status === quickFilter.toLowerCase().replace(" ", "-"),
-      );
+
+    // Complaint category filter — super admin only
+    // This IS the main school filter for super admin:
+    // "wide" shows university-wide complaints
+    // a school id shows that school's complaints only
+    // empty shows all
+    if (filters.complaintType && isSuperAdmin) {
+      if (filters.complaintType === "wide") {
+        f = f.filter(
+          (c) => c.complaintType === "wide" || c.school === "UNIVERSITY_WIDE",
+        );
+      } else {
+        // It's a school id like "NAHPI", "COLTECH", etc.
+        f = f.filter(
+          (c) =>
+            c.complaintType !== "wide" &&
+            c.school !== "UNIVERSITY_WIDE" &&
+            (c.responsibleSchool === filters.complaintType ||
+              c.school === filters.complaintType),
+        );
+      }
+    }
+
+    // Quick filter by status
+    if (quickFilter !== "All") {
+      const map = {
+        Pending: "pending",
+        "In Progress": "in-progress",
+        Resolved: "resolved",
+        Rejected: "rejected",
+      };
+      const target = map[quickFilter];
+      if (target) f = f.filter((c) => c.status === target);
+    }
+
     f.sort((a, b) => new Date(b.submittedDate) - new Date(a.submittedDate));
     setFiltered(f);
-  }, [complaints, searchQuery, filters, quickFilter]);
+    setCurrentPage(1);
+  }, [complaints, searchQuery, filters, quickFilter, currentUser]);
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginated = filtered.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
 
   const stats = {
     total: filtered.length,
@@ -63,22 +158,14 @@ function AllComplaints() {
     rejected: filtered.filter((c) => c.status === "rejected").length,
   };
 
-  const schools = availableSchools;
-  const schoolStats = schools.map((s) => ({
-    label: s,
-    count: filtered.filter((c) => c.school === s).length,
-  }));
-  const maxSchool = Math.max(...schoolStats.map((s) => s.count), 1);
+  const chartData = isSchoolAdmin
+    ? getDepartmentStats(filtered)
+    : getSchoolStats(complaints);
+  const maxCount = Math.max(...chartData.map((d) => d.count), 1);
+  const chartTitle = isSchoolAdmin
+    ? "Complaints by Department"
+    : t("complaints_by_school");
 
-  // Pagination logic
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentItems = filtered.slice(startIndex, endIndex);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
   const statusData = [
     { label: t("resolved_short"), count: stats.resolved, color: "#10B981" },
     { label: t("in_progress"), count: stats.inProgress, color: "#3B82F6" },
@@ -90,30 +177,45 @@ function AllComplaints() {
   const handleFilterChange = (type, value) => {
     setFilters((p) => ({ ...p, [type]: value }));
     setQuickFilter("All");
-    setCurrentPage(1); // Reset to first page when filters change
   };
   const handleQuickFilter = (status) => {
     setQuickFilter(status);
     setFilters((p) => ({ ...p, status: "" }));
-    setCurrentPage(1); // Reset to first page when filters change
   };
   const handleView = (id) => navigate(`/complaints/${id}`);
-  const getStatusClass = (s) =>
-    s === "pending"
-      ? "status-pending"
-      : s === "in-progress"
-        ? "status-in-progress"
-        : s === "resolved"
-          ? "status-resolved"
-          : "status-rejected";
-  const getStatusText = (s) =>
-    s === "pending"
-      ? t("pending_status")
-      : s === "in-progress"
-        ? t("in_progress_status")
-        : s === "resolved"
-          ? t("resolved_status")
-          : t("rejected_status");
+
+  const getStatusClass = (s) => {
+    switch (s) {
+      case "pending":
+        return "status-pending";
+      case "in-progress":
+        return "status-in-progress";
+      case "resolved":
+        return "status-resolved";
+      case "rejected":
+        return "status-rejected";
+      default:
+        return "status-pending";
+    }
+  };
+
+  const getStatusText = (s) => {
+    switch (s) {
+      case "pending":
+        return t("pending_status");
+      case "in-progress":
+        return t("in_progress_status");
+      case "resolved":
+        return t("resolved_status");
+      case "rejected":
+        return t("rejected_status");
+      default:
+        return s;
+    }
+  };
+
+  // Always show the student's real school, never UNIVERSITY_WIDE
+  const getSchoolLabel = (c) => c.studentSchool || c.school || "N/A";
 
   return (
     <div className="complaints-page">
@@ -146,18 +248,26 @@ function AllComplaints() {
             <option value="resolved">{t("resolved_cap")}</option>
             <option value="rejected">{t("rejected_cap")}</option>
           </select>
-          <select
-            className="filter-select"
-            value={filters.school}
-            onChange={(e) => handleFilterChange("school", e.target.value)}
-          >
-            <option value="">{t("all_schools")}</option>
-            {schools.map((school) => (
-              <option key={school} value={school}>
-                {school}
-              </option>
-            ))}
-          </select>
+
+          {/* Super admin: one dropdown that filters by school OR university-wide */}
+          {isSuperAdmin && (
+            <select
+              className="filter-select"
+              value={filters.complaintType}
+              onChange={(e) =>
+                handleFilterChange("complaintType", e.target.value)
+              }
+            >
+              <option value="">All Schools</option>
+              <option value="wide">University Wide</option>
+              {allSchools.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.shortName} — {s.name}
+                </option>
+              ))}
+            </select>
+          )}
+
           <select
             className="filter-select"
             value={filters.type}
@@ -228,21 +338,21 @@ function AllComplaints() {
 
       <div className="charts-row">
         <div className="chart-card">
-          <h3>{t("complaints_by_school")}</h3>
+          <h3>{chartTitle}</h3>
           <div className="horizontal-bar-list">
-            {schoolStats.map((s) => (
-              <div key={s.label} className="horizontal-bar-item">
-                <div className="school-label">{s.label}</div>
+            {chartData.map((item) => (
+              <div key={item.label} className="horizontal-bar-item">
+                <div className="school-label">{item.label}</div>
                 <div className="bar-bg">
                   <div
                     className="bar-fill-horizontal"
                     style={{
-                      width: `${(s.count / maxSchool) * 100}%`,
+                      width: `${(item.count / maxCount) * 100}%`,
                       backgroundColor: "#6366F1",
                     }}
                   ></div>
                 </div>
-                <div className="school-count">{s.count}</div>
+                <div className="school-count">{item.count}</div>
               </div>
             ))}
           </div>
@@ -254,13 +364,13 @@ function AllComplaints() {
               {(() => {
                 let cum = 0;
                 return statusData.map((seg, idx) => {
-                  const start = (cum / totalComp) * 360;
-                  const end = ((cum + seg.count) / totalComp) * 360;
+                  const start = (cum / totalComp) * 360,
+                    end = ((cum + seg.count) / totalComp) * 360;
                   cum += seg.count;
-                  const x1 = 50 + 45 * Math.cos((start * Math.PI) / 180);
-                  const y1 = 50 + 45 * Math.sin((start * Math.PI) / 180);
-                  const x2 = 50 + 45 * Math.cos((end * Math.PI) / 180);
-                  const y2 = 50 + 45 * Math.sin((end * Math.PI) / 180);
+                  const x1 = 50 + 45 * Math.cos((start * Math.PI) / 180),
+                    y1 = 50 + 45 * Math.sin((start * Math.PI) / 180);
+                  const x2 = 50 + 45 * Math.cos((end * Math.PI) / 180),
+                    y2 = 50 + 45 * Math.sin((end * Math.PI) / 180);
                   const large = end - start > 180 ? 1 : 0;
                   return (
                     <path
@@ -314,32 +424,32 @@ function AllComplaints() {
         <table className="complaints-table">
           <thead>
             <tr>
-              <th>No</th>
+              <th>#</th>
               <th>{t("complaint_id")}</th>
               <th>{t("student_name")}</th>
               <th>{t("student_id_label")}</th>
               <th>{t("course")}</th>
               <th>{t("type_label")}</th>
-              <th>{t("school_label")}</th>
+              <th>{isSchoolAdmin ? "Department" : t("school_label")}</th>
               <th>{t("status_label")}</th>
               <th>{t("submitted_label")}</th>
               <th>{t("actions")}</th>
             </tr>
           </thead>
           <tbody>
-            {currentItems.map((c, idx) => (
+            {paginated.map((c, idx) => (
               <tr key={c.id}>
-                <td>{startIndex + idx + 1}</td>
+                <td>{(currentPage - 1) * itemsPerPage + idx + 1}</td>
                 <td>
                   <span className="complaint-id">{c.id}</span>
                 </td>
-                <td>{c.student || c.name}</td>
-                <td>{c.studentId || c.userId || c.name}</td>
+                <td>{c.student}</td>
+                <td>{c.studentId}</td>
                 <td>{c.courseTitle || c.course}</td>
                 <td>
                   <span className="type-badge">{simplifyType(c.type)}</span>
                 </td>
-                <td>{c.school}</td>
+                <td>{isSchoolAdmin ? c.department : getSchoolLabel(c)}</td>
                 <td>
                   <span className={`status-badge ${getStatusClass(c.status)}`}>
                     {getStatusText(c.status)}
@@ -348,12 +458,11 @@ function AllComplaints() {
                 <td>
                   {c.submittedDate
                     ? new Date(c.submittedDate).toLocaleDateString()
-                    : c.date}
+                    : "N/A"}
                 </td>
                 <td>
                   <button className="btn-view" onClick={() => handleView(c.id)}>
-                    <Eye size={14} style={{ marginRight: "4px" }} />
-                    {t("view")}
+                    <Eye size={14} style={{ marginRight: "4px" }} /> {t("view")}
                   </button>
                 </td>
               </tr>
@@ -366,17 +475,17 @@ function AllComplaints() {
         <button
           className="pagination-btn"
           disabled={currentPage === 1}
-          onClick={() => handlePageChange(currentPage - 1)}
+          onClick={() => setCurrentPage((p) => p - 1)}
         >
           <ChevronLeft size={14} /> {t("previous")}
         </button>
         <span className="pagination-info">
-          Page {currentPage} / {totalPages || 1}
+          Page {currentPage} of {totalPages || 1}
         </span>
         <button
           className="pagination-btn"
-          disabled={currentPage === totalPages || totalPages === 0}
-          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((p) => p + 1)}
         >
           {t("next")} <ChevronRight size={14} />
         </button>

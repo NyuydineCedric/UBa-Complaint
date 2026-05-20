@@ -3,13 +3,12 @@ import { useState, useContext, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { User, Lock, Eye, EyeOff, Mail } from "lucide-react";
-
 import ubalogo from "../assets/ubalogo.png";
 import "./Login.css";
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { login, register, showToast, darkMode } = useContext(AppContext);
+  const { login, showToast, darkMode } = useContext(AppContext);
 
   useEffect(() => {
     document.documentElement.setAttribute(
@@ -19,17 +18,16 @@ function LoginPage() {
   }, [darkMode]);
 
   const [role, setRole] = useState("student");
-  const [studentId, setStudentId] = useState("");
+  const [matricule, setMatricule] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRoleChange = (newRole) => {
     setRole(newRole);
-    setStudentId("");
+    setMatricule("");
     setEmail("");
     setPassword("");
     setError("");
@@ -41,58 +39,26 @@ function LoginPage() {
     setIsLoading(true);
 
     try {
-      if (!studentId || !email || !password) {
+      if (!matricule || !email || !password) {
         setError("Please fill in all fields");
         setIsLoading(false);
         return;
       }
 
-      // ADMIN LOGIN
-      if (role === "admin") {
-        if (
-          studentId === "ADM001" &&
-          email === "admin@unibamenda.cm" &&
-          password === "admin123"
-        ) {
-          try {
-            await register({
-              matricule: "ADM001",
-              email: "admin@unibamenda.cm",
-              password: "admin123",
-              name: "Administrator",
-              role: "admin",
-              department: "Administration",
-              school: "University of Bamenda",
-              createdAt: new Date().toISOString(),
-            });
-          } catch (err) {
-            // Admin may already exist, that's okay.
-          }
-
-          const success = await login(email, password, studentId);
-          if (success) {
-            showToast("Welcome back, Admin!", "success");
-            navigate("/");
-            return;
-          }
-        }
-
-        setError("Invalid admin credentials");
-        setIsLoading(false);
-        return;
-      }
-
-      // STUDENT LOGIN
-      if (role === "student") {
-        // Login using the context login function
-        const success = await login(email, password, studentId);
-        if (success) {
-          showToast("Welcome back, Student!", "success");
-          navigate("/student");
-          return;
-        } else {
-          setError("Invalid student credentials");
-        }
+      // For both student and admin, call the API login
+      const success = await login(email, password, matricule);
+      if (success) {
+        const user = JSON.parse(localStorage.getItem("currentUser"));
+        const redirectPath = user?.role === "student" ? "/student" : "/";
+        showToast(
+          `Welcome back, ${user?.name || (role === "admin" ? "Admin" : "Student")}!`,
+          "success",
+        );
+        navigate(redirectPath);
+      } else {
+        setError(
+          "Invalid credentials. Please check your email, password, and ID.",
+        );
       }
     } catch (err) {
       console.error(err);
@@ -144,8 +110,8 @@ function LoginPage() {
                 placeholder={
                   role === "student" ? "Enter your matricule" : "Enter admin ID"
                 }
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
+                value={matricule}
+                onChange={(e) => setMatricule(e.target.value)}
                 required
               />
             </div>

@@ -3,8 +3,11 @@ import { AppContext } from "../context/AppContext";
 import "./Dashboard.css";
 
 function Dashboard() {
-  const { complaints, t } = useContext(AppContext);
+  const { complaints, currentUser, t } = useContext(AppContext);
+  const isSchoolAdmin = currentUser?.role === "school_admin";
+  const adminSchool = currentUser?.school;
 
+  // Basic stats (already filtered by backend for school admin)
   const stats = {
     total: complaints.length,
     pending: complaints.filter((c) => c.status === "pending").length,
@@ -13,8 +16,33 @@ function Dashboard() {
     rejected: complaints.filter((c) => c.status === "rejected").length,
   };
 
+  // For school admin: group by department
+  // For super admin: group by school
+  const departmentStats = (() => {
+    if (!isSchoolAdmin || !adminSchool) return [];
+    const deptMap = new Map();
+    complaints.forEach((c) => {
+      const dept = c.department || "Unknown Department";
+      deptMap.set(dept, (deptMap.get(dept) || 0) + 1);
+    });
+    return Array.from(deptMap.entries()).map(([label, value], index) => ({
+      label,
+      value,
+      color: [
+        "#6366F1",
+        "#3B82F6",
+        "#10B981",
+        "#F59E0B",
+        "#EF4444",
+        "#8B5CF6",
+        "#EC4899",
+        "#06B6D4",
+      ][index % 8],
+    }));
+  })();
+
   const schoolStats = (() => {
-    // Get unique schools from complaints data
+    if (isSchoolAdmin) return []; // not used for school admin
     const uniqueSchools = [
       ...new Set(complaints.map((c) => c.school).filter(Boolean)),
     ];
@@ -22,20 +50,27 @@ function Dashboard() {
       label: school,
       value: complaints.filter((c) => c.school === school).length,
       color: [
-        "#6366F1", // blue
-        "#3B82F6", // lighter blue
-        "#10B981", // green
-        "#F59E0B", // yellow
-        "#EF4444", // red
-        "#8B5CF6", // purple
-        "#EC4899", // pink
-        "#06B6D4", // cyan
+        "#6366F1",
+        "#3B82F6",
+        "#10B981",
+        "#F59E0B",
+        "#EF4444",
+        "#8B5CF6",
+        "#EC4899",
+        "#06B6D4",
       ][index % 8],
     }));
   })();
 
   const totalComplaints = stats.total;
 
+  // Chart data for pie – decide which dataset to use
+  const pieData = isSchoolAdmin ? departmentStats : schoolStats;
+  const pieTitle = isSchoolAdmin
+    ? t("complaints_by_department") || "Complaints by Department"
+    : t("complaints_by_school");
+
+  // Semester counts (unchanged)
   const semesterCounts = {
     "Semester 1": complaints.filter((c) => c.semester === "1").length,
     "Semester 2": complaints.filter((c) => c.semester === "2").length,
@@ -125,18 +160,18 @@ function Dashboard() {
 
       <div className="dashboard-grid">
         <div className="chart-card">
-          <h2>{t("complaints_by_school")}</h2>
+          <h2>{pieTitle}</h2>
           <div className="pie-chart-container">
             <div className="pie-chart-wrapper">
               <svg className="pie-chart" viewBox="0 0 100 100">
                 {(() => {
                   let cumulative = 0;
-                  return schoolStats.map((stat, idx) => {
-                    if (stat.value === 0) return null;
+                  return pieData.map((item, idx) => {
+                    if (item.value === 0) return null;
                     const start = (cumulative / totalComplaints) * 360;
                     const end =
-                      ((cumulative + stat.value) / totalComplaints) * 360;
-                    cumulative += stat.value;
+                      ((cumulative + item.value) / totalComplaints) * 360;
+                    cumulative += item.value;
                     const x1 = 50 + 45 * Math.cos((start * Math.PI) / 180);
                     const y1 = 50 + 45 * Math.sin((start * Math.PI) / 180);
                     const x2 = 50 + 45 * Math.cos((end * Math.PI) / 180);
@@ -144,9 +179,9 @@ function Dashboard() {
                     const largeArc = end - start > 180 ? 1 : 0;
                     return (
                       <path
-                        key={stat.label}
+                        key={item.label}
                         d={`M 50 50 L ${x1} ${y1} A 45 45 0 ${largeArc} 1 ${x2} ${y2} Z`}
-                        fill={stat.color}
+                        fill={item.color}
                         className="pie-slice"
                         style={{ animationDelay: `${idx * 0.1}s` }}
                       />
@@ -160,17 +195,17 @@ function Dashboard() {
               </div>
             </div>
             <div className="chart-legend">
-              {schoolStats
+              {pieData
                 .filter((s) => s.value > 0)
-                .map((stat) => (
-                  <div key={stat.label} className="legend-item">
+                .map((item) => (
+                  <div key={item.label} className="legend-item">
                     <span
                       className="legend-color"
-                      style={{ backgroundColor: stat.color }}
+                      style={{ backgroundColor: item.color }}
                     ></span>
                     <div className="legend-info">
-                      <div className="legend-label">{stat.label}</div>
-                      <div className="legend-count">{stat.value}</div>
+                      <div className="legend-label">{item.label}</div>
+                      <div className="legend-count">{item.value}</div>
                     </div>
                   </div>
                 ))}
@@ -223,7 +258,6 @@ function Dashboard() {
                 <th>{t("course_code")}</th>
                 <th>{t("complaint_type")}</th>
                 <th>{t("status")}</th>
-
                 <th>{t("submitted")}</th>
                 <th>{t("actions")}</th>
               </tr>
@@ -248,7 +282,6 @@ function Dashboard() {
                             : t("rejected_status")}
                     </span>
                   </td>
-
                   <td>
                     {c.submittedDate
                       ? new Date(c.submittedDate).toLocaleDateString()

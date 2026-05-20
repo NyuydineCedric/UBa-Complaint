@@ -5,11 +5,30 @@ export const AppContext = createContext(null);
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
+// ========== API helper with authentication header ==========
 async function apiRequest(path, options = {}) {
+  const headers = {
+    "Content-Type": "application/json",
+    ...options.headers,
+  };
+
+  // Attach X-User-Id header if a user is logged in
+  const storedUser = sessionStorage.getItem("currentUser");
+  if (storedUser) {
+    try {
+      const user = JSON.parse(storedUser);
+      const userId = user.id || user.matricule;
+      if (userId) {
+        headers["X-User-Id"] = userId;
+        console.log(`🔑 Sending X-User-Id: ${userId}`);
+      }
+    } catch (e) {
+      console.warn("Failed to parse currentUser for auth header", e);
+    }
+  }
+
   const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     ...options,
   });
 
@@ -24,9 +43,9 @@ async function apiRequest(path, options = {}) {
 }
 
 export default function AppProvider({ children }) {
-  // ========== USER ==========
+  // ========== USER (stored in sessionStorage) ==========
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("currentUser");
+    const saved = sessionStorage.getItem("currentUser");
     return saved ? JSON.parse(saved) : null;
   });
 
@@ -35,6 +54,7 @@ export default function AppProvider({ children }) {
   });
 
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   // ========== COMPLAINTS ==========
   const [complaints, setComplaints] = useState([]);
@@ -48,7 +68,6 @@ export default function AppProvider({ children }) {
 
   // ========== TOASTS ==========
   const [toasts, setToasts] = useState([]);
-
   const showToast = useCallback((message, type = "success") => {
     const id = Date.now() + Math.random();
     setToasts((prev) => [...prev, { id, message, type }]);
@@ -65,15 +84,11 @@ export default function AppProvider({ children }) {
     language: localStorage.getItem("language") || "en",
     notifications: true,
   });
-
-  // Persist language to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("language", settings.language);
   }, [settings.language]);
 
-  const t = (key) => {
-    return getTranslation(settings.language, key);
-  };
+  const t = (key) => getTranslation(settings.language, key);
 
   // ========== COMPLAINTS LOADING & POLLING ==========
   useEffect(() => {
@@ -87,17 +102,14 @@ export default function AppProvider({ children }) {
         console.warn("Could not load complaints from backend:", error.message);
       }
     };
-
     loadComplaints();
 
     const pollInterval = setInterval(async () => {
       try {
         const data = await apiRequest("/complaints");
-
         if (data.length > lastComplaintCount) {
           setUnreadNotifications(data.length - lastComplaintCount);
         }
-
         if (previousComplaintsRef.current.length > 0) {
           data.forEach((newComplaint) => {
             const oldComplaint = previousComplaintsRef.current.find(
@@ -111,7 +123,6 @@ export default function AppProvider({ children }) {
             }
           });
         }
-
         setComplaints(data);
         previousComplaintsRef.current = data;
       } catch (error) {
@@ -133,11 +144,17 @@ export default function AppProvider({ children }) {
     }
   }, [theme]);
 
+  // Set loading complete
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
+
+  // Persist user to sessionStorage
   useEffect(() => {
     if (user) {
-      localStorage.setItem("currentUser", JSON.stringify(user));
+      sessionStorage.setItem("currentUser", JSON.stringify(user));
     } else {
-      localStorage.removeItem("currentUser");
+      sessionStorage.removeItem("currentUser");
       resolvedBaselineRef.current = null;
       previousResolvedCountRef.current = null;
       setStudentResolvedNotifications(0);
@@ -146,11 +163,9 @@ export default function AppProvider({ children }) {
 
   useEffect(() => {
     if (!user) return;
-
     const resolvedCount = complaints.filter(
       (c) => c.userId === user?.matricule && c.status === "resolved",
     ).length;
-
     if (resolvedBaselineRef.current === null) {
       resolvedBaselineRef.current = resolvedCount;
       setStudentResolvedNotifications(0);
@@ -159,7 +174,6 @@ export default function AppProvider({ children }) {
         resolvedCount - resolvedBaselineRef.current,
       );
     }
-
     if (previousResolvedCountRef.current === null) {
       previousResolvedCountRef.current = resolvedCount;
     } else if (resolvedCount > previousResolvedCountRef.current) {
@@ -236,7 +250,7 @@ export default function AppProvider({ children }) {
         payload.program ||
         currentUser.department ||
         "N/A",
-      school: currentUser.school || payload.school || "N/A",
+      school: payload.school || currentUser.school || "N/A",
       level: currentUser.level || payload.level || "N/A",
       phoneNumber: currentUser.phoneNumber || payload.phoneNumber || "N/A",
       status: "pending",
@@ -244,12 +258,10 @@ export default function AppProvider({ children }) {
       submittedDate: new Date().toISOString(),
       lastUpdate: new Date().toISOString(),
     };
-
     const created = await apiRequest("/complaints", {
       method: "POST",
       body: JSON.stringify(complaint),
     });
-
     setComplaints((prev) => [created, ...prev]);
     showToast("Complaint submitted successfully!", "success");
     return created;
@@ -263,15 +275,13 @@ export default function AppProvider({ children }) {
         lastUpdate: new Date().toISOString(),
       }),
     });
-
     setComplaints((prev) => prev.map((c) => (c.id === id ? updated : c)));
     showToast("Complaint updated successfully!", "success");
     return updated;
   };
 
-  const updateComplaintStatus = async (id, status) => {
-    return updateComplaint(id, { status });
-  };
+  const updateComplaintStatus = async (id, status) =>
+    updateComplaint(id, { status });
 
   const deleteComplaint = async (id) => {
     await apiRequest(`/complaints/${id}`, { method: "DELETE" });
@@ -284,22 +294,16 @@ export default function AppProvider({ children }) {
       method: "PUT",
       body: JSON.stringify(updates),
     });
-
-    if (user?.matricule === matricule) {
-      setUser(updated);
-    }
+    if (user?.matricule === matricule) setUser(updated);
     return updated;
   };
 
-  const removeToast = (id) => {
+  const removeToast = (id) =>
     setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
 
-  const toggleTheme = () => {
+  const toggleTheme = () =>
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
-  };
 
-  // ========== CONTEXT PROVIDER ==========
   return (
     <AppContext.Provider
       value={{
@@ -333,6 +337,7 @@ export default function AppProvider({ children }) {
         setUnreadNotifications,
         studentResolvedNotifications,
         markStudentNotificationsRead,
+        isLoading,
       }}
     >
       {children}
