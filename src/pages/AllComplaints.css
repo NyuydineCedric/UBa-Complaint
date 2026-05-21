@@ -405,11 +405,10 @@ body.dark-mode .complaint-id {
 }
 .type-badge {
   background: #EEF2FF;
-  color: #6366F1;
-  padding: 3px 8px;
-  border-radius: 30px;
+    border-radius: 30px;
   font-size: 0.7rem;
   font-weight: 500;
+  text-align: center;
 }
 body.dark-mode .type-badge {
   background: #4338CA;
