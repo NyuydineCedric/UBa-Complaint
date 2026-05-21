@@ -5,20 +5,20 @@ import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, "../.env") });
+
 const DATA_FILE = path.join(__dirname, "data.json");
 const PORT = process.env.PORT || 4000;
 
 const EMAIL_FROM = process.env.EMAIL_FROM || "noreply@uba.cm";
 const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || "UBa Complaint System";
 
-// ✅ Brevo API — sends over HTTPS, never blocked by Render
 async function sendNotificationEmail(to, subject, text) {
   if (!process.env.BREVO_API_KEY) {
-    console.warn("⚠️  BREVO_API_KEY not set. Email not sent.");
+    console.warn("⚠️ BREVO_API_KEY not set. Email not sent.");
     return;
   }
   try {
@@ -35,16 +35,14 @@ async function sendNotificationEmail(to, subject, text) {
         textContent: text,
       }),
     });
-
     const data = await response.json();
-
     if (!response.ok) {
       console.error(`❌ Failed to send email to ${to}:`, data.message || JSON.stringify(data));
     } else {
       console.log(`✅ Email sent to ${to}. Message ID: ${data.messageId}`);
     }
   } catch (err) {
-    console.error(`❌ Email error:`, err.message);
+    console.error(`❌ Email error:`, err.message, err.cause);
   }
 }
 
@@ -54,17 +52,15 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Serve static frontend build
 const distPath = path.join(__dirname, "../dist");
 app.use(express.static(distPath));
 
-// Data functions
 async function readData() {
   try {
     const raw = await readFile(DATA_FILE, "utf-8");
     return JSON.parse(raw);
   } catch (err) {
-    const defaultData = { users: [], complaints: [] };
+    const defaultData = { users: [], complaints: [], hods: [] };
     await writeFile(DATA_FILE, JSON.stringify(defaultData, null, 2), "utf-8");
     return defaultData;
   }
@@ -74,16 +70,32 @@ async function writeData(data) {
   await writeFile(DATA_FILE, JSON.stringify(data, null, 2), "utf-8");
 }
 
-// ============ API ROUTES ============
+// ========== AUTH MIDDLEWARE ==========
+async function authMiddleware(req, res, next) {
+  const userId = req.headers["x-user-id"];
+  if (!userId) {
+    req.user = null;
+    return next();
+  }
+  const data = await readData();
+  let user = data.users.find((u) => u.id === userId);
+  if (!user) user = data.users.find((u) => u.matricule === userId);
+  if (!user) return res.status(401).json({ message: "Invalid user" });
+  req.user = user;
+  next();
+}
+app.use(authMiddleware);
 
+// ========== API ROUTES ==========
 app.get("/api/health", (_, res) => res.json({ status: "ok" }));
 
+// ---------- AUTH ----------
 app.post("/api/auth/register", async (req, res) => {
   try {
     const newUser = req.body;
     const data = await readData();
     const existing = data.users.find(
-      (user) => user.matricule === newUser.matricule || user.email === newUser.email
+      (u) => u.matricule === newUser.matricule || u.email === newUser.email
     );
     if (existing) return res.status(400).json({ message: "Already registered." });
     const createdUser = {
@@ -105,10 +117,16 @@ app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password, matricule } = req.body;
     const data = await readData();
-    const user = data.users.find(
+    let user = data.users.find(
       (u) => u.email === email && u.password === password && u.matricule === matricule
     );
     if (!user) return res.status(401).json({ message: "Invalid credentials." });
+    if (!user.id) {
+      user.id = Date.now().toString();
+      const index = data.users.findIndex((u) => u.matricule === matricule);
+      data.users[index] = user;
+      await writeData(data);
+    }
     res.json(user);
   } catch (error) {
     console.error(error);
@@ -132,10 +150,49 @@ app.put("/api/users/:matricule", async (req, res) => {
   }
 });
 
-app.get("/api/complaints", async (_, res) => {
+// ---------- COMPLAINTS ----------
+app.get("/api/complaints", async (req, res) => {
   try {
     const data = await readData();
-    res.json(data.complaints || []);
+    let complaints = data.complaints || [];
+
+    if (!req.user) {
+      return res.json([]);
+    }
+
+    // Super admin sees all
+    if (req.user.role === "admin") {
+      return res.json(complaints);
+    }
+
+    // School admin filter
+    if (req.user.role === "school_admin" && req.user.school) {
+      complaints = complaints.filter((c) => {
+        // Exclude wide complaints
+        if (c.complaintType === "wide") return false;
+        if (c.school === "UNIVERSITY_WIDE") return false;
+        if (c.responsibleSchool === "UNIVERSITY_WIDE") return false;
+
+        // For elective complaints, match by student's original school
+        if (c.complaintType === "elective") {
+          const targetSchool = c.studentSchool || c.school;
+          return targetSchool === req.user.school;
+        }
+
+        // For departmental complaints, match by responsibleSchool (or fallback to school)
+        const targetSchool = c.responsibleSchool || c.school;
+        return targetSchool === req.user.school;
+      });
+      return res.json(complaints);
+    }
+
+    // Student sees own complaints
+    if (req.user.role === "student") {
+      complaints = complaints.filter((c) => c.userId === req.user.matricule);
+      return res.json(complaints);
+    }
+
+    res.json([]);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to load complaints." });
@@ -147,6 +204,19 @@ app.get("/api/complaints/:id", async (req, res) => {
     const data = await readData();
     const complaint = data.complaints.find((c) => c.id === req.params.id);
     if (!complaint) return res.status(404).json({ message: "Not found." });
+    if (req.user?.role === "school_admin") {
+      if (
+        complaint.complaintType === "wide" ||
+        complaint.school === "UNIVERSITY_WIDE" ||
+        complaint.responsibleSchool === "UNIVERSITY_WIDE"
+      ) {
+        return res.status(403).json({ message: "Access denied." });
+      }
+      const target = complaint.responsibleSchool || complaint.school;
+      if (target !== req.user.school) {
+        return res.status(403).json({ message: "Access denied." });
+      }
+    }
     res.json(complaint);
   } catch (error) {
     console.error(error);
@@ -168,6 +238,38 @@ app.post("/api/complaints", async (req, res) => {
     data.complaints.unshift(newComplaint);
     await writeData(data);
     res.status(201).json(newComplaint);
+
+    // HOD alert at 30 complaints for departmental/elective only
+    const course = newComplaint.courseTitle || newComplaint.course;
+    const department = newComplaint.department;
+    const school = newComplaint.studentSchool || newComplaint.school;
+    if (course && department && newComplaint.complaintType !== "wide") {
+      const courseComplaints = data.complaints.filter(
+        (c) => (c.courseTitle || c.course) === course
+      );
+      if (courseComplaints.length === 30) {
+        const hod = (data.hods || []).find(
+          (h) =>
+            h.department.toLowerCase().trim() === department.toLowerCase().trim() &&
+            h.school.toLowerCase().trim() === (school || "").toLowerCase().trim()
+        );
+        if (hod) {
+          const subject = `UBa Complaint System - Alert: 30 Complaints for ${course}`;
+          const message = `Dear ${hod.name},
+
+This is an automated alert from the UBa Complaint Management System.
+
+The course "${course}" in the ${department} department (${school}) has reached 30 complaints.
+
+Please review the complaints and take appropriate action.
+
+Best regards,
+UBa Complaint Management System`;
+          await sendNotificationEmail(hod.email, subject, message);
+          console.log(`🔔 HOD alert sent to ${hod.email} for course: ${course}`);
+        }
+      }
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to create complaint." });
@@ -181,14 +283,27 @@ app.put("/api/complaints/:id", async (req, res) => {
     const index = data.complaints.findIndex((c) => c.id === req.params.id);
     if (index === -1) return res.status(404).json({ message: "Not found." });
     const old = data.complaints[index];
+
+    if (req.user?.role === "school_admin") {
+      if (
+        old.complaintType === "wide" ||
+        old.school === "UNIVERSITY_WIDE" ||
+        old.responsibleSchool === "UNIVERSITY_WIDE"
+      ) {
+        return res.status(403).json({ message: "Access denied." });
+      }
+      const target = old.responsibleSchool || old.school;
+      if (target !== req.user.school) {
+        return res.status(403).json({ message: "Access denied." });
+      }
+    }
+
     const updated = { ...old, ...updates, lastUpdate: new Date().toISOString() };
     data.complaints[index] = updated;
     await writeData(data);
 
-    // ✅ Send email when status changes
     if (updates.status && updates.status !== old.status && old.email) {
-      const statusText =
-        updates.status.charAt(0).toUpperCase() + updates.status.slice(1);
+      const statusText = updates.status.charAt(0).toUpperCase() + updates.status.slice(1);
       const subject = `UBa Complaint System - Status Update: ${statusText}`;
       const message = `Dear ${old.name || "Student"},
 
@@ -205,7 +320,6 @@ Please log in to your dashboard for details.
 
 Best regards,
 UBa Complaint Management System`;
-
       await sendNotificationEmail(old.email, subject, message);
     }
 
@@ -219,8 +333,18 @@ UBa Complaint Management System`;
 app.delete("/api/complaints/:id", async (req, res) => {
   try {
     const data = await readData();
-    const exists = data.complaints.some((c) => c.id === req.params.id);
-    if (!exists) return res.status(404).json({ message: "Not found." });
+    const complaint = data.complaints.find((c) => c.id === req.params.id);
+    if (!complaint) return res.status(404).json({ message: "Not found." });
+    if (req.user?.role === "school_admin") {
+      const target = complaint.responsibleSchool || complaint.school;
+      if (
+        complaint.complaintType === "wide" ||
+        complaint.school === "UNIVERSITY_WIDE" ||
+        target !== req.user.school
+      ) {
+        return res.status(403).json({ message: "Access denied." });
+      }
+    }
     data.complaints = data.complaints.filter((c) => c.id !== req.params.id);
     await writeData(data);
     res.json({ message: "Deleted." });
@@ -230,7 +354,56 @@ app.delete("/api/complaints/:id", async (req, res) => {
   }
 });
 
-// Catch-all for React Router (must be last)
+// ---------- HODs ----------
+app.get("/api/hods", async (_, res) => {
+  try {
+    const data = await readData();
+    res.json(data.hods || []);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to load HODs." });
+  }
+});
+
+app.post("/api/hods", async (req, res) => {
+  try {
+    const { name, email, school, department } = req.body;
+    if (!name || !email || !school || !department)
+      return res.status(400).json({ message: "Name, email, school and department are required." });
+    const data = await readData();
+    if (!data.hods) data.hods = [];
+    const newHod = {
+      id: Date.now().toString(),
+      name,
+      email,
+      school,
+      department,
+      createdAt: new Date().toISOString(),
+    };
+    data.hods.push(newHod);
+    await writeData(data);
+    res.status(201).json(newHod);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to add HOD." });
+  }
+});
+
+app.delete("/api/hods/:id", async (req, res) => {
+  try {
+    const data = await readData();
+    const exists = (data.hods || []).some((h) => h.id === req.params.id);
+    if (!exists) return res.status(404).json({ message: "HOD not found." });
+    data.hods = data.hods.filter((h) => h.id !== req.params.id);
+    await writeData(data);
+    res.json({ message: "HOD deleted." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to delete HOD." });
+  }
+});
+
+// Catch-all for React Router
 app.get("*", (req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });

@@ -73,6 +73,13 @@ export const getTranslation = (lang, key) => {
       name: "Name",
       phone: "Phone",
       profile_image_alt: "Profile Picture",
+      complaints_by_department: "Complaints by Department",
+      complaint_system: "Complaint System",
+      student_portal: "Student Portal",
+      departments_title: "Departments",
+      departments_subtitle: "Complaints by department in",
+      department_performance_details: "Department Performance Details",
+      student_system: "Student System",
 
       // ========== ADMIN REPORTS ==========
       reports_title: "Reports",
@@ -315,6 +322,13 @@ export const getTranslation = (lang, key) => {
       name: "Nom",
       phone: "Téléphone",
       profile_image_alt: "Photo de profil",
+      complaint_system: "Système de réclamation",
+      student_portal: "Portail étudiant",
+      departments_title: "Départements",
+      departments_subtitle: "Réclamations par département dans",
+      department_performance_details: "Détails de performance par département",    
+      student_system: "Système étudiant",
+      
 
       // ========== RAPPORTS ADMIN ==========
       reports_title: "Rapports",
@@ -481,6 +495,7 @@ export const getTranslation = (lang, key) => {
       admin: "Admin",
       screenshot: "Capture d'écran",
       cancel: "Annuler",
+      complaints_by_department: "Réclamations par département",
     },
   };
 

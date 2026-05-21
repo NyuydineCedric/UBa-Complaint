@@ -229,6 +229,7 @@ body.dark-mode .chart-card h3 {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  
 }
 .horizontal-bar-item {
   display: flex;
@@ -248,7 +249,7 @@ body.dark-mode .school-label {
   flex: 1;
   background: #F3F4F6;
   border-radius: 30px;
-  height: 24px;
+  height: 12px !important;
   overflow: hidden;
 }
 body.dark-mode .bar-bg {
@@ -404,15 +405,15 @@ body.dark-mode .complaint-id {
   color: #E5E7EB;
 }
 .type-badge {
-  background: #EEF2FF;
+  
     border-radius: 30px;
   font-size: 0.7rem;
   font-weight: 500;
   text-align: center;
 }
 body.dark-mode .type-badge {
-  background: #4338CA;
-  color: #C7D2FE;
+  
+  color: #efeff5;
 }
 .status-badge {
   display: inline-block;
@@ -423,14 +424,14 @@ body.dark-mode .type-badge {
   min-width: 80px;
   text-align: center;
 }
-.status-pending { background: #FEF3C7; color: #D97706; }
-.status-in-progress { background: #DBEAFE; color: #2563EB; }
-.status-resolved { background: #D1FAE5; color: #059669; }
-.status-rejected { background: #FEE2E2; color: #DC2626; }
-body.dark-mode .status-pending { background: #422B0F; color: #FBBF24; }
-body.dark-mode .status-in-progress { background: #1E3A8A; color: #93C5FD; }
-body.dark-mode .status-resolved { background: #064E3B; color: #34D399; }
-body.dark-mode .status-rejected { background: #7F1D1D; color: #FCA5A5; }
+.status-pending { background: #FEF3C7; color: #D97706; font-size: 8px !important;}
+.status-in-progress { background: #DBEAFE; color: #2563EB; font-size: 8px !important;}
+.status-resolved { background: #D1FAE5; color: #059669; font-size: 8px !important;}
+.status-rejected { background: #FEE2E2; color: #DC2626; font-size: 8px !important;}
+body.dark-mode .status-pending { background: #422B0F; color: #FBBF24; font-size: 8px}
+body.dark-mode .status-in-progress { background: #1E3A8A; color: #93C5FD; font-size: 8px;}
+body.dark-mode .status-resolved { background: #064E3B; color: #34D399; font-size: 8px;}
+body.dark-mode .status-rejected { background: #7F1D1D; color: #FCA5A5; font-size: 8px;}
 
 .btn-view {
   background: none;

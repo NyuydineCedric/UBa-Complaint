@@ -391,6 +391,7 @@ function RegisterPage() {
                   name="agreeToTerms"
                   checked={formData.agreeToTerms}
                   onChange={handleChange}
+                  style={{ marginRight: "10px" }}
                 />
                 I agree to the <Link to="/terms">Terms of Service</Link> and{" "}
                 <Link to="/privacy">Privacy Policy</Link>
@@ -411,7 +412,7 @@ function RegisterPage() {
 
         {/* INFO BOX */}
         <div className="register-info-box">
-          <h2>📋 Registration Guide</h2>
+          <h2>Registration Guide</h2>
           <div style={{ marginTop: "10px" }}>
             <p>
               <strong>Step 1:</strong> Fill in your personal details

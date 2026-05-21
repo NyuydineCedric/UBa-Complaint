@@ -3,60 +3,110 @@ import "./submitcomplaint.css";
 import "./StudentStyle.css";
 import { AppContext } from "../../context/AppContext";
 import { X, Paperclip } from "lucide-react";
+import { SCHOOLS_DATA } from "../../utils/schoolData";
 
 export default function Submit() {
   const { user, addComplaint, showToast, complaints, t } =
     useContext(AppContext);
 
-  const initialForm = {
-    courseCode: "",
-    courseTitle: "",
+  const [complaintType, setComplaintType] = useState("departmental");
+  const [availableCourses, setAvailableCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [form, setForm] = useState({
     semester: "",
     year: "",
     type: "",
     description: "",
-  };
-
-  const [form, setForm] = useState(() => {
-    if (typeof window === "undefined") return initialForm;
-    const draft = localStorage.getItem("complaint_draft");
-    if (!draft) return initialForm;
-
-    try {
-      const parsed = JSON.parse(draft);
-      return { ...initialForm, ...parsed.form };
-    } catch {
-      return initialForm;
-    }
   });
+  const [files, setFiles] = useState([]);
 
-  const [files, setFiles] = useState(() => {
-    if (typeof window === "undefined") return [];
-    const draft = localStorage.getItem("complaint_draft");
-    if (!draft) return [];
-
-    try {
-      const parsed = JSON.parse(draft);
-      return parsed.files || [];
-    } catch {
-      return [];
-    }
-  });
-
-  // Auto save draft
   useEffect(() => {
-    localStorage.setItem("complaint_draft", JSON.stringify({ form, files }));
-  }, [form, files]);
+    const draft = localStorage.getItem("complaint_draft");
+    if (draft) {
+      try {
+        const parsed = JSON.parse(draft);
+        setComplaintType(parsed.complaintType || "departmental");
+        setSelectedCourse(parsed.selectedCourse || null);
+        setForm(
+          parsed.form || { semester: "", year: "", type: "", description: "" },
+        );
+        setFiles(parsed.files || []);
+      } catch {}
+    }
+  }, []);
 
+  useEffect(() => {
+    localStorage.setItem(
+      "complaint_draft",
+      JSON.stringify({ complaintType, selectedCourse, form, files }),
+    );
+  }, [complaintType, selectedCourse, form, files]);
+
+  useEffect(() => {
+    if (!user) return;
+    const studentDept = user.department;
+    const studentSchool = user.school;
+    let courses = [];
+
+    if (complaintType === "departmental") {
+      const schoolObj = SCHOOLS_DATA.find((s) => s.id === studentSchool);
+      const deptObj = schoolObj?.departments.find(
+        (d) => d.name === studentDept || d.id === studentDept,
+      );
+      if (deptObj) {
+        courses = deptObj.courses.map((c) => ({
+          code: c.code,
+          name: c.name,
+          offeredBy: studentSchool,
+        }));
+      }
+    } else if (complaintType === "wide") {
+      const wideDepartments = ["GNS", "UBALAC"];
+      for (const school of SCHOOLS_DATA) {
+        for (const dept of school.departments) {
+          if (wideDepartments.includes(dept.id)) {
+            dept.courses.forEach((c) => {
+              courses.push({
+                code: c.code,
+                name: c.name,
+                offeredBy: "UNIVERSITY_WIDE",
+              });
+            });
+          }
+        }
+      }
+    } else if (complaintType === "elective") {
+      const schoolObj = SCHOOLS_DATA.find((s) => s.id === studentSchool);
+      if (schoolObj) {
+        for (const dept of schoolObj.departments) {
+          if (dept.name !== studentDept && dept.id !== studentDept) {
+            dept.courses.forEach((c) => {
+              courses.push({
+                code: c.code,
+                name: c.name,
+                offeredBy: studentSchool,
+              });
+            });
+          }
+        }
+      }
+    }
+
+    setAvailableCourses(courses);
+    setSelectedCourse(null);
+  }, [complaintType, user]);
+
+  const handleComplaintTypeChange = (e) => setComplaintType(e.target.value);
+  const handleCourseChange = (e) => {
+    const course = availableCourses.find((c) => c.code === e.target.value);
+    setSelectedCourse(course);
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
-
-  // File conversion
   const convertFiles = (fileList) => {
-    const arr = Array.from(fileList);
-    arr.forEach((file) => {
+    Array.from(fileList).forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setFiles((prev) => [
@@ -72,83 +122,78 @@ export default function Submit() {
       reader.readAsDataURL(file);
     });
   };
-
-  const handleFile = (e) => {
-    convertFiles(e.target.files);
-  };
-
-  const removeFile = (index) => {
+  const handleFile = (e) => convertFiles(e.target.files);
+  const removeFile = (index) =>
     setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
 
-  // Duplicate check
   const isDuplicate = () => {
+    if (!selectedCourse) return false;
     return complaints.some(
       (c) =>
-        c.course === form.courseCode &&
+        c.course === selectedCourse.code &&
         c.type === form.type &&
         c.userId === user?.matricule,
     );
   };
 
-  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (
-      !form.courseCode ||
-      !form.courseTitle ||
-      !form.semester ||
-      !form.year ||
-      !form.type ||
-      !form.description
-    ) {
+    if (!selectedCourse) {
+      showToast("Please select a course", "error");
+      return;
+    }
+    if (!form.semester || !form.year || !form.type || !form.description) {
       showToast(t("required_field"), "error");
       return;
     }
-
-    // Check if file is required for CA Mark
     if (form.type === "CA Mark" && files.length === 0) {
       showToast(t("attach_proof"), "error");
       return;
     }
-
     if (form.description.length < 10) {
       showToast(t("description_too_short"), "error");
       return;
     }
-
     if (isDuplicate()) {
       showToast(t("duplicate_complaint"), "error");
       return;
     }
 
     const currentUser = user || {};
+    const schoolToStore =
+      complaintType === "wide" ? "UNIVERSITY_WIDE" : selectedCourse.offeredBy;
+    const responsibleSchool =
+      complaintType === "wide" ? "UNIVERSITY_WIDE" : selectedCourse.offeredBy;
 
     const newComplaint = {
-      userId: currentUser.matricule || user?.matricule,
+      userId: currentUser.matricule,
       student: currentUser.name || "Unknown",
-      studentId: currentUser.matricule || "N/A",
-      name: currentUser.name || "Unknown",
-      email: currentUser.email || "N/A",
-      department: currentUser.department || "N/A",
-      school: currentUser.school || "N/A",
-      level: currentUser.level || "N/A",
-      phoneNumber: currentUser.phoneNumber || "N/A",
-      program: currentUser.program || currentUser.department || "N/A",
-      title: `${form.type} - ${form.courseCode}`,
-      course: form.courseCode,
-      courseTitle: form.courseTitle,
+      studentId: currentUser.matricule,
+      name: currentUser.name,
+      email: currentUser.email,
+      department: currentUser.department,
+      school: schoolToStore,
+      studentSchool: currentUser.school, // ✅ always the student's real school for display
+      level: currentUser.level,
+      phoneNumber: currentUser.phoneNumber,
+      program: currentUser.program || currentUser.department,
+      title: `${form.type} - ${selectedCourse.code}`,
+      course: selectedCourse.code,
+      courseTitle: selectedCourse.name,
       semester: form.semester,
       year: form.year,
       type: form.type,
       description: form.description,
       details: form.description,
       files,
+      complaintType,
+      responsibleSchool,
     };
 
     await addComplaint(newComplaint);
-    setForm(initialForm);
+    setComplaintType("departmental");
+    setSelectedCourse(null);
+    setForm({ semester: "", year: "", type: "", description: "" });
     setFiles([]);
     localStorage.removeItem("complaint_draft");
   };
@@ -156,31 +201,36 @@ export default function Submit() {
   return (
     <div className="student-submit-page">
       <h2 className="student-page-title">{t("submit_complaint_title")}</h2>
-
       <form className="student-form" onSubmit={handleSubmit}>
         <div className="student-form-group">
-          <label>{t("course_name_label")}</label>
-          <input
-            type="text"
-            name="courseTitle"
-            value={form.courseTitle}
-            onChange={handleChange}
-            className="student-input"
-            placeholder={t("course_name_label")}
+          <label>Complaint Type</label>
+          <select
+            value={complaintType}
+            onChange={handleComplaintTypeChange}
+            className="student-select"
             required
-          />
+          >
+            <option value="departmental">Departmental Course</option>
+            <option value="wide">University‑wide Course</option>
+            <option value="elective">Elective Course (borrowed)</option>
+          </select>
         </div>
+
         <div className="student-form-group">
-          <label>{t("course_code_label")}</label>
-          <input
-            type="text"
-            name="courseCode"
-            value={form.courseCode}
-            onChange={handleChange}
-            className="student-input"
-            placeholder={t("course_code_label")}
+          <label>Course</label>
+          <select
+            value={selectedCourse?.code || ""}
+            onChange={handleCourseChange}
+            className="student-select"
             required
-          />
+          >
+            <option value="">Select a course</option>
+            {availableCourses.map((course) => (
+              <option key={course.code} value={course.code}>
+                {course.code} – {course.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="student-form-group">
@@ -193,9 +243,9 @@ export default function Submit() {
             required
           >
             <option value="">{t("semester")}</option>
-            <option value="1">{t("semester")} 1</option>
-            <option value="2">{t("semester")} 2</option>
-            <option value="3">Resit {t("semester")}</option>
+            <option value="1">Semester 1</option>
+            <option value="2">Semester 2</option>
+            <option value="3">Resit Semester</option>
           </select>
         </div>
 
@@ -248,22 +298,6 @@ export default function Submit() {
                 className="file-upload-input"
               />
             </div>
-            {files.length > 0 && (
-              <div className="file-preview-list">
-                {files.map((file, index) => (
-                  <div key={index} className="file-preview-item">
-                    <span>{file.name}</span>
-                    <button
-                      type="button"
-                      className="remove-file-btn"
-                      onClick={() => removeFile(index)}
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
 
@@ -279,7 +313,6 @@ export default function Submit() {
           />
         </div>
 
-        {/* FILE PREVIEW */}
         {files.length > 0 && (
           <div className="file-preview">
             {files.map((f, i) => (
@@ -297,7 +330,6 @@ export default function Submit() {
           </div>
         )}
 
-        {/* SUBMIT */}
         <button type="submit" className="student-submit-btn">
           {t("submit_complaint")}
         </button>

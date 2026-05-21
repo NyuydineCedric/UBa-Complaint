@@ -167,7 +167,7 @@ function ComplaintDetail() {
             </div>
             <div className="info-row">
               <span className="info-label">{t("school_label")}: </span>
-              <span>{complaint.school}</span>
+              <span>{complaint.studentSchool || complaint.school}</span>
             </div>
           </div>
 
@@ -177,7 +177,11 @@ function ComplaintDetail() {
             </h3>
             <div className="info-row">
               <span className="info-label">{t("submitted_label")}: </span>
-              <span>{complaint.submitted}</span>
+              <span>
+                {complaint.submittedDate
+                  ? new Date(complaint.submittedDate).toLocaleDateString()
+                  : complaint.submitted || "N/A"}
+              </span>
             </div>
             <div className="info-row">
               <span className="info-label">{t("last_update")}: </span>

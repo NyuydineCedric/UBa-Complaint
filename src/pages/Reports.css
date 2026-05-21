@@ -128,6 +128,7 @@ body.dark-mode .summary-card h2 {
   cursor: pointer;
   transition: all 0.2s;
   color: #475569;
+  margin-top: 20px;
 }
 
 body.dark-mode .period-selector button {
@@ -139,6 +140,7 @@ body.dark-mode .period-selector button {
   background: #3b82f6;
   color: white;
   box-shadow: 0 2px 6px rgba(59,130,246,0.3);
+  margin-top: 20px;
 }
 
 .report-chip {
@@ -300,7 +302,7 @@ body.dark-mode .legend-text {
   flex-direction: column;
   gap: 20px;
   margin-top: 20px;
-  width: 100%;
+  
 }
 
 .bar-item {
@@ -327,7 +329,7 @@ body.dark-mode .bar-label {
   flex: 1;
   background: #f1f5f9;
   border-radius: 30px;
-  height: 32px;
+  height: 14px;
   overflow: hidden;
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
 }

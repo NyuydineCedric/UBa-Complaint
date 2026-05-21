@@ -54,7 +54,7 @@ export default function Dashboard() {
         >
           {t("welcome_back_student").replace("{{name}}", user?.name || "User")}
         </h1>
-        <p style={{ color: "var(--student-text-secondary)", fontSize: "16px",  }}>
+        <p style={{ color: "var(--student-text-secondary)", fontSize: "16px" }}>
           {t("heres_whats_happening")}
         </p>
       </div>

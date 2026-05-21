@@ -27,11 +27,20 @@ function Layout() {
     unreadNotifications,
     setUnreadNotifications,
     complaints,
+    currentUser,
   } = useContext(AppContext);
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const navigate = useNavigate();
+
+  const isSchoolAdmin = currentUser?.role === "school_admin";
+  const schoolCode = currentUser?.school;
+
+  // Sidebar header text: for school admin, show "UBa COLTECH Admin", else app name
+  const sidebarHeaderText =
+    isSchoolAdmin && schoolCode ? `${schoolCode} Admin` : t("app_name");
 
   const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
   const toggleMobileSidebar = () => setMobileSidebarOpen(!mobileSidebarOpen);
@@ -41,15 +50,18 @@ function Layout() {
     logout();
     navigate("/login");
   };
+
   const handleNotificationClick = () => {
     setUnreadNotifications(0);
     setShowNotifications(!showNotifications);
   };
+
   const handleViewComplaint = (id) => {
     setShowNotifications(false);
     navigate(`/complaints/${id}`);
   };
 
+  // Notifications: show all complaints (no filtering) – original behavior
   const recentComplaints = complaints
     .sort((a, b) => new Date(b.submittedDate) - new Date(a.submittedDate))
     .slice(0, 5);
@@ -64,7 +76,11 @@ function Layout() {
           <div className="logo-circle">
             <img src={ubalogo} alt="UBa Logo" className="logo-img" />
           </div>
-          {!sidebarCollapsed && <h2>{t("app_name")}</h2>}
+          {!sidebarCollapsed && (
+            <h2 className={isSchoolAdmin ? "sidebar-header-school-admin" : ""}>
+              {sidebarHeaderText}
+            </h2>
+          )}
 
           <button className="sidebar-menu-btn" onClick={toggleSidebar}>
             <Menu size={20} />
@@ -97,7 +113,9 @@ function Layout() {
           <Link to="/schools" className="nav-item" onClick={closeMobileSidebar}>
             <School size={20} className="nav-icon" />
             {!sidebarCollapsed && (
-              <span className="nav-text">{t("schools")}</span>
+              <span className="nav-text">
+                {isSchoolAdmin ? "Departments" : t("schools")}
+              </span>
             )}
           </Link>
           <Link

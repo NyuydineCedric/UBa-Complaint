@@ -1,4 +1,4 @@
-/* Register.css */
+/* Register.css – follows device theme, uniform placeholder styling */
 .register-container {
   min-height: 100vh;
   display: flex;
@@ -21,6 +21,7 @@
   width: 100%;
 }
 
+/* Light mode (default) */
 .register-card {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 28px;
@@ -30,10 +31,6 @@
   box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.15);
   flex: 1;
   backdrop-filter: blur(10px);
-}
-
-[data-theme='dark'] .register-card {
-  background: rgba(30, 41, 59, 0.95);
 }
 
 .register-header {
@@ -55,17 +52,9 @@
   margin: 0.5rem 0 5px;
 }
 
-[data-theme='dark'] .register-header h1 {
-  color: #F8FAFC;
-}
-
 .register-header p {
   color: #6b7280;
   margin: 0.25rem 0;
-}
-
-[data-theme='dark'] .register-header p {
-  color: #94A3B8;
 }
 
 .register-subtitle {
@@ -83,11 +72,6 @@
   border-bottom: 2px solid #e5e7eb;
 }
 
-[data-theme='dark'] .section-title {
-  color: #818CF8;
-  border-bottom-color: #334155;
-}
-
 .form-group {
   margin-bottom: 1rem;
   text-align: left;
@@ -99,10 +83,6 @@
   font-weight: 600;
   color: #374151;
   margin-bottom: 0.5rem;
-}
-
-[data-theme='dark'] .form-group label {
-  color: #F8FAFC;
 }
 
 .input-wrapper {
@@ -130,21 +110,10 @@
   color: #111827;
 }
 
-[data-theme='dark'] .input-field {
-  background: #0F172A;
-  border-color: #334155;
-  color: #F8FAFC;
-}
-
 .input-field:focus {
   outline: none;
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-[data-theme='dark'] .input-field:focus {
-  border-color: #818CF8;
-  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
 }
 
 .input-field:disabled {
@@ -152,58 +121,115 @@
   cursor: not-allowed;
 }
 
-[data-theme='dark'] .input-field:disabled {
-  background: #1E293B;
-}
-
-/* SELECT STYLING - FIXED */
+/* ========== SELECT STYLES (no custom arrow, consistent placeholder) ========== */
 select.input-field {
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 36px;
-}
-
-[data-theme='dark'] select.input-field {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394A3B8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-}
-
-/* SELECT OPTIONS STYLING */
-select.input-field option {
-  background: white;
+  /* Keep native browser arrow – do NOT override appearance */
+  background: white; /* ensure same as input */
   color: #111827;
+}
+
+/* The first option (placeholder) must look like input placeholder */
+select.input-field option:first-child {
+  color: #9ca3af;
+  font-size: 1rem;
+  font-weight: normal;
+}
+
+/* All other options keep normal text color */
+select.input-field option {
+  color: #111827;
+  background: white;
   padding: 8px;
 }
 
-[data-theme='dark'] select.input-field option {
-  background: #1E293B;
-  color: #F8FAFC;
-}
-
+/* Hover effect for options (optional) */
 select.input-field option:hover {
   background: #6366f1;
   color: white;
 }
 
-[data-theme='dark'] select.input-field option:hover {
-  background: #818CF8;
-  color: white;
+/* ========== DARK MODE – follows device system theme ========== */
+@media (prefers-color-scheme: dark) {
+  .register-card {
+    background: rgba(30, 41, 59, 0.95);
+  }
+  .register-header h1 {
+    color: #F8FAFC;
+  }
+  .register-header p {
+    color: #94A3B8;
+  }
+  .section-title {
+    color: #818CF8;
+    border-bottom-color: #334155;
+  }
+  .form-group label {
+    color: #F8FAFC;
+  }
+  .input-field {
+    background: #0F172A;
+    border-color: #334155;
+    color: #F8FAFC;
+  }
+  .input-field:focus {
+    border-color: #818CF8;
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
+  }
+  .input-field:disabled {
+    background: #1E293B;
+  }
+  select.input-field {
+    background: #0F172A;
+    color: #F8FAFC;
+    border-color: #334155;
+  }
+  select.input-field option:first-child {
+    color: #64748b; /* darker gray in dark mode */
+  }
+  select.input-field option {
+    background: #1E293B;
+    color: #F8FAFC;
+  }
+  select.input-field option:hover {
+    background: #818CF8;
+    color: white;
+  }
+  .checkbox-label {
+    color: #F8FAFC;
+  }
+  .checkbox-label a {
+    color: #818CF8;
+  }
+  .error-message {
+    background: #1E293B;
+    color: #F87171;
+    border: 1px solid #ef4444;
+  }
+  .login-link {
+    color: #94A3B8;
+  }
+  .login-link a {
+    color: #818CF8;
+  }
+  .register-info-box {
+    background: rgba(30, 41, 59, 0.95);
+  }
+  .register-info-box h2 {
+    color: #F8FAFC;
+  }
+  .register-info-box p {
+    color: #94A3B8;
+  }
+  .success-card h1 {
+    color: #F8FAFC;
+  }
+  .success-card p {
+    color: #94A3B8;
+  }
 }
 
-/* For Firefox */
-select.input-field:-moz-focusring {
-  color: transparent;
-  text-shadow: 0 0 0 #000;
-}
-
-[data-theme='dark'] select.input-field:-moz-focusring {
-  text-shadow: 0 0 0 #F8FAFC;
-}
-
+/* ========== OTHER STYLES (unchanged) ========== */
 .password-toggle {
   position: absolute;
   right: 12px;
@@ -231,21 +257,12 @@ select.input-field:-moz-focusring {
   color: #374151;
 }
 
-[data-theme='dark'] .checkbox-label {
-  color: #F8FAFC;
-}
-
 .checkbox-label a {
   color: #6366f1;
   text-decoration: none;
 }
-
 .checkbox-label a:hover {
   text-decoration: underline;
-}
-
-[data-theme='dark'] .checkbox-label a {
-  color: #818CF8;
 }
 
 .error-message {
@@ -261,12 +278,6 @@ select.input-field:-moz-focusring {
   gap: 8px;
 }
 
-[data-theme='dark'] .error-message {
-  background: #1E293B;
-  color: #F87171;
-  border: 1px solid #ef4444;
-}
-
 .register-btn {
   width: 100%;
   padding: 0.75rem;
@@ -280,13 +291,11 @@ select.input-field:-moz-focusring {
   transition: all 0.2s;
   margin-top: 0.5rem;
 }
-
 .register-btn:hover {
   background: #4f46e5;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
-
 .register-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
@@ -299,23 +308,13 @@ select.input-field:-moz-focusring {
   font-size: 0.875rem;
   color: #6b7280;
 }
-
-[data-theme='dark'] .login-link {
-  color: #94A3B8;
-}
-
 .login-link a {
   color: #6366f1;
   font-weight: 600;
   text-decoration: none;
 }
-
 .login-link a:hover {
   text-decoration: underline;
-}
-
-[data-theme='dark'] .login-link a {
-  color: #818CF8;
 }
 
 .register-info-box {
@@ -326,22 +325,12 @@ select.input-field:-moz-focusring {
   box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(10px);
 }
-
-[data-theme='dark'] .register-info-box {
-  background: rgba(30, 41, 59, 0.95);
-}
-
 .register-info-box h2 {
   font-size: 1.3rem;
   font-weight: 700;
   color: #111827;
   margin-bottom: 1rem;
 }
-
-[data-theme='dark'] .register-info-box h2 {
-  color: #F8FAFC;
-}
-
 .register-info-box p {
   font-size: 0.9rem;
   color: #6b7280;
@@ -349,32 +338,18 @@ select.input-field:-moz-focusring {
   line-height: 1.6;
 }
 
-[data-theme='dark'] .register-info-box p {
-  color: #94A3B8;
-}
-
 .success-card {
   text-align: center;
   padding: 3rem;
 }
-
 .success-card h1 {
   font-size: 1.8rem;
   margin: 1rem 0;
   color: #111827;
 }
-
-[data-theme='dark'] .success-card h1 {
-  color: #F8FAFC;
-}
-
 .success-card p {
   color: #6b7280;
   margin-bottom: 0.5rem;
-}
-
-[data-theme='dark'] .success-card p {
-  color: #94A3B8;
 }
 
 /* Responsive */
@@ -383,71 +358,50 @@ select.input-field:-moz-focusring {
     flex-direction: column;
     align-items: center;
   }
-  
   .register-info-box {
     max-width: 550px;
     width: 100%;
   }
 }
-
 @media (max-width: 640px) {
   .register-card {
     padding: 1.5rem;
   }
-  
   .register-logo {
-    width: 60px;
-    height: 60px;
+    width: 180px;
+    height: 180px;
   }
-  
   .register-header h1 {
     font-size: 1.5rem;
   }
-  
   .register-info-box {
     padding: 1.5rem;
   }
-  
   .register-info-box h2 {
     font-size: 1.1rem;
   }
 }
 
-/* Additional Styles */
+/* Utility */
 .form-group:last-child {
   margin-bottom: 0;
 }
-
 .input-field::placeholder {
   color: #9ca3af;
 }
-
-[data-theme='dark'] .input-field::placeholder {
-  color: #64748b;
-}
-
-/* Scrollbar for register card */
 .register-card::-webkit-scrollbar {
   width: 4px;
 }
-
 .register-card::-webkit-scrollbar-track {
   background: transparent;
 }
-
 .register-card::-webkit-scrollbar-thumb {
   background: #6366f1;
   border-radius: 4px;
 }
-
-[data-theme='dark'] .register-card::-webkit-scrollbar-thumb {
-  background: #818CF8;
-}
-
 .success-card {
   animation: fadeInUp 0.5s ease;
 }
-
 @keyframes fadeInUp {
   from {
     opacity: 0;
