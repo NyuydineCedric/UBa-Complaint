@@ -6,36 +6,32 @@ import { Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { SCHOOLS_DATA } from "../utils/schoolData";
 
 function AllComplaints() {
-  const { complaints, searchQuery, setSearchQuery, t, currentUser } =
-    useContext(AppContext);
+  const {
+    complaints,
+    searchQuery,
+    setSearchQuery,
+    t,
+    currentUser,
+    updateComplaint,
+  } = useContext(AppContext);
   const navigate = useNavigate();
   const [filtered, setFiltered] = useState([]);
   const [filters, setFilters] = useState({
     status: "",
-    complaintType: "",
+    school: "",
+    category: "",
     type: "",
+    department: "",
   });
-
   const [quickFilter, setQuickFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   const isSuperAdmin = currentUser?.role === "admin";
   const isSchoolAdmin = currentUser?.role === "school_admin";
+  const isHOD = currentUser?.role === "hod";
+  const canApprove = isHOD || isSchoolAdmin || isSuperAdmin;
   const defaultFilterApplied = useRef(false);
-
-  useEffect(() => {
-    if (isSuperAdmin && !defaultFilterApplied.current) {
-      setFilters((prev) => ({ ...prev, complaintType: "wide" }));
-      defaultFilterApplied.current = true;
-    }
-  }, [isSuperAdmin]);
-
-  const allSchools = SCHOOLS_DATA.map((s) => ({
-    id: s.id,
-    name: s.name,
-    shortName: s.shortName,
-  }));
 
   const simplifyType = (type) => {
     if (!type) return "CA Mark";
@@ -57,10 +53,8 @@ function AllComplaints() {
   const getSchoolStats = (arr) => {
     const map = new Map();
     arr.forEach((c) => {
-      const label =
-        c.complaintType === "wide" || c.school === "UNIVERSITY_WIDE"
-          ? "University Wide"
-          : c.school || "Unknown";
+      // Always use studentSchool for display grouping
+      const label = c.studentSchool || c.school || "Unknown";
       map.set(label, (map.get(label) || 0) + 1);
     });
     return Array.from(map.entries()).map(([label, count]) => ({
@@ -69,10 +63,27 @@ function AllComplaints() {
     }));
   };
 
+  const getDepartmentListForSchoolAdmin = () => {
+    if (!isSchoolAdmin || !currentUser?.school) return [];
+    const school = SCHOOLS_DATA.find((s) => s.id === currentUser.school);
+    if (!school) return [];
+    return [...new Set(school.departments.map((d) => d.name))];
+  };
+  const departmentOptions = getDepartmentListForSchoolAdmin();
+  const allSchools = SCHOOLS_DATA.map((s) => ({ id: s.id, name: s.shortName }));
+
+  // Default: super admin sees wide complaints on load
+  useEffect(() => {
+    if (isSuperAdmin && !defaultFilterApplied.current) {
+      setFilters((prev) => ({ ...prev, category: "wide" }));
+      defaultFilterApplied.current = true;
+    }
+  }, [isSuperAdmin]);
+
   useEffect(() => {
     let f = [...complaints];
 
-    // School admin safety net
+    // School admin: only their school, never wide
     if (isSchoolAdmin && currentUser?.school) {
       f = f.filter((c) => {
         if (
@@ -84,6 +95,11 @@ function AllComplaints() {
         const target = c.responsibleSchool || c.school;
         return target === currentUser.school;
       });
+    }
+
+    // HOD filter
+    if (isHOD && currentUser?.department) {
+      f = f.filter((c) => c.department === currentUser.department);
     }
 
     // Search
@@ -105,29 +121,35 @@ function AllComplaints() {
     if (filters.type)
       f = f.filter((c) => simplifyType(c.type) === filters.type);
 
-    // Complaint category filter — super admin only
-    // This IS the main school filter for super admin:
-    // "wide" shows university-wide complaints
-    // a school id shows that school's complaints only
-    // empty shows all
-    if (filters.complaintType && isSuperAdmin) {
-      if (filters.complaintType === "wide") {
+    // Super admin: school filter
+    // ✅ Uses studentSchool so wide complaints are matched by the student's real school
+    if (isSuperAdmin && filters.school) {
+      f = f.filter((c) => {
+        const school = c.studentSchool || c.school;
+        return school === filters.school;
+      });
+    }
+
+    // Super admin: category filter — applied after school filter
+    // so "NAHPI + wide" = only NAHPI students' wide complaints
+    if (isSuperAdmin && filters.category) {
+      if (filters.category === "wide") {
         f = f.filter(
           (c) => c.complaintType === "wide" || c.school === "UNIVERSITY_WIDE",
         );
-      } else {
-        // It's a school id like "NAHPI", "COLTECH", etc.
-        f = f.filter(
-          (c) =>
-            c.complaintType !== "wide" &&
-            c.school !== "UNIVERSITY_WIDE" &&
-            (c.responsibleSchool === filters.complaintType ||
-              c.school === filters.complaintType),
-        );
+      } else if (filters.category === "departmental") {
+        f = f.filter((c) => c.complaintType === "departmental");
+      } else if (filters.category === "elective") {
+        f = f.filter((c) => c.complaintType === "elective");
       }
     }
 
-    // Quick filter by status
+    // School admin: department filter
+    if (isSchoolAdmin && filters.department) {
+      f = f.filter((c) => c.department === filters.department);
+    }
+
+    // Quick filter
     if (quickFilter !== "All") {
       const map = {
         Pending: "pending",
@@ -142,7 +164,7 @@ function AllComplaints() {
     f.sort((a, b) => new Date(b.submittedDate) - new Date(a.submittedDate));
     setFiltered(f);
     setCurrentPage(1);
-  }, [complaints, searchQuery, filters, quickFilter, currentUser]);
+  }, [complaints, searchQuery, filters, quickFilter, currentUser, isHOD]);
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const paginated = filtered.slice(
@@ -160,7 +182,7 @@ function AllComplaints() {
 
   const chartData = isSchoolAdmin
     ? getDepartmentStats(filtered)
-    : getSchoolStats(complaints);
+    : getSchoolStats(filtered);
   const maxCount = Math.max(...chartData.map((d) => d.count), 1);
   const chartTitle = isSchoolAdmin
     ? "Complaints by Department"
@@ -214,8 +236,17 @@ function AllComplaints() {
     }
   };
 
-  // Always show the student's real school, never UNIVERSITY_WIDE
+  // Always show student's real school
   const getSchoolLabel = (c) => c.studentSchool || c.school || "N/A";
+
+  const handleApprovalChange = async (id, newValue) => {
+    try {
+      await updateComplaint(id, { hodApproved: newValue });
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update approval status.");
+    }
+  };
 
   return (
     <div className="complaints-page">
@@ -249,22 +280,31 @@ function AllComplaints() {
             <option value="rejected">{t("rejected_cap")}</option>
           </select>
 
-          {/* Super admin: one dropdown that filters by school OR university-wide */}
           {isSuperAdmin && (
             <select
               className="filter-select"
-              value={filters.complaintType}
-              onChange={(e) =>
-                handleFilterChange("complaintType", e.target.value)
-              }
+              value={filters.school}
+              onChange={(e) => handleFilterChange("school", e.target.value)}
             >
               <option value="">All Schools</option>
-              <option value="wide">University Wide</option>
               {allSchools.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.shortName} — {s.name}
+                  {s.name}
                 </option>
               ))}
+            </select>
+          )}
+
+          {isSuperAdmin && (
+            <select
+              className="filter-select"
+              value={filters.category}
+              onChange={(e) => handleFilterChange("category", e.target.value)}
+            >
+              <option value="">All Categories</option>
+              <option value="wide">University Wide</option>
+              <option value="departmental">Departmental</option>
+              <option value="elective">Elective</option>
             </select>
           )}
 
@@ -277,6 +317,21 @@ function AllComplaints() {
             <option value="CA Mark">CA Mark</option>
             <option value="Exam Mark">Exam Mark</option>
           </select>
+
+          {isSchoolAdmin && departmentOptions.length > 0 && (
+            <select
+              className="filter-select"
+              value={filters.department}
+              onChange={(e) => handleFilterChange("department", e.target.value)}
+            >
+              <option value="">All Departments</option>
+              {departmentOptions.map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
       </div>
 
@@ -434,6 +489,7 @@ function AllComplaints() {
               <th>{t("status_label")}</th>
               <th>{t("submitted_label")}</th>
               <th>{t("actions")}</th>
+              {!isSuperAdmin && <th>HOD Approval</th>}
             </tr>
           </thead>
           <tbody>
@@ -465,6 +521,18 @@ function AllComplaints() {
                     <Eye size={14} style={{ marginRight: "4px" }} /> {t("view")}
                   </button>
                 </td>
+                {!isSuperAdmin && (
+                  <td style={{ textAlign: "center" }}>
+                    <input
+                      type="checkbox"
+                      checked={c.hodApproved === true}
+                      onChange={(e) =>
+                        handleApprovalChange(c.id, e.target.checked)
+                      }
+                      disabled={!canApprove}
+                    />
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

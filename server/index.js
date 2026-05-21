@@ -8,7 +8,6 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Point dotenv to the root .env file (one level up from server/)
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const DATA_FILE = path.join(__dirname, "data.json");
@@ -157,21 +156,37 @@ app.get("/api/complaints", async (req, res) => {
     const data = await readData();
     let complaints = data.complaints || [];
 
-    if (!req.user || req.user.role === "admin") {
+    if (!req.user) {
+      return res.json([]);
+    }
+
+    // Super admin sees all
+    if (req.user.role === "admin") {
       return res.json(complaints);
     }
 
-    if (req.user.role === "school_admin") {
+    // School admin filter
+    if (req.user.role === "school_admin" && req.user.school) {
       complaints = complaints.filter((c) => {
+        // Exclude wide complaints
         if (c.complaintType === "wide") return false;
         if (c.school === "UNIVERSITY_WIDE") return false;
         if (c.responsibleSchool === "UNIVERSITY_WIDE") return false;
-        const target = c.responsibleSchool || c.school;
-        return target === req.user.school;
+
+        // For elective complaints, match by student's original school
+        if (c.complaintType === "elective") {
+          const targetSchool = c.studentSchool || c.school;
+          return targetSchool === req.user.school;
+        }
+
+        // For departmental complaints, match by responsibleSchool (or fallback to school)
+        const targetSchool = c.responsibleSchool || c.school;
+        return targetSchool === req.user.school;
       });
       return res.json(complaints);
     }
 
+    // Student sees own complaints
     if (req.user.role === "student") {
       complaints = complaints.filter((c) => c.userId === req.user.matricule);
       return res.json(complaints);
@@ -224,11 +239,10 @@ app.post("/api/complaints", async (req, res) => {
     await writeData(data);
     res.status(201).json(newComplaint);
 
-    // HOD alert at 30 complaints
+    // HOD alert at 30 complaints for departmental/elective only
     const course = newComplaint.courseTitle || newComplaint.course;
     const department = newComplaint.department;
     const school = newComplaint.studentSchool || newComplaint.school;
-
     if (course && department && newComplaint.complaintType !== "wide") {
       const courseComplaints = data.complaints.filter(
         (c) => (c.courseTitle || c.course) === course
@@ -253,8 +267,6 @@ Best regards,
 UBa Complaint Management System`;
           await sendNotificationEmail(hod.email, subject, message);
           console.log(`🔔 HOD alert sent to ${hod.email} for course: ${course}`);
-        } else {
-          console.warn(`⚠️ No HOD found for school: ${school}, department: ${department}`);
         }
       }
     }
@@ -290,7 +302,6 @@ app.put("/api/complaints/:id", async (req, res) => {
     data.complaints[index] = updated;
     await writeData(data);
 
-    // Email student when status changes
     if (updates.status && updates.status !== old.status && old.email) {
       const statusText = updates.status.charAt(0).toUpperCase() + updates.status.slice(1);
       const subject = `UBa Complaint System - Status Update: ${statusText}`;
